@@ -1,9 +1,9 @@
-# SeisMan 博客
+# PzNotes 博客
 
-本项目保存了 [PzNotes博客](https://pzhang.notes) 中的博文源码。
+本项目保存了 [PzNotes博客](https://pzhangnotes.info) 中的博文源码。
 
-- Hexo配置: https://github.com/seisman/seisman.info
-- 主题配置: https://github.com/seisman/hexo-theme-next
+- Hexo配置: https://github.com/whu-pzhang/pzhangnotes.info
+- 主题配置: https://github.com/whu-pzhang/hexo-theme-next
 
 
 ## 将 markdown 转换为 PDF
