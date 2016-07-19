@@ -1,11 +1,13 @@
 ---
 title: 地球物理学家列表
 date: 2015-07-23
-author: Seisman
+author: pzhang
 categories: 地球物理相关资源
 ---
 
 欢迎补充。
+
+## 天然地震
 
 | Name                    | Keywords |
 |:------------------------|:---------|
@@ -54,6 +56,14 @@ categories: 地球物理相关资源
 | [Shijie Zhong]          |          |
 | [Lupei Zhu]             |          |
 
+## 勘探地震
+
+| Name                                                                 | Keywords |
+|:---------------------------------------------------------------------|:---------|
+| [Norman Bleistein](http://www.cwp.mines.edu/~norm/)                  |          |
+| [Paul Sava](http://newton.mines.edu/paul/home.php)                   |          |
+| [Sergey Formel](https://www.jsg.utexas.edu/researcher/sergey_fomel/) |          |
+|                                                                      |          |
 
 [Charles J. Ammon]: http://eqseis.geosc.psu.edu/~cammon/
 [Don L. Anderson]: http://www.mantleplumes.org/DLA.html>

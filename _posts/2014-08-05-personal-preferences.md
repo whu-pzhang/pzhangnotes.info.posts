@@ -25,13 +25,16 @@ C、Fortran、 Perl、Python3、Bash、LaTeX、reStructureText、Markdown
 
 2   [gedit][]           Gnome3下的gedit还是挺好用的
 
-3   [Sublime Text 3][]  免费版会不定期弹出注册提醒
+3   [Atom][]            主要用来写Markdown
 
-4   [Notepad++][]       仅在Windows下使用
+4   [Sublime Text 3][]  免费版会不定期弹出注册提醒
+
+5   [Notepad++][]       仅在Windows下使用
 -----------------------------------------------------------------------------
 
 [gedit]: https://wiki.gnome.org/Apps/Gedit
 [Vim]: http://www.vim.org/
+[Atom]: https://atom.io/
 [Sublime Text 3]: https://www.sublimetext.com/
 [Notepad++]: https://notepad-plus-plus.org/
 
@@ -93,7 +96,7 @@ C、Fortran、 Perl、Python3、Bash、LaTeX、reStructureText、Markdown
 --- ------------------- -----------------------------------------------------
 1   [thefuck][]         自动纠正敲错的命令行
 
-2   [guake][] 
+2   [guake][]
 
 3   [terminator][]        终端分割
 -----------------------------------------------------------------------------

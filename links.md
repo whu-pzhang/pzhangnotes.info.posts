@@ -5,10 +5,14 @@ date: 2014-09-30
 updated: 2016-05-17
 ---
 
-本页面列出一些常用链接。鼠标在链接上悬停可看到更详细的名称。
+本页面列出一些常用链接。包括勘探地震和天然地震。
+鼠标在链接上悬停可看到更详细的名称。
 
 <div class="tag-cloud">
+
 ## 机构/大学
+
+[SEG](http://seg.org/ "Society of Exploration Geophysicists")
 
 [IRIS](http://www.iris.edu/hq/ "Incorporated Research Institutions for Seismology")
 [AGU](http://sites.agu.org/ "American Geophysical Union")
@@ -56,6 +60,17 @@ updated: 2016-05-17
 [中国地震科学探测台站数据中心](http://www.chinarraydmc.org/)
 [国家测震台网数据备份中心](http://www.seisdmc.ac.cn/)
 
+## 研究小组
+
+[CWP](http://www.cwp.mines.edu/ "Center for Wave Phenomena")
+[SEP](http://sep.stanford.edu/doku.php "Stanford Exploration Project")
+[CREWES](http://www.crewes.org/ "Consortium for Research in Elastic Wave Exploration Seismology")
+[TCCS](http://www.beg.utexas.edu/tccs/ "Texas Consortium for Computational Seismology")
+
+[Harvard Seismology](http://seismology.harvard.edu/)
+[Global Seismology Group at Rice University](http://www.gseis.rice.edu/)
+[Berkeley Global Seismology](http://seismo.berkeley.edu/wiki_br/Main_Page)
+
 ## 期刊
 
 [Nature](http://www.nature.com/)
@@ -73,13 +88,13 @@ updated: 2016-05-17
 [Chinese Journal of Geophysics](http://agupubs.onlinelibrary.wiley.com/agu/journal/10.1002/(ISSN)2326-0440/)
 [EPSL](http://www.journals.elsevier.com/earth-and-planetary-science-letters/)
 
-## 研究小组
-
-[Harvard Seismology](http://seismology.harvard.edu/)
-[Global Seismology Group at Rice University](http://www.gseis.rice.edu/)
-[Berkeley Global Seismology](http://seismo.berkeley.edu/wiki_br/Main_Page)
 
 ## 软件库
+
+[SEG software](http://software.seg.org/ "software.seg.org")
+[Madagascar](http://www.ahay.org/ "Open-source software packages for multidimensional data analysis")
+[Seismin Unix](http://www.cwp.mines.edu/cwpcodes/ "Seismin Unix")
+
 
 [IRIS seiscode](https://seiscode.iris.washington.edu/)
 [ORFEUS Seismological Software Library](http://www.orfeus-eu.org/software.html)
