@@ -337,8 +337,18 @@ Python2 与 Python3 之间是不完全兼容的，而我以 Python3 为主，所
 ### 编辑器
 
 1.  vim
+
+安装 [Vundle](https://github.com/VundleVim/Vundle.vim) vim 插件管理器
+
+    $ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+
+然后在 `~/.vimrc` 中设置好需要哪些插件，然后安装插件：
+
+    $ vim +PluginInstall +qall
+
 2.  sublime text 3
-3.  Visual Studio Code
+
+安装见[Linux下安装Sublime Text 3](/install-sublime-text-3-under-linux.html)
 
 ### IDE
 

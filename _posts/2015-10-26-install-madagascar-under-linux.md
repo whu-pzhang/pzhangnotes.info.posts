@@ -30,18 +30,17 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 
 ### 图形和可视化
 
-    $ sudo yum install libXaw-devel gifsicle libtiff-devel libjpeg-devel plplot-devel
-    $ sudo yum install freeglut freeglut-devel netpbm netpbm-devel
-    $ sudo yum install suitesparse suitesparse-devel
+    $ sudo yum install libtiff-devel libjpeg-turbo-devel
+    $ sudo yum install freeglut freeglut-devel  # opengl
     $ sudo yum install gd gd-devel      # PNG support
-    $ sudo yum install cairo cairo-devel
+    $ sudo yum install cairo cairo-devel # cairo support
     
 分别为X11 graphics, vplot2gif, TIFF, JPEG, PLplot, OpenGL和ppm支持
 
 ### 数值依赖包
 
     $ sudo yum install blas blas-devel atlas atlas-devel lapack lapack-devel
-    $ sudo yum install mpich mpich-devel mpicc-devel openmpi openmpi-devel
+    $ sudo yum install mpich mpich-devel
     $ sudo yum install fftw fftw-devel
     
 ### 其他
@@ -52,6 +51,9 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 
 ## 下载安装
 
+
+- 稳定版
+
 [Download the source code distribution from Sourceforge](http://sourceforge.net/projects/rsf/files/)
 
 
@@ -59,7 +61,17 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
     $ cd madagascar-1.7
     $ ./configure --preifx=/home/pzhang/seisCode/rsf API=f90,python,matlab
     $ make
-    $ sudo make install
+    $ make install
+    
+- 最新版
+
+直接从 GitHub 克隆下来：
+
+    $ git clone https://github.com/ahay/src.git RSF_SRC
+    $ cd RSF_SRC
+    $ ./configure --preifx=/home/pzhang/seisCode/rsf API=f90,c++,python,matlab
+    $ make
+    $ make install
 
 ## 添加环境变量
 
@@ -86,13 +98,13 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 ![](/images/2015102600.png)
     
 
-## 存在的问题
+## 待解决的问题
 
-即使安装了blas和lapack，`configure` 时候仍然是NO
+一些相关包安装后，`configure` 时仍然是 NO。列表如下：
 
-    checking for BLAS ... no
-    checking for LAPACK ... no
-    checking for SWIG ... (cached) /usr/bin/swig
+- blas
+- lapack
+- plplot
 
 
 ## 参考
@@ -100,8 +112,11 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 - [Madagascar Installation](http://www.ahay.org/wiki/Installation#Precompiled_binary_packages)
 - [Advanced Installation](http://www.ahay.org/wiki/Advanced_Installation#Platform-specific_installation_advice>)
 
-    
 
+## 修订历史
+
+-   2015-10-26： 初稿
+-   2016-07-19： 更新存在的问题
 
 
 
