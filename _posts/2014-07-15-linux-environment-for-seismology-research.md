@@ -7,7 +7,7 @@ categories: Linux
 tags: [CentOS, Linux, Perl, Python]
 ---
 
-转载于 Seisman [用 CentOS 7 打造合适的科研环境](https://seisman.info/linux-environment-for-seismology-research.html)
+转载于 Seisman [用 CentOS 7 打造合适的科研环境](https://seisman.info/linux-environment-for-seismology-research.html)，本文是按照自己需求有更改。
 
 
 这篇博文记录了我用 CentOS 7 搭建 **地震学科研环境** 的过程，供我个人在未来重装系统时参考。
@@ -350,7 +350,7 @@ Python2 与 Python3 之间是不完全兼容的，而我以 Python3 为主，所
 
 #### LibreOffice
 
-大多数 Linux 发行版都自带 LibreOffice:
+大多数 Linux 发行版（包括CentOS 7）都自带 LibreOffice:
 
     sudo yum install libreoffice
     sudo yum install libreoffice-langpack-zh-Hans
@@ -729,24 +729,7 @@ rpm 包存在 bug，导致无法通过上面的方法安装。
 
 ## 修订历史
 
--   2014-07-15：初稿；
--   2014-09-05：EPEL 已经发布正式版；修改了 epel-release 的下载链接；修订了 import 步骤的错误；
--   2014-09-20：将小小输入法改为搜狗输入法；
--   2014-11-20：使用 zsh；
--   2014-11-24：加入了 VirtualBox 虚拟机；
--   2014-12-01：从 ELRepo 源中安装显卡驱动；
--   2014-12-02：新增 Opera 浏览器和 unrar；
--   2014-12-27：新增 pointdownload 下载工具；google chrome 采用非官方源镜像；
--   2014-12-28：修订 unrar 的 rpm 文件链接；
--   2015-01-03：新增同步网盘 Dropbox 和坚果云；删除 pointdownload；
--   2015-01-05：autojump 直接从 epel 中安装；新增 youtube-dl、you-get 和 2048-cli；
--   2015-01-07：新增 terminator 和 guake；
--   2015-01-27：新增 cpdf；
--   2015-03-03：新增 filezilla 和 transmission；
--   2015-03-26：安装过程中不应使用中文安装界面；
--   2015-05-11：新增 MEGA 同步网盘；
--   2015-05-16：新增 gnome-boxes；
--   2015-06-26：新增 zathura 和 ghostscript；
--   2015-07-14：新增 Nux Dextop 源，uGet、shutter；
--   2015-09-03：删除地球物理相关软件；
--   2015-09-18：删除显卡驱动安装的具体步骤，直接链接到相关博文；
+-   2014-07-15：初稿转自 [Seisman 博客](https://seisman.info)；
+-   2016-06-15：修改Libreoffice部分：添加中文语言包部分
+-   2016-06-16：修改Termintor部分：该包现由 EPEL 提供
+-   
