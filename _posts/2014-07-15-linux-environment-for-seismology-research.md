@@ -353,6 +353,7 @@ Python2 与 Python3 之间是不完全兼容的，而我以 Python3 为主，所
 大多数 Linux 发行版都自带 LibreOffice:
 
     sudo yum install libreoffice
+    sudo yum install libreoffice-langpack-zh-Hans
 
 LibreOffice 与 Microsoft Office 的兼容性不太好，操作界面与 MS Office 也有较大差异，让人不太习惯。
 
