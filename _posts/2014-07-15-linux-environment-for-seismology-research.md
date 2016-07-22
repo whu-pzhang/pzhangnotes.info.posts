@@ -345,6 +345,13 @@ Python2 与 Python3 之间是不完全兼容的，而我以 Python3 为主，所
 然后在 `~/.vimrc` 中设置好需要哪些插件，然后安装插件：
 
     $ vim +PluginInstall +qall
+    
+`YouCompleteMe` 插件需要自行编译才能使用，先安装 `clang` 和 `clang-analyzer`：
+
+    $ cd ~/vim/bundle/YouCompleteMe
+    $ ./install --clang-completer
+    
+安装好后还需配置 `ycm_extra_conf.py` 这个文件。
 
 2.  sublime text 3
 
@@ -596,18 +603,6 @@ VirtuabBox 的安装:
 -   更新 kernel 之后需要执行 `sudo /etc/init.d/vboxdrv setup` ；
 -   在 VirtualBox 安装虚拟系统后，记得使用 “设备”->“安装增强功能”，使用效果会更好；
 
-### gnome-boxes
-
-gnome-boxes 是 GNOME3 开发的一个虚拟机工具，使用体验不如 VirtualBox:
-
-    sudo yum install gnome-boxes
-
-### Wine
-
-Wine 是一个可以让 Windows 程序运行在 Linux 下的软件。类似虚拟机，但跟虚拟机又不太一样:
-
-    sudo yum install wine
-
 ## 同步网盘
 
 网盘根据功能大概可以分为两类：同步网盘和备份网盘。既然是同步网盘，Linux 下
@@ -742,4 +737,4 @@ rpm 包存在 bug，导致无法通过上面的方法安装。
 -   2014-07-15：初稿转自 [Seisman 博客](https://seisman.info)；
 -   2016-06-15：修改Libreoffice部分：添加中文语言包部分
 -   2016-06-16：修改Termintor部分：该包现由 EPEL 提供
--   
+-   2016-07-20：添加了vim插件管理部分
