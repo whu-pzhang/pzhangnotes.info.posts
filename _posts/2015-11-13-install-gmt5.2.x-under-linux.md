@@ -1,9 +1,9 @@
 ---
 title: GMT 5.2.1 在 Linux 下的安装
 date: 2015-11-13
-author: SeisMan
+author: pzhang
 categories: GMT
-tags: [安装]
+tags: [安装, Linux]
 ---
 
 转载于 Seisman [GMT 5.2.1 在 Linux 下的安装](https://seisman.info/install-gmt5.2.x-under-linux.html)
@@ -45,7 +45,7 @@ GMT 5.2.1 的源码包中，没有自带官方的 PDF 文档，需要额外下�
     12c6604d779ddd1727e96433da20e147  gshhg-gmt-2.3.5.tar.gz
     45c99d30026742dbc0b1644ea64f496d  dcw-gmt-1.1.2.tar.gz
 
-## 解决依赖关系
+## 依赖关系
 
 ### 基础依赖包
 
