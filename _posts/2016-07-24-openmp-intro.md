@@ -1,5 +1,5 @@
 ---
-title: OpenMP 入门
+title: OpenMP 之 Hello World
 date: 2016-07-24 20:44:13
 author: pzhang
 categories: Programming
@@ -94,6 +94,8 @@ void Hello(void)
 #include <omp.h>
 #endif
 ```
+但在后续的例子，我均不进行这种检查。
+
 
 ## 变量作用域
 
@@ -102,65 +104,3 @@ void Hello(void)
 
 在Hello World程序中，被每个线程使用的变量 `my_rank` 在每个线程的栈（私有）中分配，因此其拥有私有作用域。
 总之，在 `parallel` 前面已经声明的的变量，拥有共享作用域。在块中声明的变量拥有私有作用域。
-
-## 临界区
-
-### 累加求和
-
-我们现在要求 1+2+3+…+10000 的和，串行代码很好实现：
-``` C
-int n = 10000;
-long sum = 0;
-for (int i=1; i<=n; i++)
-    sum += i;
-```
-并行实现的话，我们可以将1到10000按照线程数分为几个部分，分别求得各个部分的和，最后再
-累加起来得到最终的结果。
-
-``` C
-#include <stdio.h>
-#include <stdlib.h>
-#include <omp.h>
-
-#define N 100000
-
-long local_sum(int start, int end);
-
-int main(int argc, char *argv[])
-{
-    long global_sum = 0;
-    // 从命令行获取线程数
-    int thread_count = strtol(argv[1], NULL, 10);
-    
-    #pragma omp parallel num_thread(thread_count)
-    {
-        long my_result;
-        my_result = local_sum(1, N);
-        global_sum += my_result;
-    }
-    
-}
-
-long local_sum(int start, int end)
-{
-    int local_a, local_b, chunksz;
-    long my_result = 0;
-    int my_rank = omp_get_thread_num();
-    int nthread = omp_get_num_threads();
-    
-    chunksz = (end-start+1)/nthread;
-    local_a = start + my_rank*chunksz;
-    local_b = local_a + chunksz;
-    for (int i=local_a; i<local_b; i++) {
-        my_result += i;
-    }
-    return my_result;
-}
-
-```
-
-**现在好像不存在临界区的问题了，即使对全局变量累加求和，也不会出现错误**
-
-## 归约子句
-
-
