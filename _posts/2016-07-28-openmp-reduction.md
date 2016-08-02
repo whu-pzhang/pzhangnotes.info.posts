@@ -1,7 +1,7 @@
 ---
-title: OpenMP 之 parallel for
+title: OpenMP 之 parallel reduction
 author: pzhang
-date: 2016-07-28 20:09:00
+date: 2016-08-01 20:09:00
 categories: Programming
 tags: [OpenMP, Linux]
 ---
@@ -48,9 +48,33 @@ int main()
 
 编译运行：
 
-    $ gcc -Wall -std=c99 -o pi pi
+    $ gcc -Wall -std=c99 -o pi pi.c
     $ ./pi
     It taken 3.530 sec
     The approxmate value of pi is 3.14159265
 
 现在加上 `parallel for` 指令将其并行化:
+
+``` C
+#include <stdio.h>
+#include <time.h>
+#include <omp.h>
+#define N 1000000000
+int main()
+{
+    double factor;
+    double pi_approx = 0.0;
+
+    clock_t t1 = clock();
+#pragma omp parallel for
+    for (int i=0; i<N; i++) {
+        factor = (i%2==0) ? 1.0 : -1.0;
+        pi_approx += 4.0*factor/(2*i+1);
+    }
+    clock_t t2 = clock();
+    double duration = (double)(t2-t1)/CLOCKS_PER_SEC;
+    printf("It taken %.3f sec\n", duration);
+    printf("The approxmate value of pi is %.8f\n", pi_approx);
+    return 0;
+}
+```
