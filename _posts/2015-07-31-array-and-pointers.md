@@ -73,7 +73,7 @@ int sum_arr(const int a[], int n) {
 }
 ```
 
-编译: `gcc test.c -std=c99 -Wall`
+编译: `gcc -Wall -std=c99 test.c`
 
 输出如下：
 
