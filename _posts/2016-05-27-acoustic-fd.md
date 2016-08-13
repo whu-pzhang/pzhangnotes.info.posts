@@ -153,23 +153,28 @@ $$
 分别把位移对时间和空间x及z方向做了离散化之后，我们就可以得到Laplacian算符的差分形式：
 
 $$
-\Delta{U} = \frac{\partial^2 U}{\partial x^2} + \frac{\partial^2 U}{\partial z^2} \\\
-          = -\frac{1}{12 (\Delta{x})^2} \big( U_{m+2,n}^j + U_{m-2,n}^j \big) +
+\begin{aligned}
+\Delta{U} =& \frac{\partial^2 U}{\partial x^2} + \frac{\partial^2 U}{\partial z^2} \\\
+          =& -\frac{1}{12 (\Delta{x})^2} \big( U_{m+2,n}^j + U_{m-2,n}^j \big) +
              \frac{16}{12 (\Delta{x})^2} \big( U_{m+1,n}^j + U_{m-1,n}^j \big) -
-             \frac{30}{12 (\Delta{x})^2} \big( U_{m,n}^j \big) \\ 
-            -\frac{1}{12 (\Delta{z})^2} \big( U_{m,n+2}^j + U_{m,n-2}^j \big) +
+             \frac{30}{12 (\Delta{x})^2} \big( U_{m,n}^j \big) \\\ 
+            &-\frac{1}{12 (\Delta{z})^2} \big( U_{m,n+2}^j + U_{m,n-2}^j \big) +
              \frac{16}{12 (\Delta{z}2)^2} \big( U_{m,n+1}^j + U_{m,n-1}^j \big) -
              \frac{30}{12 (\Delta{z})^2} \big( U_{m,n}^j \big)
+\end{aligned}
 $$
+
 
 整理一下：
 
 $$
-\Delta{U} =& -\frac{30}{12} * U_{m,n}^j * \big( \frac{1}{(\Delta{x})^2} + \frac{1}{(\Delta{x})^2} \big)\\
-           & +\frac{16}{12} * \big( U_{m+1,n}^j + U_{m-1,n}^j \big) * \frac{1}{(\Delta{x})^2} \\
-           & -\frac{1}{12} * \big( U_{m+2,n}^j + U_{m-2,n}^j \big) * \frac{1}{(\Delta{x})^2} \\
-           & +\frac{16}{12} * \big( U_{m,n+1}^j + U_{m,n-1}^j \big) * \frac{1}{(\Delta{z})^2} \\
-           & -\frac{1}{12} * \big( U_{m,n+2}^j + U_{m,n-2}^j \big) * \frac{1}{(\Delta{z})^2} \\
+\begin{aligned}
+\Delta{U} =& -\frac{30}{12} * U_{m,n}^j * \big( \frac{1}{(\Delta{x})^2} + \frac{1}{(\Delta{z})^2} \big) \\\
+           & +\frac{16}{12} * \big( U_{m+1,n}^j + U_{m-1,n}^j \big) * \frac{1}{(\Delta{x})^2} \\\
+           & -\frac{1}{12} * \big( U_{m+2,n}^j + U_{m-2,n}^j \big) * \frac{1}{(\Delta{x})^2} \\\
+           & +\frac{16}{12} * \big( U_{m,n+1}^j + U_{m,n-1}^j \big) * \frac{1}{(\Delta{z})^2} \\\
+           & -\frac{1}{12} * \big( U_{m,n+2}^j + U_{m,n-2}^j \big) * \frac{1}{(\Delta{z})^2}
+\end{aligned}
 $$
 
 其中$j$为时间上网格，$m$和$n$分别为x方向和z方向上的网格。
