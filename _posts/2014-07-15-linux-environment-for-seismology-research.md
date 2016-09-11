@@ -345,12 +345,12 @@ Python2 与 Python3 之间是不完全兼容的，而我以 Python3 为主，所
 然后在 `~/.vimrc` 中设置好需要哪些插件，然后安装插件：
 
     $ vim +PluginInstall +qall
-    
+
 `YouCompleteMe` 插件需要自行编译才能使用，先安装 `clang` 和 `clang-analyzer`：
 
     $ cd ~/vim/bundle/YouCompleteMe
     $ ./install --clang-completer
-    
+
 安装好后还需配置 `ycm_extra_conf.py` 这个文件。
 
 2.  sublime text 3
@@ -559,9 +559,13 @@ chsh 命令修改的是 login shell，因而需要退出当前用户并重新登
 
 ### 中文输入法
 
-刚安装的系统可能是没有中文输入法的，源中带的中文输入法应该是 ibus，使用效果一般。fcitx 是更好的选择，基于 fcitx 框架的搜狗输入法或许是更好的选择。
+刚安装的系统可能是没有中文输入法的，源中带的中文输入法应该是 ibus，使用效果一般。
 
-参考 [CentOS7 安装 fcitx 中文输入法](/fcitx-for-centos-7.html)。
+    sudo yum install "@Chinese Support"
+    sudo yum install ibus ibus-libpinyin
+    sudo yum install libpinyin
+
+然后在区域键盘中选择汉语拼音。
 
 ### HostTool
 
