@@ -17,15 +17,15 @@ Sublime Text 3作为一款跨平台的编辑器，支持多种插件，语法高
 
 我下载的是64位的 `tarball for other Linux distributions` 版本。
 
-- 下载完成解压到指定目录下
+下载完成解压到指定目录下
 
     $ sudo tar jxvf sublime_text_3_build_3083_x64.tar.bz2 -C /opt/
 
-- 然后建立软连接到 `/usr/bin/` 目录下以便可以在终端启动
+然后建立软连接到 `/usr/bin/` 目录下以便可以在终端启动
 
     $ sudo ln -s /opt/sublime_text_3/sublime_text /usr/bin/sublime
 
-- 加入应用程序列表
+加入应用程序列表
 
     $ sudo cp /opt/sublime_text_3/sublime_text.desktop /usr/share/applications/
 
@@ -103,7 +103,7 @@ import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc5
   - 进入 Installed Packages 文件夹
   - 下载 [Package Control.sublime-package](https://packagecontrol.io/Package%20Control.sublime-package) 至该文件夹
   - 重启 Sublime Text 3
-  
+
 ### 使用
 
 组合键 `Ctrl+Shift+P` 打开包管理器，输入 `PCI` 即可搜索安装插件包
@@ -120,4 +120,3 @@ import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc5
 1. [Sublime Text 3 Documentation](http://www.sublimetext.com/docs/3/)
 2. [Sublime Text Unofficial Documentation](http://docs.sublimetext.info/en/latest/index.html)
 3. [Package Control](https://packagecontrol.io/installation)
-

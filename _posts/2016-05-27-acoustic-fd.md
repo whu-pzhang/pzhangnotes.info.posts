@@ -1,6 +1,7 @@
 ---
 title: 时间域声波二维差分
 date: 2016-05-27 11:12:54
+modified: 2016-09-17
 categories: 地震学基础
 tags: 有限差分
 ---
@@ -10,7 +11,16 @@ tags: 有限差分
 的模型中 提供波场传播相对精确的“完全”解，与此同时，其计算效率也相对较高，并且比较
 容易并行化。
 
-本文介绍基础二维声波的有限差分格式。
+本文介绍声波波动方程的有限差分格式。
+
+<!--more-->
+
+## 一维波动方程
+
+一维标量波动方程：
+$$ \frac{\partial^2 U}{\partial x^2} - \frac{1}{v^2} \frac{\partial^2 U}{\partial x^2} = f(t)$$
+
+
 
 ## 二维声波方程
 
@@ -28,7 +38,6 @@ $$  | \Delta U - f(t) | v^2 = \frac{\partial^2 U}{\partial t^2} $$
 为了在计算机上实现，我们需要将该式子在时间和空间上离散化。具体实现就是利用Taylor级数
 展开。本文只考虑时间二阶空间四阶的差分方程。
 
-<!--more-->
 
 ### 时间上的离散
 
@@ -45,7 +54,7 @@ $$
 从中解出$\partial{U}/ \partial{t}$得到：
 
 $$
-\frac{\partial U}{\partial t} = \frac{1}{\Delta t} \big( U_{i+1} - U_i \big) - 
+\frac{\partial U}{\partial t} = \frac{1}{\Delta t} \big( U_{i+1} - U_i \big) -
 \frac{1}{2} \frac{\partial^2 U}{\partial^2 t} \Delta{t} -
 \frac{1}{6} \frac{\partial^3 U}{\partial^3 t} (\Delta{t})^2 - ...
 $$
@@ -67,7 +76,7 @@ $$
 同样解出$\partial{U}/ \partial{t}$得到：
 
 $$
-\frac{\partial U}{\partial t} = \frac{1}{\Delta t} \big( U_{i} - U_{i-1} \big) + 
+\frac{\partial U}{\partial t} = \frac{1}{\Delta t} \big( U_{i} - U_{i-1} \big) +
 \frac{1}{2} \frac{\partial^2 U}{\partial^2 t} \Delta{t} -
 \frac{1}{6} \frac{\partial^3 U}{\partial^3 t} (\Delta{t})^2 - ...
 $$
@@ -93,7 +102,7 @@ $$
 
 有了这个式子，我们就可以将开始的波动方程在时间上离散化，将其表示而二阶时间精度的差分形式：
 
-$$ U_{i+1} = \big[ \Delta{U} - f(t) \big] v^2 (\Delta{t})^2 - 2U_{i} - U_{i-1} $$
+$$ U_{i+1} = \big[ \Delta{U} - f(t) \big] v^2 (\Delta{t})^2 + 2U_{i} - U_{i-1} $$
 
 
 ### 空间上的离散
@@ -105,7 +114,7 @@ $$ U_{i+1} = \big[ \Delta{U} - f(t) \big] v^2 (\Delta{t})^2 - 2U_{i} - U_{i-1} $
 $$
 U_{i+1} = U_i + \frac{\partial U}{\partial x} \Delta{x} +
 \frac{1}{2} \frac{\partial^2 U}{\partial x^2} (\Delta{x})^2 +
-\frac{1}{6} \frac{\partial^3 U}{\partial x^3} (\Delta{x})^3 + 
+\frac{1}{6} \frac{\partial^3 U}{\partial x^3} (\Delta{x})^3 +
 \frac{1}{24} \frac{\partial^4 U}{\partial x^4} (\Delta{x})^4 +
 \frac{1}{120} \frac{\partial^5 U}{\partial^5 x} (\Delta{x})^5 + {higher\ order\ terms}
 $$
@@ -113,7 +122,7 @@ $$
 $$
 U_{i-1} = U_i - \frac{\partial U}{\partial x} \Delta{x} +
 \frac{1}{2} \frac{\partial^2 U}{\partial x^2} (\Delta{x})^2 -
-\frac{1}{6} \frac{\partial^3 U}{\partial x^3} (\Delta{x})^3 + 
+\frac{1}{6} \frac{\partial^3 U}{\partial x^3} (\Delta{x})^3 +
 \frac{1}{24} \frac{\partial^4 U}{\partial x^4} (\Delta{x})^4 -
 \frac{1}{120} \frac{\partial^5 U}{\partial^5 x} (\Delta{x})^5 + {higher\ order\ terms} \\
 $$
@@ -121,7 +130,7 @@ $$
 $$
 U_{i+2} = U_{i} + \frac{\partial U}{\partial x} (2\Delta{x}) +
 \frac{1}{2} \frac{\partial^2 U}{\partial x^2} (2\Delta{x})^2 +
-\frac{1}{6} \frac{\partial^3 U}{\partial x^3} (2\Delta{x})^3 + 
+\frac{1}{6} \frac{\partial^3 U}{\partial x^3} (2\Delta{x})^3 +
 \frac{1}{24} \frac{\partial^4 U}{\partial x^4} (2\Delta{x})^4 +
 \frac{1}{120} \frac{\partial^5 U}{\partial x^5} (2\Delta{x})^5 + {higher\ order\ terms} \\
 $$
@@ -129,7 +138,7 @@ $$
 $$
 U_{i-2} = U_{i} - \frac{\partial U}{\partial x} (2\Delta{x}) +
 \frac{1}{2} \frac{\partial^2 U}{\partial x^2} (2\Delta{x})^2 -
-\frac{1}{6} \frac{\partial^3 U}{\partial x^3} (2\Delta{x})^3 + 
+\frac{1}{6} \frac{\partial^3 U}{\partial x^3} (2\Delta{x})^3 +
 \frac{1}{24} \frac{\partial^4 U}{\partial x^4} (2\Delta{x})^4 -
 \frac{1}{120} \frac{\partial^5 U}{\partial x^5} (2\Delta{x})^5 + {higher\ order\ terms}
 $$
@@ -157,7 +166,7 @@ $$
 \Delta{U} =& \frac{\partial^2 U}{\partial x^2} + \frac{\partial^2 U}{\partial z^2} \\\
           =& -\frac{1}{12 (\Delta{x})^2} \big( U_{m+2,n}^j + U_{m-2,n}^j \big) +
              \frac{16}{12 (\Delta{x})^2} \big( U_{m+1,n}^j + U_{m-1,n}^j \big) -
-             \frac{30}{12 (\Delta{x})^2} \big( U_{m,n}^j \big) \\\ 
+             \frac{30}{12 (\Delta{x})^2} \big( U_{m,n}^j \big) \\\
             &-\frac{1}{12 (\Delta{z})^2} \big( U_{m,n+2}^j + U_{m,n-2}^j \big) +
              \frac{16}{12 (\Delta{z}2)^2} \big( U_{m,n+1}^j + U_{m,n-1}^j \big) -
              \frac{30}{12 (\Delta{z})^2} \big( U_{m,n}^j \big)
@@ -182,6 +191,5 @@ $$
 方程有限差分格式如下：
 
 $$
-    U_{m,n}^{j+1} = 
+    U_{m,n}^{j+1} =
 $$
-
