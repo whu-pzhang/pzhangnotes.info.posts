@@ -199,6 +199,7 @@ ELRepo 包含了一些硬件相关的驱动程序，比如显卡、声卡驱动:
 ### 软件开发辅助工具
 
     sudo yum install make
+    sudo yum install scons
     sudo yum install gdb     # 代码调试器
     sudo yum install cmake   # Cmake
     sudo yum install git     # 版本控制
@@ -537,7 +538,13 @@ chsh 命令修改的是 login shell，因而需要退出当前用户并重新登
 
 ### autojump
 
-[autojump](https://github.com/joelthelion/autojump) 是一个非常智能的目录快速切换的工具。简单演示如下:
+[autojump](https://github.com/joelthelion/autojump) 是一个非常智能的目录快速切换的工具。
+
+安装
+
+    $ sudo yum install -y autojump autojump-zsh
+
+简单演示如下:
 
     $ pwd
     /home/seisman
@@ -549,13 +556,11 @@ chsh 命令修改的是 login shell，因而需要退出当前用户并重新登
     $ j des
     $ pwd
     /home/seisman/Desktop
+    # jo 可以直接用文件管理器打开文件夹而不是在终端跳转
+    $ jo dek
 
 用法差不多就这样，具体看项目主页。
 
-安装:
-
-    sudo yum install autojump
-    sudo yum install autojump-zsh
 
 ### 中文输入法
 
