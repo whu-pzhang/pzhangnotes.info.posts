@@ -26,7 +26,7 @@ $$ \frac{\partial^2 U}{\partial x^2} - \frac{1}{v^2} \frac{\partial^2 U}{\partia
 
 二维声波方程表示如下：
 
-$$ \Delta U - \frac{1}{v^2} \frac{\partial^2 U}{\partial^2 t} = f(t) $$
+$$ \Delta U - \frac{1}{v^2} \frac{\partial U^2}{\partial^2 t} = f(t) $$
 
 变换一下写为：
 
@@ -193,3 +193,131 @@ $$
 $$
     U_{m,n}^{j+1} =
 $$
+
+## 示例代码
+
+### MATLAB
+
+### Madagscar
+
+``` c
+/* time-domain acoustic FD modeling */
+#include <rsf.h>
+
+int main(int argc, char* argv[])
+{
+    /* Laplacian coefficients */
+    float       c11,c12,c21,c22,c0,tmp;
+    bool        verb;           /* verbose flag */
+    sf_file     Fw, Fv; /* I/O files */
+    sf_axis     az,ax;    /* cube axes */
+    int         it,iz,ix;        /* index variables */
+    int         nt,nz,nx;
+    int         sx, sz; // source position
+    float       dt,dz,dx;
+    float       fm;
+    int         jt, ft;
+    float       *wlt, **vv;     /* I/O arrays*/
+    float       **u0, **u1, **ptr;/* tmp arrays */
+
+    sf_init(argc, argv);
+    if(! sf_getbool("verb",&verb)) verb=0;
+
+    /* setup I/O files */
+    Fv = sf_input ("in" );  // velocity model
+    Fw = sf_output("out");  // wavefield snaps
+
+    if (!sf_getint("nt", &nt)) sf_error("nt required");
+    if (!sf_getfloat("dt", &dt)) sf_error("dt required");
+    if (!sf_getint("ft", &ft)) ft=0;    // first recorded time
+    if (!sf_getint("jt", &jt)) jt=1; // time interval
+    if (!sf_getfloat("fm",&fm)) fm=20.0;
+
+    /* Read/Write axes */
+    az = sf_iaxa(Fv, 1);
+    ax = sf_iaxa(Fv, 2);
+    nz = sf_n(az);
+    dz = sf_d(az);
+    nx = sf_n(ax);
+    dx = sf_d(ax);
+
+    sf_oaxa(Fw, az, 1);
+    sf_oaxa(Fw, ax, 2);
+    sf_putint(Fw, "n3", (nt-ft)/jt);
+    sf_putfloat(Fw, "d3", jt*dt);
+    sf_putfloat(Fw, "o3", ft*dt);
+
+    // source cooridnrate
+    sx = nx/2;
+    sz = nz/2;
+
+    /* initialize 4-th order fd coefficients */
+    tmp = 1.0/(dz*dz);
+    c11 = 4.0*tmp/3.0;
+    c12 = -tmp/12.0;
+    tmp = 1.0/(dx*dx);
+    c21 = 4.0*tmp/3.0;
+    c22 = -tmp/12.0;
+    c0 = -2.0*(c11+c12+c21+c22);
+
+    wlt = sf_floatalloc(nt); // source wavelet
+    vv = sf_floatalloc2(nz, nx);
+    sf_floatread(vv[0], nz*nx, Fv);
+
+    for (it=0; it<nt; it++) {
+        tmp = SF_PI*fm*(it*dt-1.0/fm);
+        tmp *= tmp;
+        wlt[it] = (1.0-2.0*tmp)*expf(-tmp);
+    }
+
+    for(ix=0;ix<nx;ix++){
+	    for(iz=0;iz<nz;iz++){
+		    tmp=vv[ix][iz]*dt;
+		    vv[ix][iz]=tmp*tmp;
+	    }
+	}
+
+    /* allocate temporary arrays */
+    u0 = sf_floatalloc2(nz, nx);
+    u1 = sf_floatalloc2(nz, nx);
+
+    for (iz=0; iz<nz; iz++) {
+        for (ix=0; ix<nx; ix++) {
+            u0[ix][iz]=0;
+            u1[ix][iz]=0;
+        }
+    }
+
+    /* MAIN LOOP */
+    for (it=0; it<nt; it++) {
+        if(verb) fprintf(stderr,"\b\b\b\b\b%d",it);
+
+        if (it>=ft && (it-ft)%jt == 0) {
+            sf_floatwrite(u0[0], nz*nx, Fw);
+        }
+
+        u1[sx][sz] += wlt[it];  // add source
+
+        /* 4th order laplacian */
+        for (ix=2; ix<nx-2; ix++) {
+            for (iz=2; iz<nx-2; iz++) {
+                tmp =
+                    c0*u1[ix][iz] +
+                    c11*(u1[ix][iz-1] + u1[ix][iz+1]) +
+                    c12*(u1[ix][iz-2] + u1[ix][iz+2]) +
+                    c21*(u1[ix-1][iz] + u1[ix+1][iz]) +
+                    c22*(u1[ix-2][iz] + u1[ix+2][iz]);
+
+                u0[ix][iz] = 2*u1[ix][iz] - u0[ix][iz] + vv[ix][iz]*tmp;
+            }
+        }
+
+        ptr=u0;
+        u0=u1;
+        u1=ptr;
+
+    }
+    if(verb) fprintf(stderr,"\n");
+    exit (0);
+}
+```
