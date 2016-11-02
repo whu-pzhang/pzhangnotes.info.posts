@@ -14,9 +14,10 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 
 ## 依赖
 
-需要添加 `epel` 源
+需要添加 [EPEL](https://fedoraproject.org/wiki/EPEL) 源 和 [Nux Dextop](http://li.nux.ro/repos.html) 源支持。
 
     $ sudo yum install -y epel-release
+    $ sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
 
 ### 基础依赖包
 
@@ -36,10 +37,11 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 
     $ sudo yum install libtiff-devel libjpeg-turbo-devel
     $ sudo yum install freeglut freeglut-devel  # opengl
-    $ sudo yum install gd gd-devel      # PNG support
+    $ sudo yum install netpbm netpbm-devel      # ppm support
+    $ sudo yum install gd gd-devel              # PNG support
     $ sudo yum install plplot plplot-devel      # plplot support
-    $ sudo yum install ffmpeg ffmpeg-devel
-    $ sudo yum install cairo cairo-devel # cairo support
+    $ sudo yum install ffmpeg ffmpeg-devel      # need nux-dextop support
+    $ sudo yum install cairo cairo-devel        # cairo support
 
 分别为X11 graphics, vplot2gif, TIFF, JPEG, PLplot, OpenGL和ppm支持
 
@@ -47,6 +49,7 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 
     $ sudo yum install blas blas-devel atlas atlas-devel lapack lapack-devel
     $ sudo yum install fftw fftw-devel
+    $ sudo yum install suitesparse suitesparse-devel    # 稀疏矩阵库
 
 `mpi`环境的安装可以参看 [CentOS7安装及配置](linux-environment-for-seismology-research.html) 中的并行计算部分
 
@@ -56,8 +59,18 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 - CurveLab, PyCurveLab
 -
 
-## 下载安装
+## 安装
 
+### 添加环境变量
+
+将以下语句加入 `~/.bashrc` 或 `~/.zshrc` 中
+
+``` bash
+export RSFROOT=/opt/rsf # 安装位置
+source ${RSFROOT}/share/madagascar/etc/env.sh
+```
+
+### 编译安装
 
 - 稳定版
 
@@ -66,9 +79,9 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 
     $ tar jxvf madagascar-1.7.tar.bz2
     $ cd madagascar-1.7
-    $ ./configure --preifx=/home/pzhang/seisCode/rsf API=f90,python,matlab
+    $ ./configure --preifx=/opt/rsf API=f90,python,matlab
     $ make
-    $ make install
+    $ sudo make install
 
 - 最新版
 
@@ -76,14 +89,10 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 
     $ git clone https://github.com/ahay/src.git RSF_SRC
     $ cd RSF_SRC
-    $ ./configure --preifx=/home/pzhang/src.import/rsf API=f90,c++,python,matlab
+    $ ./configure --preifx=/opt/rsf API=f90,c++,python,matlab
     $ make
-    $ make install
+    $ sudo make install
 
-## 添加环境变量
-
-    $ echo "source /home/pzhang/src.import/rsf/share/madagascar/etc/env.sh" >> ~/.bashrc
-    $ source ~/.bashrc
 
 ## 卸载
 
@@ -145,6 +154,7 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
     $ sudo ln -s /usr/lib64/libltdl.so.7 /usr/lib64/libltdl.so
 
 
+**PS: 类似其他的`checking NO` 的问题，都可以在`config.log`中找到原因！**
 
 ## 参考
 
