@@ -23,7 +23,7 @@ Madagascar 是与Seismic_Unix 以及 SEPlib 差不多的一套东西。
 
     $ sudo yum install gcc libXaw-devel python
 
-值的注意的是，Madagascar只支持Python2
+值的注意的是，Madagascar只支持`Python2`
 
 ### 核心及开发依赖
 
@@ -114,29 +114,53 @@ source ${RSFROOT}/share/madagascar/etc/env.sh
 ![](/images/2015102600.png)
 
 
-## 出现的问题
+## 出现的问题及解决方案
 
-### blas
+### BLAS
 
 即使安装了`blas blas-devel lapack lapack-devel`，在`./configure`时还有如下提示：
 
     checking for BLAS ... no
     checking for LAPACK ... no
 
-查看 `config.log` 后发现其利用的是 `cblas`，而在CentOS7中`cblas`为 `atlas` 包的一部分，
-这样在调用`cblas`中的函数时，默认情况下在编译时需加上`-I/usr/include`来包含`cblas.h`，
-链接时，则需加上`-L/usr/lib64/atlas -lsatlas`或者`-L/usr/lib64/atlas -ltatlas`。
-其中,`s`表示`single`;`t`表示`multi-threaded`。
+查看 `config.log` 后发现其利用的是 `cblas`，而在CentOS7中`cblas`为 `atlas` 包的
+一部分，这样在调用`cblas`中的函数时，默认情况下在编译时需加上`-I/usr/include`来
+包含`cblas.h`，链接时，则需加上`-L/usr/lib64/atlas -lsatlas`或
+者`-L/usr/lib64/atlas -ltatlas`。其中,`s`表示`single`;`t`表示`multi-threaded`。
 
-有了如上信息，我们可以有如下解决方案：
+有了如上信息，我们可以有如下两种解决方案：
+
+#### 自己创建一个cblas库文件
+
+这种方法是在不修改Madagascar源文件的前提下进行的。
 
 第一步，将`satlas`或`tatlas`库软链接成`cblas`库：
 
     $ sudo ln -s /usr/lib64/atlas/libsatlas.so /usr/lib64/libcblas.so
 
-第二步，`./configure`时侯，加上`BLAS=cblas`即可检测到`BLAS`和`LAPACK`了
+第二步，`./configure`时侯，加上`BLAS=cblas`
 
     $ ./configure --preifx=/home/pzhang/src.import/rsf API=f90,c++,python,matlab BLAS=cblas
+
+#### 修改`framework/configure.py`
+
+打开`framework/configure.py`文件，找到`check_all(context)`函数，可以发现其调
+用`blas(context)`来对`BLAS`库进行检查，再定位到`blas(context)`函数，修改以下
+语句：
+
+``` python
+LIBS.append('f77blas')
+LIBS.append('cblas')
+LIBS.append('atlas')
+```
+为：
+``` python
+#LIBS.append('f77blas') # 因为CentOS7系统上blas库都集成到atlas中了
+#LIBS.append('cblas')
+LIBS.append('satlas')
+```
+
+上面两种方法任取一种即可！
 
 ### plplot
 
@@ -148,8 +172,8 @@ source ${RSFROOT}/share/madagascar/etc/env.sh
     libltdl.so.7
     libltdl.so.7.3.0
 
-也就是说，没有名为`libltdl.so` 的动态库文件，要解决的话也很简单，找不到库文件我们自己
-造一个：
+也就是说，没有名为`libltdl.so` 的动态库文件，要解决的话也很简单，找不到库文件我
+们自己造一个：
 
     $ sudo ln -s /usr/lib64/libltdl.so.7 /usr/lib64/libltdl.so
 
@@ -166,4 +190,5 @@ source ${RSFROOT}/share/madagascar/etc/env.sh
 
 -   2015-10-26： 初稿
 -   2016-07-19： 更新存在的问题
--   2016-10=07： 更新问题的解决方案
+-   2016-10-07： 更新问题的解决方案
+-   2016-11-10： 添加BLAS库找不到的另一种解决方案
