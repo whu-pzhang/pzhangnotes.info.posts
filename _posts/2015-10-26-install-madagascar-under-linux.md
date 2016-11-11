@@ -149,15 +149,22 @@ source ${RSFROOT}/share/madagascar/etc/env.sh
 语句：
 
 ``` python
+# Line 1014
 LIBS.append('f77blas')
 LIBS.append('cblas')
 LIBS.append('atlas')
+
+# Line 1066
+mylibs = ['f77blas','cblas','atlas']
 ```
 为：
 ``` python
 #LIBS.append('f77blas') # 因为CentOS7系统上blas库都集成到atlas中了
 #LIBS.append('cblas')
 LIBS.append('satlas')
+
+#mylibs = ['f77blas','cblas','atlas']
+mylibs = ['satlas']
 ```
 
 上面两种方法任取一种即可！
