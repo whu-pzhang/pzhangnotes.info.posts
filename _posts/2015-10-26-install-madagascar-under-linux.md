@@ -3,7 +3,7 @@ title: Linux下安装Madagascar
 author: pzhang
 date: 2015-10-26
 category: Exploration Seismology
-tags: [Linux, 安装]
+tags: [Linux, Madagascar, 安装]
 ---
 
 
@@ -187,10 +187,49 @@ mylibs = ['satlas']
 
 **PS: 类似其他的`checking NO` 的问题，都可以在`config.log`中找到原因！**
 
+## 其他可能出现的问题
+
+在研究所里的曙光超算(`CentOS5.5 Final, gcc-4.1.2, scons-2.3.1,python2.4`)上
+安装时出现的问题。
+
+在该环境下，直接`./configure`时，会报如下错误：
+```
+checking for C compiler ... (cached) gcc
+checking if gcc works ... (cached) no
+
+  Fatal missing dependency
+------------------------
+```
+
+Google后发现这个报错是由`scons-2.3.1`对`Python-2.6`之前版本存在兼容性问题
+而导致的。
+
+有如下三种解决办法：
+
+1. 升级`Python`到较新的版本(2.7)
+
+2. 降级`Scons`(2.3.0)
+
+3. 编辑 `/usr/local/lib/scons-2.3.1/SCons/Node/__init__.py` 文件，Line 1004
+``` python
+return list(chain.from_iterable(filter(None, [self.sources, self.depends, self.implicit])))
+```
+替代为:
+``` python
+if self.implicit is None:
+    return self.sources + self.depends
+else:
+    return self.sources + self.depends + self.implicit
+```
+
+
+
+
 ## 参考
 
 - [Madagascar Installation](http://www.ahay.org/wiki/Installation#Precompiled_binary_packages)
 - [Advanced Installation](http://www.ahay.org/wiki/Advanced_Installation#Platform-specific_installation_advice>)
+- [How can I install Madagascar when the gcc version is 4.1.2](https://groups.google.com/forum/#!topic/osdeve_mirror_geophysics_rsf-user/AwnyyKjJ2SI)
 
 
 ## 修订历史
@@ -199,3 +238,4 @@ mylibs = ['satlas']
 -   2016-07-19： 更新存在的问题
 -   2016-10-07： 更新问题的解决方案
 -   2016-11-10： 添加BLAS库找不到的另一种解决方案
+-   2016-11-14： 添加在曙光超算上出现的问题
