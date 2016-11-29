@@ -196,128 +196,182 @@ $$
 
 ## 示例代码
 
-### MATLAB
-
-### Madagscar
+在 Madagascar 下的声波空间4阶时间2阶差分程序如下：
 
 ``` c
 /* time-domain acoustic FD modeling */
 #include <rsf.h>
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    /* Laplacian coefficients */
-    float       c11,c12,c21,c22,c0,tmp;
-    bool        verb;           /* verbose flag */
-    sf_file     Fw, Fv; /* I/O files */
-    sf_axis     az,ax;    /* cube axes */
-    int         it,iz,ix;        /* index variables */
-    int         nt,nz,nx;
-    int         sx, sz; // source position
-    float       dt,dz,dx;
-    float       fm;
-    int         jt, ft;
-    float       *wlt, **vv;     /* I/O arrays*/
-    float       **u0, **u1, **ptr;/* tmp arrays */
+    // Laplacian coefficients
+    float c0 = -30. / 12., c1 = +16. / 12., c2 = -1. / 12.;
+
+    bool verb; // verbose flag
+    sf_file Fw = NULL, Fv = NULL, Fo = NULL; // I/O files
+    sf_axis at, az, ax; // cube axes
+    int it, iz, ix; // index variables
+    int nt, nz, nx;
+    int jsnap, sx, sz;
+    float dt, dz, dx, idx, idz;
+
+    float *ww, **vv; // I/O arrays
+    float **um, **uo, **up, **ud; // wavefield and laplacian arrays
 
     sf_init(argc, argv);
-    if(! sf_getbool("verb",&verb)) verb=0;
+    if (!sf_getbool("verb", &verb)) verb = false;
+    if (!sf_getint("jsnap", &jsnap)) jsnap = 10;
+    // 震源位置
+    if (!sf_getint("sx", &sx)) sx = 100;
+    if (!sf_getint("sz", &sz)) sz = 100;
 
-    /* setup I/O files */
-    Fv = sf_input ("in" );  // velocity model
-    Fw = sf_output("out");  // wavefield snaps
+    // setup I/O files
+    Fw = sf_input("in");
+    Fo = sf_output("out");
+    Fv = sf_input("vel");
 
-    if (!sf_getint("nt", &nt)) sf_error("nt required");
-    if (!sf_getfloat("dt", &dt)) sf_error("dt required");
-    if (!sf_getint("ft", &ft)) ft=0;    // first recorded time
-    if (!sf_getint("jt", &jt)) jt=1; // time interval
-    if (!sf_getfloat("fm",&fm)) fm=20.0;
-
-    /* Read/Write axes */
+    // Read/Write axes
+    at = sf_iaxa(Fw, 1);
+    nt = sf_n(at);
+    dt = sf_d(at);
     az = sf_iaxa(Fv, 1);
-    ax = sf_iaxa(Fv, 2);
     nz = sf_n(az);
     dz = sf_d(az);
+    ax = sf_iaxa(Fv, 2);
     nx = sf_n(ax);
     dx = sf_d(ax);
 
-    sf_oaxa(Fw, az, 1);
-    sf_oaxa(Fw, ax, 2);
-    sf_putint(Fw, "n3", (nt-ft)/jt);
-    sf_putfloat(Fw, "d3", jt*dt);
-    sf_putfloat(Fw, "o3", ft*dt);
+    // 设置输出文件头段信息
+    sf_oaxa(Fo, az, 1);
+    sf_oaxa(Fo, ax, 2);
+    sf_setn(at, nt / jsnap);
+    sf_setd(at, jsnap * dt);
+    sf_oaxa(Fo, at, 3);
 
-    // source cooridnrate
-    sx = nx/2;
-    sz = nz/2;
+    idz = 1 / (dz * dz);
+    idx = 1 / (dx * dx);
 
-    /* initialize 4-th order fd coefficients */
-    tmp = 1.0/(dz*dz);
-    c11 = 4.0*tmp/3.0;
-    c12 = -tmp/12.0;
-    tmp = 1.0/(dx*dx);
-    c21 = 4.0*tmp/3.0;
-    c22 = -tmp/12.0;
-    c0 = -2.0*(c11+c12+c21+c22);
-
-    wlt = sf_floatalloc(nt); // source wavelet
+    // read wavelet, velocity
+    ww = sf_floatalloc(nt);
+    sf_floatread(ww, nt, Fw);
+    sf_fileclose(Fw);
     vv = sf_floatalloc2(nz, nx);
-    sf_floatread(vv[0], nz*nx, Fv);
+    sf_floatread(vv[0], nz * nx, Fv);
 
-    for (it=0; it<nt; it++) {
-        tmp = SF_PI*fm*(it*dt-1.0/fm);
-        tmp *= tmp;
-        wlt[it] = (1.0-2.0*tmp)*expf(-tmp);
+    // precompute v^2*dt^2
+    for (ix = 0; ix < nx * nz; ++ix) {
+        *(vv[0] + ix) *= *(vv[0] + ix) * dt * dt;
     }
 
-    for(ix=0;ix<nx;ix++){
-	    for(iz=0;iz<nz;iz++){
-		    tmp=vv[ix][iz]*dt;
-		    vv[ix][iz]=tmp*tmp;
-	    }
-	}
+    // allocate temporary arrays
+    um = sf_floatalloc2(nz, nx);  // U@t-1
+    uo = sf_floatalloc2(nz, nx);  // U@t
+    up = sf_floatalloc2(nz, nx);  // U@t+1
+    ud = sf_floatalloc2(nz, nx);  // laplace
 
-    /* allocate temporary arrays */
-    u0 = sf_floatalloc2(nz, nx);
-    u1 = sf_floatalloc2(nz, nx);
-
-    for (iz=0; iz<nz; iz++) {
-        for (ix=0; ix<nx; ix++) {
-            u0[ix][iz]=0;
-            u1[ix][iz]=0;
+    for (iz = 0; iz < nz; iz++) {
+        for (ix = 0; ix < nx; ix++) {
+            um[ix][iz] = 0;
+            uo[ix][iz] = 0;
+            up[ix][iz] = 0;
+            ud[ix][iz] = 0;
         }
     }
 
-    /* MAIN LOOP */
-    for (it=0; it<nt; it++) {
-        if(verb) fprintf(stderr,"\b\b\b\b\b%d",it);
+    // MAIN LOOP
+    if (verb) fprintf(stderr, "\n");
+    for (it = 0; it < nt; ++it) {
+        if (verb) sf_warning("%d;", it + 1);
 
-        if (it>=ft && (it-ft)%jt == 0) {
-            sf_floatwrite(u0[0], nz*nx, Fw);
-        }
-
-        u1[sx][sz] += wlt[it];  // add source
-
-        /* 4th order laplacian */
-        for (ix=2; ix<nx-2; ix++) {
-            for (iz=2; iz<nx-2; iz++) {
-                tmp =
-                    c0*u1[ix][iz] +
-                    c11*(u1[ix][iz-1] + u1[ix][iz+1]) +
-                    c12*(u1[ix][iz-2] + u1[ix][iz+2]) +
-                    c21*(u1[ix-1][iz] + u1[ix+1][iz]) +
-                    c22*(u1[ix-2][iz] + u1[ix+2][iz]);
-
-                u0[ix][iz] = 2*u1[ix][iz] - u0[ix][iz] + vv[ix][iz]*tmp;
+        // 4th order laplacian
+        for (iz = 2; iz < nz - 2; iz++) {
+            for (ix = 2; ix < nx - 2; ix++) {
+                ud[ix][iz] = c0 * uo[ix][iz] * (idx + idz) +
+                    c1 * (uo[ix - 1][iz] + uo[ix + 1][iz]) * idx +
+                    c2 * (uo[ix - 2][iz] + uo[ix + 2][iz]) * idx +
+                    c1 * (uo[ix][iz - 1] + uo[ix][iz + 1]) * idz +
+                    c2 * (uo[ix][iz - 2] + uo[ix][iz + 2]) * idz;
             }
         }
 
-        ptr=u0;
-        u0=u1;
-        u1=ptr;
+        // inject wavelet
+        ud[sx][sz] -= ww[it];
 
+        // scale by (v*dt)^2
+        for (iz = 0; iz < nz; iz++) {
+            for (ix = 0; ix < nx; ix++) {
+                ud[ix][iz] *= vv[ix][iz];
+            }
+        }
+
+        // time step
+        for (iz = 0; iz < nz; iz++) {
+            for (ix = 0; ix < nx; ix++) {
+                up[ix][iz] = 2 * uo[ix][iz] - um[ix][iz] + ud[ix][iz];
+
+                um[ix][iz] = uo[ix][iz];
+                uo[ix][iz] = up[ix][iz];
+            }
+        }
+
+        // write wavefield to output
+        if (it % jsnap == 0) {
+            sf_floatwrite(uo[0], nz * nx, Fo);
+        }
     }
-    if(verb) fprintf(stderr,"\n");
-    exit (0);
+    if (verb) fprintf(stderr, "\n");
+    free(ww);
+    free(vv);
+    free(*um);
+    free(um);
+    free(*uo);
+    free(uo);
+    free(*up);
+    free(up);
+    free(*ud);
+    free(ud);
+
+    exit(0);
 }
+
 ```
+
+相应的 `SConstruct` 如下：
+
+``` python
+from rsf.proj import *
+
+Flow('vel', None,
+     '''
+    spike nsp=1 mag=2000
+    n1=201 n2=201 d1=5 d2=5
+    label1=Depth unit1=m label2=Lateral unit2=m
+    ''')
+
+Flow('wlt', None,
+     '''
+    spike n1=500 o1=0 d1=0.001 nsp=1 k1=100 mag=1 |
+    ricker1 frequency=20 |
+    window n1=500 |
+    scale axis=123
+    ''')
+
+prog = Program('afd2d.c')
+exe = str(prog[0])
+
+Flow('snap', ['wlt', 'vel', exe],
+     '''
+    ${SOURCES[2].abspath} vel=${SOURCES[1]}
+    verb=y jsnap=1 sx=100 sz=100
+    ''')
+
+Result('snap_0.3.rsf', 'snap',
+       '''
+    window n3=1 min3=0.3 |
+    grey gainpanel=a color=j screenratio=1 title="wavefield at 0.3s"
+    ''')
+
+End()
+
+```
+波场快照如下：
+![](/images/2016112900.jpg)
