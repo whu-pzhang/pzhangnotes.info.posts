@@ -1,6 +1,6 @@
 # PzNotes 博客
 
-本项目保存了 [PzNotes博客](https://whu-pzhangpznotes.info) 中的博文源码。
+本项目保存了 [PzNotes博客](https://whu-pzhang.github.io) 中的博文源码。
 
 - Hexo配置: https://github.com/whu-pzhang/pzhangnotes.info
 - 主题配置: https://github.com/whu-pzhang/hexo-theme-next
