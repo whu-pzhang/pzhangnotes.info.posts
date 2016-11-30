@@ -26,4 +26,4 @@ layout: post
 
 ## 联系方式
 
-- E-Mail: [pzhang@whu.edu.cn](mailto:pzhang@whu.edu.cn)
+- E-Mail: [pzhang.omega@gmail.com](mailto:pzhang.omega@gmail.com)
