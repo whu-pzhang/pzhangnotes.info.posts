@@ -7,7 +7,7 @@ categories: Linux
 tags: [CentOS, Linux, Perl, Python]
 ---
 
-转载于 Seisman [用 CentOS 7 打造合适的科研环境](https://seisman.info/linux-environment-for-seismology-research.html)，本文是按照自己需求有更改。
+**转载于 Seisman [用 CentOS 7 打造合适的科研环境](https://seisman.info/linux-environment-for-seismology-research.html)**，本文是按照自己需求有更改。
 
 
 这篇博文记录了我用 CentOS 7 搭建 **地震学科研环境** 的过程，供我个人在未来重装系统时参考。
@@ -591,7 +591,7 @@ HostTool 科学上网本质上就是用最新的 host 文件替代了系统自�
 3.  易于区分中文下的左引号和右引号
 4.  美观
 
-目前选择的 Source Code Pro。将解压后的字体文件放在 `~/.fonts` 目录下，
+目前选择的 [Inziu Iosevka]https://be5invis.github.io/Iosevka/inziu.html。将解压后的字体文件放在 `~/.fonts` 目录下，
 并修改终端、gedit 以及其他编辑器、IDE 等的默认字体。
 
 ## 虚拟机
@@ -714,26 +714,6 @@ Nux Dextop 提供了 mplayer 和 VLC，可以用于播放常见格式的音频�
     sudo yum install mplayer
     sudo yum install vlc
 
-### 游戏
-
-    sudo yum install 2048-cli   # 2048 命令行版
-
-## 未完成
-
-### Google Earth
-
-理论上 Google Earth 应该可以跟 Google Chrome 用类似的方法来安装的，但是由于 Google Earth 的
-rpm 包存在 bug，导致无法通过上面的方法安装。
-
-    $ cd -
-    $ wget https://dl.google.com/dl/earth/client/current/google-earth-stable_current_x86_64.rpm
-    $ rpm2cpio google-earth-stable_current_x86_64.rpm | cpio -div
-    $ sudo cp -r opt/google/earth /opt/google/
-    $ sudo cp etc/cron.daily/google-earth /etc/cron.daily/
-    $ rm -rf usr opt etc
-    $ sudo ln -s /opt/google/earth/free/googleearth /usr/bin/google-earth
-
-安装完成后，启动后奔溃。。
 
 ## 参考
 
