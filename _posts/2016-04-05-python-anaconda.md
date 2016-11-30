@@ -24,7 +24,8 @@ tags: [Python, Anaconda]
 ## 安装
 
 1. 安装pyenv
-   本人是利用 [pyenv](https://github.com/yyuu/pyenv) 来对多个版本的python进行管理
+
+   利用 [pyenv](https://github.com/yyuu/pyenv) 来对多个版本的python进行管理
 
    首先安装好pyenv。具体见 [Python多版本共存之pyenv](/python-pyenv.html)
 
