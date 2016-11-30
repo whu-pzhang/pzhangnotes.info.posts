@@ -2,7 +2,7 @@
 title: Hello World
 date: 2015-07-14
 author: pzhang
-categories: Shall we talk
+categories: 杂谈
 tags: 博客
 ---
 
@@ -20,4 +20,4 @@ Hello World! 欢迎来到 pzhang 的个人博客。
 [Node.js]: https://nodejs.org
 [Hexo]: https://hexo.io
 [NexT]: https://github.com/iissnan/hexo-theme-next
-[GitHub]: https://github.com/whu-pzhang/pzhang.notes
+[GitHub]: https://github.com/whu-pzhang/whu-pzhang.github.io
