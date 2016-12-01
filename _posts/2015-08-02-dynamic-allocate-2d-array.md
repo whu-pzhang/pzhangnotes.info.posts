@@ -1,6 +1,6 @@
 ---
 title: C语言中二维数组的动态分配
-date: 2016-08-02 20:48:16
+date: 2015-08-02 20:48:16
 author: pzhang
 categories: Programming
 tags: [C, Linux]
@@ -206,7 +206,7 @@ int main()
     0x135d03c -> 1
     0x135d040 -> 2
     0x135d044 -> 3
-    
+
 可以看到，现在的二维数组内存是连续的了，我们用一个循环便可以遍历整个数组。
 
 ## 总结
@@ -215,6 +215,3 @@ int main()
 [数组和指针](/array-and-pointers.html)
 
 上述两种方法都可行，但是推荐用第二种方法！
-
-
-
