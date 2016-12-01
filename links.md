@@ -6,7 +6,7 @@ updated: 2016-05-17
 ---
 
 本页面列出一些常用链接。包括勘探地震和天然地震。
-鼠标在链接上悬停可看到更详细的名称。
+鼠标在链接上悬停可看到详细的名称。
 
 <!--<div class="tag-cloud">-->
 
@@ -19,7 +19,7 @@ updated: 2016-05-17
 - [ORFEUS](http://www.orfeus-eu.org/index.html "Observatories and Research Facilities for European Seismology")
 - [USTC](http://www.ustc.edu.cn "University of Science and Technology of China")
 
-## 地震事件目录
+<!-- ## 地震事件目录
 
 - [PDE](http://earthquake.usgs.gov/data/pde.php)
 - [ANSS Catalog](http://www.ncedc.org/anss/)
@@ -57,7 +57,7 @@ updated: 2016-05-17
 - [Alaska Earthquake Information Center](http://www.aeic.alaska.edu/)
 - [Canadian National Seismic Network](http://www.earthquakescanada.nrcan.gc.ca/stndon/CNSN-RNSC/index-eng.php)
 - [中国地震科学探测台站数据中心](http://www.chinarraydmc.org/)
-- [国家测震台网数据备份中心](http://www.seisdmc.ac.cn/)
+- [国家测震台网数据备份中心](http://www.seisdmc.ac.cn/) -->
 
 ## 研究小组
 
@@ -88,11 +88,12 @@ updated: 2016-05-17
 - [EPSL](http://www.journals.elsevier.com/earth-and-planetary-science-letters/)
 
 
-## 软件库
+## 软件
 
 - [SEG software](http://software.seg.org/ "software.seg.org")
 - [Madagascar](http://www.ahay.org/ "Open-source software packages for multidimensional data analysis")
 - [Seismin Unix](http://www.cwp.mines.edu/cwpcodes/ "Seismin Unix")
+- [SEPlib](http://sepwww.stanford.edu/doku.php?id=sep:software:seplib)
 
 
 - [IRIS seiscode](https://seiscode.iris.washington.edu/)

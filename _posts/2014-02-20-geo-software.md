@@ -6,7 +6,7 @@ categories: 地球物理相关资源
 tags: [理论地震图, SAC, GMT]
 ---
 
-**转载于 Seisman[http://seisman.info/geo-software.html]**。
+**转载于 [Seisman](http://seisman.info/geo-software.html)**。
 
 
 ## 通用数据处理

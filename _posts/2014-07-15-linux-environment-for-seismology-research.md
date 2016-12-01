@@ -7,7 +7,8 @@ categories: Linux
 tags: [CentOS, Linux, Perl, Python]
 ---
 
-**转载于 Seisman [用 CentOS 7 打造合适的科研环境](https://seisman.info/linux-environment-for-seismology-research.html)**，本文是按照自己需求有更改。
+**转载于 Seisman [用 CentOS 7 打造合适的科研环境](https://seisman.info/linux-environment-for-seismology-research.html)**，
+部分小节按照自己需求有更改。
 
 
 这篇博文记录了我用 CentOS 7 搭建 **地震学科研环境** 的过程，供我个人在未来重装系统时参考。
@@ -47,6 +48,7 @@ CentOS 7 的安装与其他 Linux 发行版的安装差不多，个别地方稍�
 1.  选择安装过程中使用的语言，这里应 **使用英语，不要使用汉语**。若安装界面使用汉语，最终安装的系统中会出现两个比较麻烦的问题：
     1.  家目录下的系统文件夹，比如 Downloads、Desktop 等会以中文表示，这使得在命令行 `cd` 变得很麻烦；
     2.  终端中某些字符用英文字体，某些字符用中文字体，效果非常差，需要自己修改终端字体方可；
+    3.  可在安装完成后，在设置->区域和语言中将语言改为汉语,然后在重启时选择保留原文件夹名称。
 
 2.  选择区域和城市：Asia 和 Shanghai
 3.  键盘使用 English(US) 而不是 English(UK)
@@ -208,7 +210,7 @@ ELRepo 包含了一些硬件相关的驱动程序，比如显卡、声卡驱动:
 
 ## 驱动程序
 
-### 显卡驱动
+<!-- ### 显卡驱动
 
 Linux 默认只使用开源的显卡驱动，就目前的情况来看，开源驱动的效果还是不错的，但跟官方的
 闭源驱动相比还是有一定差距。最明显的区别是，在使用 SAC 的 ppk 功能放大波形时，使用开源驱动会
@@ -218,7 +220,7 @@ Linux 默认只使用开源的显卡驱动，就目前的情况来看，开源�
 一文中的 “从 ELRepo 源中安装驱动” 部分。
 
 **注意**：目前的显卡驱动似乎有问题，安装后终端有时会出现屏幕闪烁、一屏文字上下重复跳动的情况，
-稍微有些影响用 vim 写代码。是否要安装显卡驱动自己决定。
+稍微有些影响用 vim 写代码。是否要安装显卡驱动自己决定。 -->
 
 ### NTFS 驱动
 
@@ -242,7 +244,7 @@ Clang 可以认为是 GCC 的替代品，可以用于编译 C、C++、Objective-
     sudo yum install clang             # clang 编译器
     sudo yum install clang-analyzer    # clang 静态分析器
 
-### Intel 系列
+<!-- ### Intel 系列
 
 Intel 的大部分软件都是非开源且收费的，但同时部分软件也提供了 Linux 下的非商业免费版。
 比如 icc、mkl 数学库以及代码性能分析工具等。
@@ -250,7 +252,7 @@ Intel 的大部分软件都是非开源且收费的，但同时部分软件也�
 Intel 软件的申请以及安装参考《[Intel 非商业免费开发工具](/intel-non-commercial-software.html)》。
 
 还有一点需要注意的是，Intel 也提供了并行相关的几个命令，比如 mpicc、mpirun。所以 openmpi、mpich
-和 intel 三者，在并行时只能用其中一个。
+和 intel 三者，在并行时只能用其中一个。 -->
 
 ### 并行计算
 
@@ -301,37 +303,38 @@ CentOS 7.0 自带了 Perl 5.16.3（2013 年 03 月 11 日发布），目前的�
 
 #### plenv 管理新版本
 
-若需要使用最新版本的 perl，可以使用 [plenv](/perl-plenv.html) 安装新版本的 perl，并使用 plenv 提供的 cpanm 命令安装模块:
+若需要使用最新版本的 perl，可以使用 [plenv](https://github.com/tokuhirom/plenv) 安装新版本的 perl，并使用 plenv 提供的 cpanm 命令安装模块:
 
     cpanm install Parallel::ForkManager # 并行模块
 
 ### Python
 
-CentOS 7.0 自带 Python 2.7.5，目前 Python 2 的最新版本为 2.7.8，Python 3 的最新版本为 3.4.2。
+CentOS 7.0 自带 Python 2.7.5，目前 Python 2 的最新版本为 2.7.8，Python 3 的最新版本为 3.5.2。
 
 #### 系统自带 Python
 
-系统自带的 Python 2.7.5，基本已经够用，Python 2 常用的模块在官方源或 EPEL 源中也有有编译好的包，
-因而直接通过 yum 安装即可:
-
+系统自带的 Python 2.7.5，基本已经够用，Python 2 常用的模块在官方源或 EPEL 源中
+也有有编译好的包，因而直接通过 yum 安装即可。
+<!--
     sudo yum install python-matplotlib  # 2D 绘图库
     sudo yum install PyQt4  # Qt4 的 Python 绑定
     sudo yum install numpy  # 数组操作库
     sudo yum install scipy  # 科学计算库
     sudo yum install python-requests  # 网页请求
     sudo yum install python-docopt  # 命令行参数分析器
-    sudo yum install gdal-python    # gdal 的 Python 绑定
+    sudo yum install gdal-python    # gdal 的 Python 绑定 -->
 
 #### pyenv 管理 Python3
 
 Python2 与 Python3 之间是不完全兼容的，而我以 Python3 为主，所以需要安装一个 Python3。
 
-首先，安装 [pyenv](/python-pyenv.html) 来管理多个 Python 版本，然后利用 pyenv 安装 anaconda3
-（即 Python3.4）。anaconda 自带了众多科学计算所需的包，免去了安装的麻烦，对于其他包，
-则可以利用 Python 自带的 pip 安装:
+首先，安装 [pyenv](/python-pyenv.html) 来管理多个 Python 版本，然后利用 pyenv
+安装 anaconda3（即 Python3.4）。anaconda 自带了众多科学计算所需的包，
+免去了安装的麻烦，对于额外需要安装的包，首先利用conda 安装，conda库没有的
+再利用pip 安装。
 
-    pip install requests
-    pip install docopt
+    conda install requests
+    conda install docopt
 
 ## 编程相关软件
 
@@ -366,8 +369,6 @@ Python2 与 Python3 之间是不完全兼容的，而我以 Python3 为主，所
 
 ### Office 套件
 
-#### LibreOffice
-
 大多数 Linux 发行版（包括CentOS 7）都自带 LibreOffice:
 
     sudo yum install libreoffice
@@ -375,13 +376,6 @@ Python2 与 Python3 之间是不完全兼容的，而我以 Python3 为主，所
 
 LibreOffice 与 Microsoft Office 的兼容性不太好，操作界面与 MS Office 也有较大差异，让人不太习惯。
 
-#### WPS Office
-
-若在 Linux 下对于文档处理有更高一些的要求，可以尝试目前还处于测试版的 WPS Office for Linux。
-WPS Office 的兼容性以及界面都比 LibreOffice 要好很多，值得期待，当然还是不能做到完全兼容 MS
-Office。
-
-安装过程参考 [CentOS 下安装 WPS Office](/wps-office-for-centos7.html) 一文。
 
 ### PS/PDF 阅读器
 
@@ -405,9 +399,9 @@ zathura 可以查看 PS、PDF、djvu 格式的文件，可以作为 evince 的�
 
 ### TeX Live 2016
 
-系统是自带了 TeXLive，版本较老，还是安装最新版比较好。
+系统是自带了 TeXLive，但是功能不完全且版本较老，推荐安装最新版的TeX Live套件。
 
-参考 [Linux 下安装 TeXLive](/install-texlive-under-linux.html) 一文。
+参考 [Linux 下安装 TeXLive](http://seisman.info/install-texlive-under-linux.html) 一文。
 
 ### Mendeley
 
@@ -430,9 +424,7 @@ Mendeley 是一个跨平台的文献管理软件，其内部自带了一个可�
 
 ### Google Chrome 浏览器
 
-默认的浏览器是 Firefox，还是更喜欢 Chrome 浏览器。
-
-Google 官方源在国内可能无法正常访问，故而添加 Fedora 中文社区提供的镜像源:
+Google 官方源在国内可能无法正常访问，这里添加 Fedora 中文社区提供的镜像源:
 
     sudo wget http://repo.fdzh.org/chrome/google-chrome-mirrors.repo -P /etc/yum.repos.d/
 
@@ -589,7 +581,7 @@ HostTool 科学上网本质上就是用最新的 host 文件替代了系统自�
 1.  易于区分 “1”、“i” 和“l”
 2.  易于区分 “0”、“o” 和“O”
 3.  易于区分中文下的左引号和右引号
-4.  美观
+4.  中英文混排美观
 
 目前选择的 [Inziu Iosevka]https://be5invis.github.io/Iosevka/inziu.html。将解压后的字体文件放在 `~/.fonts` 目录下，
 并修改终端、gedit 以及其他编辑器、IDE 等的默认字体。
@@ -723,7 +715,7 @@ Nux Dextop 提供了 mplayer 和 VLC，可以用于播放常见格式的音频�
 
 ## 修订历史
 
--   2014-07-15：初稿转自 [Seisman 博客](https://seisman.info)；
+-   2014-07-15：初稿转自 [Seisman 博客](https://seisman.info)，有所删减；
 -   2016-06-15：修改Libreoffice部分：添加中文语言包部分
 -   2016-06-16：修改Termintor部分：该包现由 EPEL 提供
 -   2016-07-20：添加了vim插件管理部分
