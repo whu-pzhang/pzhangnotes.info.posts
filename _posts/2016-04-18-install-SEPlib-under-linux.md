@@ -1,19 +1,20 @@
 ---
-title: SEPlib安装
+title: Linux下安装SEPlib
 date: 2016-04-18
 author: pzhang
 category: Exploration Seismology
 tags: [SEPlib, 安装]
 ---
 
-很早之前就想安装SEPlib了，一直没成功。
+[SEPlib](http://sepwww.stanford.edu/doku.php?id=sep:software:seplib) 是由
+Stanford Exploration Project 开发并维护的地震勘探开源软件包。
 
 
 <!--more-->
 
 ## 依赖
 
-- 编译器 intel Fortran complier
+- intel Fortran complier
 - flex
 - fftw3
 - lesstif (or openmotif)
@@ -29,7 +30,7 @@ tags: [SEPlib, 安装]
 
 ## 编译安装
 
-SEPlib安装需要配置，可以在 ``seplib-6.5.3/docs/config_examples`` 目录下找到一些
+SEPlib 安装需要配置，可以在 ``seplib-6.5.3/docs/config_examples`` 目录下找到一些
 配置文件的例子参考。
 
 我选择的是将以下内容保存为脚本 ``run_config.sh`` 来进行配置：
@@ -46,7 +47,7 @@ export PERL="/usr/bin/perl"
 export PPM_INC="-I/usr/include/netpbm"
 export PPM_LD="-L/usr/lib64 -lnetpbm"
 
-./configure --prefix=/home/pzhang/src.import/seplib --with-local --with-su=/home/pzhang/src.import/cwp --with-fftw
+./configure --prefix=/opt/seplib --with-local --with-su=/opt/cwp --with-fftw
 ```
 
 ## Debug
@@ -101,7 +102,7 @@ logical             :: adj_new
 然后添加环境变量即可
 
 ```bash
-export SEPROOT=/home/pzhang/src.import/seplib
+export SEPROOT=/opt/seplib
 export SEPINC=${SEPROOT}/include
 export PATH=${PATH}:${SEPROOT}/bin
 export DATAPATH=/var/tmp/
