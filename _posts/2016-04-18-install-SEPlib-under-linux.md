@@ -52,7 +52,8 @@ export PPM_LD="-L/usr/lib64 -lnetpbm"
 
 ## Debug
 
-然后在终端里输入::
+然后在终端里输入
+
     $ bash run_config.sh
     $ gmake
 
