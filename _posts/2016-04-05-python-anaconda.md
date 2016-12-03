@@ -15,7 +15,7 @@ tags: [Python, Anaconda]
 
 - 包含了众多流行的科学、教学、工程和数据分析的Python包 http://docs.continuum.io/anaconda/pkgs.html
 - 完全开源、免费
-- 对于学术用途可以申请免费的加速和油画License
+- 对于学术用途可以申请免费的加速 icense
 - 全平台支持： Linux、Windows、Mac
 - 支持Python2.6、2.7、3.3、3.4
 
