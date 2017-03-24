@@ -10,6 +10,6 @@ categories: Linux
 
 ## Linux下的特殊变量
 
-**`$PS` 系列**
+`PS1` : 命令提示符
 
 **数字系列**

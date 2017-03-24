@@ -1,38 +1,37 @@
 ---
-title: OpenMP 简明教程
+title: OpenMP 学习笔记
 date: 2016-07-24 20:44:13
 author: pzhang
 categories: Programming
 tags: [OpenMP, Linux]
 ---
 
-OpenMP 是一个针对共享内存并行编程的 API 。
-程序员和科学家开发 OpenMP， 使其在一个更高的
-层次来开发并行程序，其明确地被设计成用来对已有的串行程序进行增量式并行化，
-这对于 MPI 是不可能的。
+> OpenMP 是一个针对共享内存并行编程的 API 。
+> 程序员和科学家开发 OpenMP， 使其在一个更高的
+> 层次来开发并行程序，其明确地被设计成用来对已有的串行程序进行增量式并行化，
+> 这对于 MPI 是不可能的。
 
-本篇博文主要介绍如何利用 OpenMP 进行共享内存编程。
+本文为学习OpenMP的笔记，属于用多少学多少，学到哪里记到哪里，
+不求大而全，只求学过的部分都弄明白。
 
 <!--more-->
 
 ## 预备知识
 
 OpenMP 提供“基于指令”的共享内存 API。 在 C 和 C++ 程序中加入预处理指令可以
-用来允许不是基本C语言规范部分的行为，而不支持 `pragma` 的编译器就会忽略这些
+用来允许不是基本 C 语言规范部分的行为，而不支持 `pragma` 的编译器就会忽略这些
 语句，这样就允许使用 `pragma` 的程序在不支持它们的平台上运行。也就是说，
 仔细编写的 `OpenMP` 程序可以在任何有 C 编译器的系统上运行。
 
 ### 编译和运行 OpenMP 程序
 
 现在看一个简单的程序， `OpenMP` 版的 Hello World。
-
-``` C
+```C
 #include <stdio.h>
 #include <omp.h>
 
 int main(int argc, char *argv[])
 {
-
 #pragma omp parallel
 {
     int thread_id = omp_get_thread_num();
@@ -56,8 +55,8 @@ int main(int argc, char *argv[])
     Hello from thread 3 of 4
     Hello from thread 2 of 4
 
-默认情况下，`OpenMP` 会使用所有的线程，可以设置 `OMP_NUM_THREADS` 变量来控制使用的
-线程数：
+默认情况下，`OpenMP` 会使用所有的线程，可以通过
+ `OMP_NUM_THREADS` 变量来控制使用的线程数：
 
     $ export OMP_NUM_THREADS=2
     $ ./omp_hello
@@ -69,7 +68,7 @@ int main(int argc, char *argv[])
 
 ### 程序结构
 
-从上述的 Hello World 程序我们可以看到，在C和C++中 `OpenMP` 程序总是以
+从上述的 Hello World 程序我们可以看到，在 C/C++ 中 `OpenMP` 程序总是以
 `#pragam omp` 作为开始。
 
 在 `pragma` 后第一条指令为 `parallel`，表明之后的结构化代码（structured block）
@@ -93,7 +92,7 @@ int main(int argc, char *argv[])
 
 如果编译器不支持 `OpenMP` ，它将忽略 `#pragma` 指令，但是试图包含 `omp.h` 头文件
 及调用 `omp_get_thread_num` 和 `omp_get_num_threads` 函数将会出错。 为了处理这些
-问题，可以检查预处理器宏 `_OPENMP` 是否定义。
+问题，可以使用预处理器宏 `_OPENMP`。
 
 ``` C
 #ifdef _OPENMP
@@ -116,9 +115,9 @@ int main(int argc, char *argv[])
 总之，在 `parallel` 前面已经声明的的变量，拥有共享作用域。在块中声明的变量拥有私有作用域。
 
 
-### 累加求和
+## 临界区
 
-现在我们要求1-10000的累加和，可以编写程序如下：
+先来看一个对 1-10000 求累加和的例子：
 ``` C
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,16 +147,17 @@ int main(int argc, char *argv[])
     $ ./omp_sum 4
     sum = 3126250
 
-可以看到，我们用一个线程时，结果是对的，但是多个线程运行时就不对了。这是为什么呢？
-来分析一下：`sum`是一个全局变量，所有的线程都可以访问，这样在多个线程运行时，会争相
-对`sum`值改写，这样就会出现结果错误。也就是说，我们需要保证每次只有一个线程执行
-`sum += i` 语句。这就涉及到 **临界区** 的概念。
-
-### 临界区
+可以看到，我们用一个线程时，结果是对的，但是多个线程运行时就不对了。
+这是为什么呢？
+来分析一下：
+`sum`是一个全局变量，所有的线程都可以访问，这样在多个线程运行时，会争相
+对`sum`值进行改写，这样就会出现错误结果。
+要解决这个问题，我们需要保证程序运行时每次只有一个线程执行 `sum += i` 语句。
+这就涉及到 **临界区** 的概念了。
 
 并行编程肯定会用到同步互斥操作。
 
-临界区就是指 在同一时刻只允许一个线程执行的代码块。
+**临界区就是指 在同一时刻只允许一个线程执行的代码块。**
 
 在 `OpenMP` 中，临界区表示如下：
 
@@ -167,7 +167,47 @@ int main(int argc, char *argv[])
     // 代码块
 }
 ```
+
+将上面的代码改为：
+``` C
+#include <stdio.h>
+#include <stdlib.h>
+#include <omp.h>
+
+#define N 10000
+int main(int argc, char *argv[])
+{
+    int sum=0;
+    int nthreads = strtol(argv[1], NULL, 10);
+#pragma omp parallel for num_threads(nthreads)
+    for (int i=1; i<=N; i++) {
+#pragma omp critical (sum)
+        sum += i;
+    }
+    printf("sum = %d\n", sum);
+    return 0;
+}
+```
+
+再编译执行，用多个线程也不会出错：
+
+    $ ./omp_sum 2
+    sum = 50005000
+    $ ./omp_sum 4
+    sum = 50005000
+
+但是使用临界区相当于强制各个线程顺序执行，这样就会导致效率降低，其运行可能
+会比串行程序慢。 OpenMP 提供更好的方法来避免线程串行执行： 归约子句(reduction).
+
 ## 归约子句(reduction)
+
+**归约就是将相同的归约操作符重复地作用到操作序列上得到一个结果（归约变量）。**
+
+对上面的例子，求和就是一个归约，归约操作符为加法。
+
+还是上面的例子，我们使用归约操作：
+
+
 
 ## parallel for子句
 

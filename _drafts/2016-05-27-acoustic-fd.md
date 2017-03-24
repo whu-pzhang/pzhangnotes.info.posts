@@ -18,7 +18,7 @@ tags: 有限差分
 ## 一维波动方程
 
 一维标量波动方程：
-$$ \frac{\partial^2 U}{\partial x^2} - \frac{1}{v^2} \frac{\partial^2 U}{\partial x^2} = f(t)$$
+$$ \frac{\partial^2 U}{\partial x^2} - \frac{1}{v^2} \frac{\partial^2 U}{\partial t^2} = f(t)$$
 
 
 
