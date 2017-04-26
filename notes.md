@@ -5,7 +5,7 @@
 
 ## Madagascar
 
-1. 'kiss': Keep It Simple, Stupid.
+1. kiss: Keep It Simple, Stupid.
 
 ## Git
 
@@ -16,7 +16,7 @@
 4. `git reset HEAD file`: 将暂存区的修改回退到工作区
 5. `git reset --hard `: 版本回退
 6. `git tag`: 打标签
-    - 命令`git tag <name>`用于新建一个标签，默认为`HEAD`，也可以指定一个`commit id`；
-    - `git tag -a <tagname> -m "blablabla..."` 可以指定标签信息；
-    - `git tag -s <tagname> -m "blablabla..."` `可以用PGP签名标签；
+    - `git tag <name>`用于新建一个标签，默认为`HEAD`，也可以指定一个`commit id`
+    - `git tag -a <tagname> -m "blablabla..."` 可以指定标签信息
+    - `git tag -s <tagname> -m "blablabla..."` `可以用PGP签名标签
     - `git tag` 可以查看所有标签。
