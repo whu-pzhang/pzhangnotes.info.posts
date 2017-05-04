@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 
 ### PI值近似
 
-对 $\pi$ 值的计算可以采用如下公式
+对 $\pi$ 值的计算可以采用[$\pi$的莱布尼茨公式](https://zh.wikipedia.org/wiki/%CE%A0%E7%9A%84%E8%8E%B1%E5%B8%83%E5%B0%BC%E8%8C%A8%E5%85%AC%E5%BC%8F)
 
 $$ \frac{\pi}{4} = 1-\frac{1}{3}+\frac{1}{5}-\frac{1}{7}+... = \sum_{k=1}^{n} \frac{(-1)^k}{2k-1}$$
 
