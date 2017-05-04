@@ -1,10 +1,12 @@
 ---
-title: 怎样添加程序到Madagascar中
+title: 添加程序到Madagascar中
+tags:
+  - Madagascar
 author: pzhang
-date: 2016-11-03 21:03:41
 category: Exploration Seismology
-tags: [Madagascar]
+date: 2016-11-03 21:03:41
 ---
+
 
 有时候自己利用Madagascar编写了一些数据处理的程序，每次调用都需要将源码放到需要用的目
 录重新编译，然后再在SConstruct中调用,类似这样：
