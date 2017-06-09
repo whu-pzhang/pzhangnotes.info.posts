@@ -8,11 +8,7 @@ layout: post
 
 ## 关于我
 
-中科院某研究所在读科研狗
-
-## 关于PzNotes
-
-    PzNotes = Pzhang's Notes
+中科院在读
 
 ## 博文原则
 
@@ -27,3 +23,4 @@ layout: post
 ## 联系方式
 
 - E-Mail: [pzhang.omega@gmail.com](mailto:pzhang.omega@gmail.com)
+
