@@ -20,3 +20,4 @@
     - `git tag -a <tagname> -m "blablabla..."` 可以指定标签信息
     - `git tag -s <tagname> -m "blablabla..."` `可以用PGP签名标签
     - `git tag` 可以查看所有标签。
+7. `git rm -r --cached dirname` : 删除远程文件夹
