@@ -120,6 +120,5 @@ $$
 
 ## 参考
 - [Conjugate gradient method](https://en.wikipedia.org/wiki/Conjugate_gradient_method)
-- [An Introduction to
-the Conjugate Gradient Method
-Without the Agonizing Pain](http://www.cs.cmu.edu/~./quake-papers/painless-conjugate-gradient.pdf)
+- [An Introduction to the Conjugate Gradient Method Without the Agonizing Pain](http://www.cs.cmu.edu/~./quake-papers/painless-conjugate-gradient.pdf)
+
