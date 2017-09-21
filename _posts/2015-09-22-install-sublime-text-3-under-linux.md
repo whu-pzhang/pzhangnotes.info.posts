@@ -4,7 +4,10 @@ author: pzhang
 date: 2015-09-22
 category: Linux
 tags: [Linux, 安装]
+
 ---
+
+> **已全面转向 Atom，本文不再更新。**
 
 Sublime Text 3作为一款跨平台的编辑器，支持多种插件，语法高亮齐全，而且还有vi模式，
 在Window环境下一直用的是这款编辑器。本文记录在CentOS7下安装，配置Sublime Text 3的过程。
