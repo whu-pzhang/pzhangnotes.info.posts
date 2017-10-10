@@ -33,4 +33,11 @@
     git push origin master  # 提交推送到自己的 repo
     ````
 
+9. 更改远程分支地址
+
+    ``` bash
+    git remote rm origin # 如不需要原来的地址，可删除
+    git remote set-url origin new-url
+    ```
+
     ​
