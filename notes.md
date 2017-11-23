@@ -19,7 +19,7 @@
 6. `git tag`: 打标签
     - `git tag <name>`用于新建一个标签，默认为`HEAD`，也可以指定一个`commit id`
     - `git tag -a <tagname> -m "blablabla..."` 可以指定标签信息
-    - `git tag -s <tagname> -m "blablabla..."` `可以用PGP签名标签
+    - `git tag -s <tagname> -m "blablabla..."` 可以用PGP签名标签
     - `git tag` 可以查看所有标签。
 
 7. `git rm -r --cached dirname` : 删除远程文件夹
@@ -39,5 +39,16 @@
     git remote rm origin # 如不需要原来的地址，可删除
     git remote set-url origin new-url
     ```
+
+
+## tmux
+
+1. 给当前窗口改名:
+
+    `C-b` then`·:rename-window <newname>` 或者 `tmux renane-window <newname>`
+
+2. 窗口滚动
+
+    `C-b` then `[`  然后就可以用方向键或者鼠标滚轮进行上下滚动了
 
     ​
