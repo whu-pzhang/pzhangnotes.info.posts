@@ -51,4 +51,24 @@
 
     `C-b` then `[`  然后就可以用方向键或者鼠标滚轮进行上下滚动了
 
-    ​
+
+## Madagascar
+
+1. 编译程序时添加链接库更改程序后缀：
+``` python
+from rsf.proj import *
+
+proj = Project()
+proj.Prepend(LIBS='rsfgee rsfpwd')
+proj.Replace(PROGSUFFIX='.x')
+
+prog = proj.Program('Mprog.c')
+exe = str(prog[0])
+
+Flow('out', 'in '+exe,
+    '''
+    ${SOURCES[1].abspath} verb=y blablabla...
+    ''')
+
+End()
+```
