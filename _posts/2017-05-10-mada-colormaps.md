@@ -14,6 +14,8 @@ date: 2017-05-10 00:00:00
 
 本文梳理了Madagascar中现有的各种colormap。
 
+本文 `SConstruct` 脚本位于 [Github](https://github.com/whu-pzhang/Mada/tree/master/colormap).
+
 <!--more-->
 
 Madagascar中的配色方案在`sfgrey`和`sfgrey3`中由参数`color=`控制。
@@ -23,20 +25,20 @@ Madagascar中的配色方案在`sfgrey`和`sfgrey3`中由参数`color=`控制。
 
 Madagascar 中自带的配色方案如下表所示：
 
-| 配色               | 参数          |
-|------------------|-------------|
-| Rainbow          | `color=a`   |
-| Bone             | `color=b`   |
-| Cool             | `color=c`   |
-| Blue-white-red   | `color=e`   |
-| Flag             | `color=f`   |
-| Black-white-red  | `color=g`   |
-| Hot              | `color=h`   |
-| Greyscale        | `color=i`   |
-| Jet              | `color=j`   |
-| Linear           | `color=l`   |
-| Pink             | `color=p`   |
-| Traffic          | `color=t`   |
+| 配色            | 参数      |
+|:----------------|:----------|
+| Rainbow         | `color=a` |
+| Bone            | `color=b` |
+| Cool            | `color=c` |
+| Blue-white-red  | `color=e` |
+| Flag            | `color=f` |
+| Black-white-red | `color=g` |
+| Hot             | `color=h` |
+| Greyscale       | `color=i` |
+| Jet             | `color=j` |
+| Linear          | `color=l` |
+| Pink            | `color=p` |
+| Traffic         | `color=t` |
 
 
 效果图如下：
@@ -81,7 +83,6 @@ Light, A. and P.J. Bartlein (2004) [The end of the rainbow? Color schemes for im
 ![Other color schemes](http://opq72e2wz.bkt.clouddn.com/colorbars.jpg)
 
 
-
 ## 自定义配色
 
 目前够用，先不折腾了！
@@ -95,3 +96,7 @@ Light, A. and P.J. Bartlein (2004) [The end of the rainbow? Color schemes for im
 1. [Color schemes](http://ahay.org/blog/2005/03/28/color-schemes/)
 2. [How to evaluate and compare color maps](http://wiki.seg.org/wiki/How_to_evaluate_and_compare_color_maps)
 
+## 更新
+
+1. 2017年5月 初稿
+2. 2018年3月 添加 Github 地址。
