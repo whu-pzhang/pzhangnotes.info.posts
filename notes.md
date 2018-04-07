@@ -1,3 +1,11 @@
+---
+author: pzhang
+date: 2017-10-06
+lastMod: 2018-04-07
+toc: true
+
+slug: notes
+---
 
 ## matplotlib
 
@@ -55,7 +63,8 @@
 ## Madagascar
 
 1. 编译程序时添加链接库更改程序后缀：
-``` python
+
+```python
 from rsf.proj import *
 
 proj = Project()
@@ -77,8 +86,8 @@ End()
 整数 a 和 b
 `MOD` 和 `REM` 的计算都分两步：
 
-* `c = a / b`
-* `r = a - (c * b)`
+- `c = a / b`
+- `r = a - (c * b)`
 
 不同之处在第一步里面：
 
