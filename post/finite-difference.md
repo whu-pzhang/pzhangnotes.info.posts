@@ -1,5 +1,7 @@
 ---
 title: finite-difference
+
+draft: true
 tags:
 ---
 
@@ -24,6 +26,3 @@ tags:
 $$
 \frac{\partial U}{\partial x} = \lim_{\Delta \rightarrow 0} \frac{U(x+\Delta x) - U(x-\Delta x)}{2 \Delta x }
 $$
-
-
-

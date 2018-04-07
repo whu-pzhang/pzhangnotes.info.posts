@@ -1,9 +1,14 @@
 ---
 title: OpenMP 学习笔记
-date: 2016-07-24 20:44:13
+date: 2016-07-24
 author: pzhang
-categories: Programming
-tags: [OpenMP, Linux]
+draft: true
+category: Programming
+tags:
+  - OpenMP
+  - Linux
+
+slug: openmp-notes
 ---
 
 > OpenMP 是一个针对共享内存并行编程的 API 。

@@ -7,6 +7,8 @@ category:
 tags:
   - Seismic_Unix
   - C
+
+slug: SU-and-Segy-format
 ---
 
 ## 序言

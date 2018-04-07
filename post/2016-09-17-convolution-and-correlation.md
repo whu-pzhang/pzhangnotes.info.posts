@@ -2,8 +2,10 @@
 title: 卷积和相关
 date: 2016-09-17 09:11:31
 author: pzhang
-categories: 地震学基础
-tags: [MATLAB]
+draft: true
+category: 理论基础
+tags:
+  - MATLAB
 ---
 
 ## 前言

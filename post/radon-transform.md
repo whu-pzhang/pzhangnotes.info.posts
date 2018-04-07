@@ -1,8 +1,9 @@
 ---
 title: 各种变换
-Author: pzhang
+author: pzhang
 category: Exporationn Seismology
-tags: 
+draft: true
+tags:
 ---
 
 
@@ -29,4 +30,3 @@ $$
 
 
 ### 定义
-

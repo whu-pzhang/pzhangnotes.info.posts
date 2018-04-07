@@ -1,9 +1,13 @@
 ---
 title: C 语言宏用法总结
 author: pzhang
-Date: 2017-10-13 16:12:12
-categories: Programming
-tags: C
+date: 2017-10-13
+draft: true
+category: Programming
+tags:
+  - C
+
+slug: define-and-typedef
 ---
 
 
@@ -120,5 +124,3 @@ struct command commands[] =
 #define eprintf(fmt, ...) fprintf(stderr, fmt, ##__VA_ARGS__)
 ```
 当省略参数时，多余的逗号就会被删除。
-
-

@@ -7,7 +7,9 @@ category:
 tags:
   - Linux
   - Madagascar
-  - 安装]
+  - 安装
+
+slug: install-madagascar-on-linux
 ---
 
 

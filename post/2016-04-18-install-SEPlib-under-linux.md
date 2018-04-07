@@ -6,6 +6,8 @@ category: Exploration Seismology
 tags:
   - SEPlib
   - 安装
+
+slug: install-seplib-on-linux
 ---
 
 [SEPlib](http://sepwww.stanford.edu/doku.php?id=sep:software:seplib) 是由

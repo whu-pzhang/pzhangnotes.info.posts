@@ -1,9 +1,11 @@
 ---
 title: Linux拾遗
 author: pzhang
-date: 2016-11-26 18:49:51
-tags: [Linux拾遗]
-categories: Linux
+date: 2016-11-26
+draft: true
+tags:
+  - Linux拾遗
+category: Linux
 ---
 
 本文记录使用Linux下的一些小技巧。

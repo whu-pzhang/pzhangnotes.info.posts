@@ -4,8 +4,7 @@ date: 2018-04-07T16:01:06+08:00
 lastmod: 2018-04-07T16:01:06+08:00
 author: pzhang
 draft: true
-categories:
-  -
+category: 安装
 tags:
   - macOS
   - OpenCV

@@ -3,6 +3,7 @@ title: Madagascar 常用命令和 API 笔记
 tags:
 author: pzhang
 date:
+draft: true
 ---
 
 # Madagascar 常用命令和 API 笔记

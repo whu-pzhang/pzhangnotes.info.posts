@@ -7,6 +7,8 @@ categories:
 tags:
   - Python
   - Anaconda
+
+slug: python-anaconda
 ---
 
 

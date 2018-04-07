@@ -1,9 +1,14 @@
 ---
 title: 共轭梯度法
 author: pzhang
-date:
-categories: 地震学基础
-tags: [算法, 基础]
+date: 2017-07-10
+draft: true
+category: 理论基础
+tags:
+  - 算法
+  - 基础
+
+slug: conjugate-gradient
 ---
 
 共轭梯度法笔记！
@@ -121,4 +126,3 @@ $$
 ## 参考
 - [Conjugate gradient method](https://en.wikipedia.org/wiki/Conjugate_gradient_method)
 - [An Introduction to the Conjugate Gradient Method Without the Agonizing Pain](http://www.cs.cmu.edu/~./quake-papers/painless-conjugate-gradient.pdf)
-

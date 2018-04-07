@@ -6,6 +6,8 @@ categories:
   - Exploration Seismology
 tags:
   - Seismic_Unix
+
+slug: read-and-write-SU-in-c
 ---
 
 
