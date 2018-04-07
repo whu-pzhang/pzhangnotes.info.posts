@@ -34,7 +34,7 @@ slug: notes
 
 8. fork 他人的 repo，做了自己的修改，在不冲突的前提下保持与上游项目同步：
 
-    ````Bash
+    ```Bash
     git remote add upstream https://github.com/someone-repo.git  # 配置上游项目地址
     git fetch upstream  # 获取上游项目更新
     git merge upstream/master  # 合并到本地分支
@@ -43,11 +43,19 @@ slug: notes
 
 9. 更改远程分支地址
 
-    ``` bash
+    ```bash
     git remote rm origin # 如不需要原来的地址，可删除
     git remote set-url origin new-url
     ```
 
+10. 添加子模块
+
+    ```bash
+    # 将远程repo添加为当前repo下的子模块
+    git submodule add -b master https://github.com/someone-repo.git dirname
+    # 保持子模块和远程分支同步
+    git submodule update --recursive --remote
+    ```
 
 ## tmux
 
@@ -81,7 +89,9 @@ Flow('out', 'in '+exe,
 End()
 ```
 
-## 取模和取余
+## 其他
+
+1. 取模和取余
 
 整数 a 和 b
 `MOD` 和 `REM` 的计算都分两步：
