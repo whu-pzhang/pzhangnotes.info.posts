@@ -2,7 +2,8 @@
 title: Python多版本共存之pyenv
 date: 2015-07-22
 author: pzhang
-category: Programming
+category:
+  - Programming
 tags:
   - 安装
   - Python

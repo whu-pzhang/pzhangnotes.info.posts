@@ -2,7 +2,10 @@
 title: 地球物理学家列表
 date: 2015-07-23
 author: pzhang
-categories: 地球物理相关资源
+categories:
+  - 地球物理相关资源
+tags:
+  -
 
 slug: geophysicist
 ---

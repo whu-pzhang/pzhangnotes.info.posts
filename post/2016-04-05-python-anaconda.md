@@ -2,7 +2,8 @@
 title: Python科学计算环境Anaconda
 date: 2016-04-05
 author: pzhang
-category: Programming
+categories:
+  - Programming
 tags:
   - Python
   - Anaconda

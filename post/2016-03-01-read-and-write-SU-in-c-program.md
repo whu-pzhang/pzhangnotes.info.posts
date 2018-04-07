@@ -2,7 +2,8 @@
 title: 在C程序中读写SU格式文件
 date: 2016-03-01
 author: pzhang
-category: Exploration Seismology
+categories:
+  - Exploration Seismology
 tags:
   - Seismic_Unix
 ---

@@ -3,7 +3,7 @@ title: Madagascar之colormap
 date: 2017-05-10
 author: pzhang
 draft: false
-categories: Exploration Seismology
+category: Exploration Seismology
 tags:
   - madagascar
   - colormap

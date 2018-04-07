@@ -2,7 +2,8 @@
 title: C语言中二维数组的动态分配
 date: 2015-08-02
 author: pzhang
-categories: Programming
+categories:
+  - Programming
 tags:
   - C
   - Linux

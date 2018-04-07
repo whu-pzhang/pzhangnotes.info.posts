@@ -2,7 +2,8 @@
 title: SU/SEGY文件格式
 date: 2016-02-29
 author: pzhang
-category: Exploration Seismology
+category:
+  - Exploration Seismology
 tags:
   - Seismic_Unix
   - C

@@ -2,7 +2,8 @@
 title: 数组和指针
 date: 2015-07-31
 author: pzhang
-category: Programming
+category:
+  - Programming
 tags:
   - c
   - Linux

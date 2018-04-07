@@ -3,7 +3,8 @@ title: CentOS 7安装及配置
 author: pzhang
 date: 2014-07-15
 updated: 2015-09-18
-categories: Linux
+categories:
+  - Linux
 tags:
   - CentOS
   - Linux

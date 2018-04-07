@@ -2,7 +2,8 @@
 title: 地球物理相关软件
 date: 2014-02-20
 author: pzhang
-categories: 地球物理相关资源
+categories:
+  - 地球物理相关资源
 tags:
   - 理论地震图
   - SAC

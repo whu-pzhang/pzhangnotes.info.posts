@@ -2,7 +2,8 @@
 title: Linux安装Sublime Text 3
 author: pzhang
 date: 2015-09-22
-category: Linux
+category:
+  - Linux
 tags:
   - Linux
   - 安装

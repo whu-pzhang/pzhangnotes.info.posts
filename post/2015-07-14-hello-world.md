@@ -2,8 +2,10 @@
 title: Hello World
 date: 2015-07-14
 author: pzhang
-categories: 杂谈
-tags: 博客
+categories:
+  - 杂谈
+tags:
+  - 博客
 slug: hello-world
 ---
 

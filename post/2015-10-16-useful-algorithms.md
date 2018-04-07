@@ -3,7 +3,8 @@ title: 一些有用的算法收集
 author: pzhang
 date: 2015-10-16
 modified: 2016-04-14
-category: Programming
+category:
+  - Programming
 tags:
   - 算法
   - Bash
