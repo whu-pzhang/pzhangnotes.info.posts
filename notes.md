@@ -34,12 +34,12 @@ slug: notes
 
 8. fork 他人的 repo，做了自己的修改，在不冲突的前提下保持与上游项目同步：
 
-    ```Bash
+    ```bash
     git remote add upstream https://github.com/someone-repo.git  # 配置上游项目地址
     git fetch upstream  # 获取上游项目更新
     git merge upstream/master  # 合并到本地分支
     git push origin master  # 提交推送到自己的 repo
-    ````
+    ```
 
 9. 更改远程分支地址
 
