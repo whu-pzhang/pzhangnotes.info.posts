@@ -69,6 +69,18 @@ Flow('out', 'in '+exe,
     '''
     ${SOURCES[1].abspath} verb=y blablabla...
     ''')
-
 End()
 ```
+
+## 取模和取余
+
+整数 a 和 b
+`MOD` 和 `REM` 的计算都分两步：
+
+* `c = a / b`
+* `r = a - (c * b)`
+
+不同之处在第一步里面：
+
+- 取模时，`c` 往负无穷取整
+- 取余时，`c` 往靠近零的方向取整
