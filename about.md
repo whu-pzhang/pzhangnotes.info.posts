@@ -1,9 +1,8 @@
 ---
 title: 关于
 author: pzhang
-date:
-updated:
-layout: post
+date: 2018-04-07
+lastMod: 2018-04-07
 ---
 
 ## 关于我
@@ -23,4 +22,3 @@ layout: post
 ## 联系方式
 
 - E-Mail: [pzhang.omega@gmail.com](mailto:pzhang.omega@gmail.com)
-
