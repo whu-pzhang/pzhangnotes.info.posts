@@ -2,13 +2,23 @@
 title: 数学基础拾遗
 author: pzhang
 date: 2018-01-08
+lastMod: 2018-04-07
+draft: true
+markup: mmark
+mathjax: true
+category: 基础理论
 tags:
+  - math
+  - 线性代数
+  - 概率论
+  -
+
+slug: math-foundation
 ---
 
 ## 线性代数
 
 线性代数知识点主要有以下这些：
-
 
 	- 矩阵和向量的基本运算
 	- 特殊矩阵
@@ -31,7 +41,7 @@ tags:
 - 标量(scalar)：常规小写Roman字符表示。定义一个标量时，通常会明确是哪种类型的数，$x \in \mathbb{R}$ 表示实数；$n \in \mathbb{N}$ 表示自然数。
 - 向量(vector)：粗体小写Roman字符。$\boldsymbol{x} \in \mathbb{R}^n$ 表示向量 $\boldsymbol{x}$ 属于 $n$ 维向量空间。
 - 矩阵(matrix)：大写斜粗体字符。$\boldsymbol{A} \in \mathbb{R}^{m \times n}$ 表示 $\boldsymbol{A}$ 为 $m$ 行 $n$ 列的实数矩阵。
-- 张量(tensor)：表示超过两维的数组，一般用大写正粗体表示。$\mathbf{A}$ 
+- 张量(tensor)：表示超过两维的数组，一般用大写正粗体表示。$\mathbf{A}$
 
 
 ### 矩阵乘法
@@ -40,51 +50,47 @@ tags:
 
 - 内积
 
-  也称为点积。给定两个向量，$\boldsymbol{x, y} \in \mathbb{R}^n$ 
-  $$
-  \boldsymbol{x^T y} =
-  \begin{bmatrix} 
-  x_1 & x_2 &\cdots & x_n
-  \end{bmatrix}
-  \begin{bmatrix} 
-  y_1 \\
-  y_2 \\
-  \vdots \\
-  y_n
-  \end{bmatrix}
-  = \sum_{i=1}^n x_i y_i
-  $$
+也称为点积。给定两个向量，$\boldsymbol{x, y} \in \mathbb{R}^n$，那么有：
 
+$$
+\boldsymbol{x^T y} =
+\begin{bmatrix}
+x_1 & x_2 &\cdots & x_n
+\end{bmatrix}
+\begin{bmatrix}
+y_1 \\
+y_2 \\
+\vdots \\
+y_n
+\end{bmatrix}
+= \sum_{i=1}^n x_i y_i
+$$
 
-
-
-
-
-
-有：$\boldsymbol{x^T y} = \boldsymbol{y^T x}$ 
+即 $\boldsymbol{x^T y} = \boldsymbol{y^T x}$
 
 - 外积
 
-  给定两个向量，$\boldsymbol{x} \in \mathbb{R}^m,  \boldsymbol{y} \in \mathbb{R}^n$ , 有 $\boldsymbol{x y^T} \in \mathbb{R}^{m \times n}$，且 $(xy^T)_{ij} = x_i y_j$。例：
-  $$
-  \boldsymbol{x y^T} = 
-  \begin{bmatrix}
-  x_1 \\
-  x_2 \\
-  \vdots \\
-  x_n
-  \end{bmatrix}
-  \begin{bmatrix}
-  y_1 & y_2 & \cdots & y_n
-  \end{bmatrix}
-  =
-  \begin{bmatrix}
-  x_1y_1 & x_1y_2 & \cdots & x_1y_n\\
-  x_2y_1  & x_2y_2 & \cdots & x_2y_n\\
-  \vdots & \vdots & \ddots & \vdots \\
-  x_m y_1 & x_m y_2 & \cdots & x_m y_n
-  \end{bmatrix}
-  $$
+给定两个向量，$\boldsymbol{x} \in \mathbb{R}^m,  \boldsymbol{y} \in \mathbb{R}^n$ , 有 $\boldsymbol{x y^T} \in \mathbb{R}^{m \times n}$，且 $(xy^T)\_{ij} = x_i y_j$。例：
+
+$$
+\boldsymbol{x y^T} =
+\begin{bmatrix}
+x_1 \\
+x_2 \\
+\vdots \\
+x_n
+\end{bmatrix}
+\begin{bmatrix}
+y_1 & y_2 & \cdots & y_n
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_1y_1 & x_1y_2 & \cdots & x_1y_n\\
+x_2y_1  & x_2y_2 & \cdots & x_2y_n\\
+\vdots & \vdots & \ddots & \vdots \\
+x_m y_1 & x_m y_2 & \cdots & x_m y_n
+\end{bmatrix}
+$$
 
 
 
@@ -97,15 +103,18 @@ tags:
 
 
 
-
 #### 矩阵和矩阵乘法
 
-进行矩阵乘法的矩阵形状必须匹配，矩阵 $\boldsymbol{A}$ 的列数必须和矩阵 $\boldsymbol{B}$ 的行数相等，若 $\boldsymbol{A} \in \mathbb{R}^{m \times n}$, $\boldsymbol{B} \in \mathbb{R}^{n \times p}$，则 $\boldsymbol{C} \in \mathbb{R}^{m \times p}$
+进行矩阵乘法的矩阵形状必须匹配，矩阵 $\boldsymbol{A}$ 的列数必须和矩阵 $\boldsymbol{B}$ 的行数相等，
+若 $\boldsymbol{A} \in \mathbb{R}^{m \times n}$, $\boldsymbol{B} \in \mathbb{R}^{n \times p}$，
+则 $\boldsymbol{C} \in \mathbb{R}^{m \times p}$，有：
+
 $$
-\boldsymbol{C = AB} \\
-\Downarrow \\
-C_{ij} = \sum A_{ik} B_{kj}
+	\boldsymbol{C = AB} \\
+	\Downarrow \\
+	C_{ij} = \sum A_{ik} B_{kj}
 $$
+
 当然，矩阵乘法除了以上计算公式，还有其他的理解办法，例如：行或者列的线性组合。
 
 此外，还有一种矩阵“乘法”是两个矩阵对应元素的乘积，称为 **元素对应乘积**（element-wise product）或 **Hadamard 乘积**（Hadamard product），记为 $\boldsymbol{A \odot B}$。
@@ -129,7 +138,7 @@ $$
 
 若一组向量中的任意一个向量都不能表示为其他向量的线性组合，则称这组向量线性无关。
 $$
-\boldsymbol{x_n} = \sum_i^{n-1} \alpha_i \boldsymbol{x_i} 
+\boldsymbol{x_n} = \sum_i^{n-1} \alpha_i \boldsymbol{x_i}
 $$
 若存在不为零的实数 $\alpha_i$ 使得上式成立，则称向量组 ${\boldsymbol{x_1, x_2, \cdots, x_n}}$ 线性相关。
 
@@ -141,8 +150,8 @@ $\boldsymbol{A}$ 的基本子空间：
 
 - 矩阵 $\boldsymbol{A}$ 的列张成(span)的子空间称为 $\boldsymbol{A}$ 的列空间。$C(\boldsymbol{A}) \in \mathbb{R}^{m}$
 - 矩阵 $\boldsymbol{A}$ 的行张成(span)的子空间称为 $\boldsymbol{A}$ 的行空间。$R(\boldsymbol{A}) \in \mathbb{R}^{n}$
-- $\boldsymbol{Ax = 0}$ 的解张成的子空间称为  $\boldsymbol{A}$ 的零空间，记为 $N(\boldsymbol{A})$ 
-- $\boldsymbol{A^Tx = 0}$ 的解张成的子空间称为  $\boldsymbol{A}$ 的左零空间，记为 $N(\boldsymbol{A^T})$ 
+- $\boldsymbol{Ax = 0}$ 的解张成的子空间称为  $\boldsymbol{A}$ 的零空间，记为 $N(\boldsymbol{A})$
+- $\boldsymbol{A^Tx = 0}$ 的解张成的子空间称为  $\boldsymbol{A}$ 的左零空间，记为 $N(\boldsymbol{A^T})$
 
 易知四个基本子空间的关系如下：
 - $C(\boldsymbol{A}) \perp N(\boldsymbol{A^T})$
@@ -243,6 +252,7 @@ $$
 
 
 
+
 我这里不做区分，求导结果与原矩阵同型，称为 **Mixed layout**。
 $$
 \begin{align}
@@ -264,7 +274,7 @@ $$
 $$
 $f(\boldsymbol{x})$ 关于 $\boldsymbol{x}$ 的二阶导数是称为海森矩阵(Hessian matrix)的一个对称方阵：
 $$
-\left (\nabla_{\boldsymbol{x}}^2 f(\boldsymbol{x}) \right)_{ij} = \frac{\partial^2 f(\boldsymbol{x})} {\partial x_i \partial x_j}, \quad \nabla_{\boldsymbol{x}}^2 f(\boldsymbol{x}) \in \mathbb{R}^{n\times n} 
+\left (\nabla_{\boldsymbol{x}}^2 f(\boldsymbol{x}) \right)_{ij} = \frac{\partial^2 f(\boldsymbol{x})} {\partial x_i \partial x_j}, \quad \nabla_{\boldsymbol{x}}^2 f(\boldsymbol{x}) \in \mathbb{R}^{n\times n}
 $$
 
 
@@ -317,8 +327,8 @@ $$
 **常见技巧及注意事项**
 
 - 对下角标形式和矩阵表示形式的转化要敏感，常见的有：
-  -  $\sum u_i v_i = \mathbf{u}^T\mathbf{v} = \mathbf{v}^T\mathbf{u} = \text{tr} (\mathbf{u}^T\mathbf{v})$ 
-  -  $\sum_{i,j} a_{ij} b_{ij} = \text{tr} (\mathbf{AB}^T)$ 
+  -  $\sum u_i v_i = \mathbf{u}^T\mathbf{v} = \mathbf{v}^T\mathbf{u} = \text{tr} (\mathbf{u}^T\mathbf{v})$
+  -  $\sum_{i,j} a_{ij} b_{ij} = \text{tr} (\mathbf{AB}^T)$
 
 - 将实数看作是 $1*1$ 矩阵的迹来给式子套上 $\text{tr}$ ，然后利用迹运算的性质
 
@@ -347,7 +357,7 @@ $$
 
 - $P$ 的定义域必须是 $\rm{x}$ 所有可能状态的集合。
 - $\forall x \in {\rm x}, \quad  0 \le P(x) \le 1$
-- $\sum_{x \in {\rm x}} P(x) = 1$ 
+- $\sum_{x \in {\rm x}} P(x) = 1$
 
 #### 连续型随机变量和概率密度函数
 
@@ -355,7 +365,7 @@ $$
 
 - $p$ 的定义域必须是 $\mathrm{x}$ 所有可能状态的集合。
 - $\forall x \in \rm{x}, p(x) \ge 0$ ，注意并不要求 $p(x) \le 1$。
-- $\int p(x) {\rm d}x = 1$ 
+- $\int p(x) {\rm d}x = 1$
 
 $p(x)$ 没有直接给出特定状态的概率，其给出的是在面积为 $\delta x$ 无限小的区域内的概率为 $p(x) \delta x$ 。对PDF求积分获得区间内真实概率。
 
