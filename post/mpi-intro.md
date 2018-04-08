@@ -9,7 +9,7 @@ tags:
   - MPI
   - 高性能计算
 
-draft: true
+draft: false
 slug: mpi-intro
 ---
 
@@ -30,3 +30,125 @@ llvm-clang -I/usr/local/Cellar/open-mpi/3.0.0_2/include -L/usr/local/opt/libeven
 ## 服务器上的配置
 
 MPI通常是运行在多节点服务器上，单机并行直接用OpenMP可能更为方便。
+
+多节点上的MPI程序需要在不同的计算机之间进行了通信，那么就需要知道每个节点的IP地址，为了方便输入，可以给每个节点取一个名字，这样就不用去记各自的IP地址了。`hosts` 文件保存着IP和名字的映射关系。这里进行设置的是你执行计算的节点，即主节点（Client）。
+
+```bash
+$ cat /etc/hosts
+# Do not remove the following line, or various programs
+# that require network functionality will fail.
+127.0.0.1	node10	localhost
+::1		node10  localhost6
+192.168.0.1 node1
+192.168.0.2 node2
+192.168.0.3 node3
+192.168.0.4 node4
+192.168.0.5 node5
+192.168.0.6 node6
+192.168.0.7 node7
+192.168.0.8 node8
+192.168.0.9 node9
+192.168.0.10 node10
+192.168.0.11 node11
+192.168.0.12 node12
+192.168.0.13 node13
+192.168.0.14 node14
+192.168.0.15 node15
+192.168.0.16 node16
+192.168.0.17 node17
+```
+
+上述输出为在所里曙光超算上控制节点(主节点)的输出。
+
+如此设置后即可利用 `ssh username@hostname` 来登录不同的节点了，这个命令会让你输入
+用户密码，为了使得节点见通信不需要密码，可以生成公共秘钥加入主节点的 `authorized_keys` 中。
+
+```bash
+$ ssh-keygen -t dsa
+```
+一系列回车(默认值)后，将生成的秘钥拷贝到各个子节点即可。
+
+```bash
+$ cat .ssh/id_dsa.pub | ssh b@B 'cat >> .ssh/authorized_keys'
+b@B's password:
+```
+
+现在各个节点可以进行通信，但是还需要有一个共享的存储数据的文件夹，使得所有的节点均可以访问。
+
+由于所里超算是共享硬盘的，这一步暂时不管。
+
+至此，MPI的运行环境便已经搭建完毕！下面运行一个简单的程序测试一下。
+
+## MPI_Hello
+
+```c
+#include <stdio.h>
+#include <mpi.h>
+
+int main(void)
+{
+    MPI_Init(NULL, NULL);
+
+    int rank, size, len;
+    char hostName[MPI_MAX_PROCESSOR_NAME];
+    MPI_Get_processor_name(hostName, &len);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    printf("Number of task=%d, My rank=%d Running on %s.\n", size, rank, hostName);
+
+    MPI_Finalize();
+    return 0;
+}
+
+```
+
+编译链接：
+
+```bash
+$ mpicc -std=c99 -Wall mpi_hello.c -o mpi_hello
+```
+
+运行时，可以在命令行指定在哪些节点上运行，也可以通过 `hostfile` 来指定。
+
+```bash
+$ mpirun -np 8 --hosts node1,node2,node3,node4 ./mpi_hello
+Number of task=8, My rank=2 Running on node3.
+Number of task=8, My rank=6 Running on node3.
+Number of task=8, My rank=7 Running on node4.
+Number of task=8, My rank=4 Running on node1.
+Number of task=8, My rank=1 Running on node2.
+Number of task=8, My rank=5 Running on node2.
+Number of task=8, My rank=3 Running on node4.
+Number of task=8, My rank=0 Running on node1.
+$ cat host.txt
+node3:4
+node4:4
+node5:4
+node6:4
+$ mpirun -np 16 --hostfile host.txt ./mpi_hello
+Number of task=16, My rank=8 Running on node5.
+Number of task=16, My rank=14 Running on node6.
+Number of task=16, My rank=13 Running on node6.
+Number of task=16, My rank=12 Running on node6.
+Number of task=16, My rank=15 Running on node6.
+Number of task=16, My rank=1 Running on node3.
+Number of task=16, My rank=0 Running on node3.
+Number of task=16, My rank=4 Running on node4.
+Number of task=16, My rank=2 Running on node3.
+Number of task=16, My rank=5 Running on node4.
+Number of task=16, My rank=6 Running on node4.
+Number of task=16, My rank=7 Running on node4.
+Number of task=16, My rank=9 Running on node5.
+Number of task=16, My rank=3 Running on node3.
+Number of task=16, My rank=10 Running on node5.
+Number of task=16, My rank=11 Running on node5.
+```
+
+
+
+
+
+## 参考
+
+- [Running an MPI cluster within a Lan](http://mpitutorial.com/tutorials/running-an-mpi-cluster-within-a-lan/)
