@@ -9,7 +9,7 @@ tags:
   - MPI
   - 高性能计算
 
-draft: false
+draft: true
 slug: mpi-intro
 ---
 
@@ -27,7 +27,7 @@ slug: mpi-intro
 $ mpicc --showme
 llvm-clang -I/usr/local/Cellar/open-mpi/3.0.0_2/include -L/usr/local/opt/libevent/lib -L/usr/local/Cellar/open-mpi/3.0.0_2/lib -lmpi
 ```
-## 服务器上的配置
+## 集群上的配置
 
 MPI通常是运行在多节点服务器上，单机并行直接用OpenMP可能更为方便。
 
@@ -144,9 +144,6 @@ Number of task=16, My rank=3 Running on node3.
 Number of task=16, My rank=10 Running on node5.
 Number of task=16, My rank=11 Running on node5.
 ```
-
-
-
 
 
 ## 参考

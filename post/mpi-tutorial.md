@@ -18,7 +18,7 @@ Meaasge Passing Interface(MPI)为消息传递接口标准，其目标是为消�
 
 本文为MPI学习中的一些 笔记，默认读者了解C/C++和Linux的基本知识。
 
-<!—more—>
+<!--more-->
 
 ## MPI 安装
 
