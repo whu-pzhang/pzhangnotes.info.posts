@@ -1,7 +1,7 @@
 ---
 title: NumPy学习笔记
 date: 2017-05-03
-lastMod: 2017-05-03
+lastMod: 2018-04-08
 author: pzhang
 category: Programming
 tags:
@@ -68,7 +68,7 @@ dtype('int64')
 
 后面代码都默认包含
 
-``` python
+```python
 import numpy as np
 ```
 
@@ -123,9 +123,9 @@ array([  1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10.])
 
 除了上述函数以外，还有`zeros_like`, `ones_like`, `empty_like` , `fromfunction`和 `fromfile`等函数也能来创建数组。详见[Array creation routines](https://docs.scipy.org/doc/numpy-1.13.0/reference/routines.array-creation.html#routines-array-creation).
 
-###基本操作
+### 基本操作
 
-####索引
+#### 索引
 
 NumPy 有多种方式进行索引。
 
@@ -409,6 +409,12 @@ Universal functions 对两个数组进行计算时，会对数组的对应元素
 4. 当输入数组的某个轴的长度为1时，沿着此轴运算时都用此轴上的第一组值
 
 
+总结一下就是：
+
+- shape为 `(n,)` 和 `(n,1)` 的数组是不同的。
+- shape为`(n,)` 的数组参与矩阵乘法计算时，既可以当列向量也可以当行向量
+- shape为`(n,)` 的数组参与加法运算时，当作行向量。
+- 参与计算的数组相对应的轴，维度必须相等；若不相等，则至少有一个维度为1(包括没有维度)。
 
 
 ## 拷贝和视图
