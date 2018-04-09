@@ -1,9 +1,10 @@
 ---
 title: 卷积和相关
-date: 2016-09-17 09:11:31
+date: 2016-09-17
 author: pzhang
 draft: true
-category: 理论基础
+categories:
+  - 基础理论
 tags:
   - MATLAB
 ---

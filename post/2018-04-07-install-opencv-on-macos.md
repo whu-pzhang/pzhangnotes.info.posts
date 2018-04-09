@@ -6,9 +6,12 @@ author: pzhang
 draft: false
 categories:
   - 安装
+  - 图像处理
 tags:
   - macOS
   - OpenCV
+  - c/c++
+  - python
 
 slug: install-opencv-on-macos
 ---

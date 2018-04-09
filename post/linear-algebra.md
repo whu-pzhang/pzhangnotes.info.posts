@@ -9,7 +9,6 @@ mathjax: true
 categories:
   - 基础理论
 tags:
-  - math
   - 线性代数
 slug: linear-algebra
 ---

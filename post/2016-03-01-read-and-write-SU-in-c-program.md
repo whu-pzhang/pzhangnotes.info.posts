@@ -1,11 +1,14 @@
 ---
 title: 在C程序中读写SU格式文件
 date: 2016-03-01
+lastMod: 2016-03-01
 author: pzhang
 categories:
-  - Exploration Seismology
+  - 地震勘探
+  - Programming
 tags:
-  - Seismic_Unix
+  - Seismic Unix
+  - c
 
 slug: read-and-write-SU-in-c
 ---

@@ -4,10 +4,10 @@ date: 2016-11-03
 lastMode: 2016-11-03
 author: pzhang
 categories:
-  - Exploration Seismology
+  - 地震勘探
 tags:
   - Madagascar
-  - c
+  - c/c++
 
 slug: add-new-program-to-mada
 ---

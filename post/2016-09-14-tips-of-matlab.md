@@ -1,10 +1,12 @@
 ---
 title: MATLAB拾遗
 author: pzhang
-date: 2016-09-14 15:10:08
-categories: Programming
+date: 2016-09-14
+categories:
+  - Programming
 draft: true
-tags: [MATLAB]
+tags:
+  - MATLAB
 ---
 
 

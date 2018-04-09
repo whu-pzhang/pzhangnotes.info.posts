@@ -4,8 +4,11 @@ author: pzhang
 date: 2016-11-26
 draft: true
 tags:
-  - Linux拾遗
-category: Linux
+  - Linux
+categories:
+  - Programming
+
+slug: linux-tips
 ---
 
 本文记录使用Linux下的一些小技巧。

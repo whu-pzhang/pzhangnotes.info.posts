@@ -3,7 +3,8 @@ title: 共轭梯度法
 author: pzhang
 date: 2017-07-10
 draft: true
-category: 理论基础
+categories:
+  - 基础理论
 tags:
   - 算法
   - 基础

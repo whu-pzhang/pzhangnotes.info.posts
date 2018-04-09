@@ -3,7 +3,8 @@ title: 线性代数基础知识
 author: pzhang
 date: 2017-10-03
 draft: true
-category: 理论基础
+categories:
+  - 基础理论
 tags:
   - 线性代数
 ---

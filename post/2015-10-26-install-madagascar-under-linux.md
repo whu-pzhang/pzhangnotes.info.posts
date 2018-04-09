@@ -2,12 +2,13 @@
 title: Linux下安装Madagascar
 author: pzhang
 date: 2015-10-26
-category:
-  - Exploration Seismology
+lastMod: 2015-10-26
+categories:
+  - 安装
+  - 地震勘探
 tags:
   - Linux
   - Madagascar
-  - 安装
 
 slug: install-madagascar-on-linux
 ---

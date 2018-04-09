@@ -1,11 +1,12 @@
 ---
 title: SU/SEGY文件格式
 date: 2016-02-29
+lastMod: 2016-02-29
 author: pzhang
-category:
-  - Exploration Seismology
+categories:
+  - 地震勘探
 tags:
-  - Seismic_Unix
+  - Seismic Unix
   - C
 
 slug: SU-and-Segy-format

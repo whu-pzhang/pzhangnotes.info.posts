@@ -7,7 +7,7 @@ draft: false
 categories:
   - Programming
 tags:
-  - C
+  - c/c++
 slug: define-and-typedef
 ---
 

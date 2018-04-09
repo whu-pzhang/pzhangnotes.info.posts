@@ -1,11 +1,14 @@
 ---
 title: Linux下安装SEPlib
 date: 2016-04-18
+lastMod: 2016-04-18
 author: pzhang
-category: Exploration Seismology
+categories:
+  - 地震勘探
+  - 安装
 tags:
   - SEPlib
-  - 安装
+  - fortran
 
 slug: install-seplib-on-linux
 ---

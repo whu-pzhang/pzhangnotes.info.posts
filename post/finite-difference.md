@@ -1,6 +1,7 @@
 ---
 title: finite-difference
-
+date: 2017-06-03
+author: pzhang
 draft: true
 tags:
 ---

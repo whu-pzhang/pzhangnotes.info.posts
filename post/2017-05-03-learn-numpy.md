@@ -3,7 +3,8 @@ title: NumPy学习笔记
 date: 2017-05-03
 lastMod: 2018-04-08
 author: pzhang
-category: Programming
+categories:
+  - Programming
 tags:
   - numpy
   - python

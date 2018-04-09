@@ -9,7 +9,7 @@ mathjax: true
 categories:
   - 基础理论
 tags:
-  - math
+  - 信息论
   - 线性代数
   - 概率论
 slug: basic-math-collection

@@ -1,7 +1,8 @@
 ---
 title: 各种变换
 author: pzhang
-category: Exporationn Seismology
+categories:
+  - 基础理论
 draft: true
 tags:
 ---

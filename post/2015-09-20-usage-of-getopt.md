@@ -3,8 +3,7 @@ title: getopt用法
 date: 2015-09-20
 lastMod: 2015-09-20
 author: pzhang
-modified:
-category:
+categories:
   - Programming
 tags:
   - Linux

@@ -1,12 +1,15 @@
 ---
 title: OpenMP 学习笔记
 date: 2016-07-24
+lastMod: 2016-07-24
 author: pzhang
 draft: true
-category: Programming
+categories:
+  - Programming
 tags:
   - OpenMP
   - Linux
+  - C/C++
 
 slug: openmp-notes
 ---
