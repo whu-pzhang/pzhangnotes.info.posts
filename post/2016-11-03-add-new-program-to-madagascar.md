@@ -1,18 +1,22 @@
 ---
 title: 添加程序到Madagascar中
 date: 2016-11-03
+lastMode: 2016-11-03
 author: pzhang
-category: Exploration Seismology
+categories:
+  - Exploration Seismology
 tags:
   - Madagascar
+  - c
 
+slug: add-new-program-to-mada
 ---
 
 
 有时候自己利用Madagascar编写了一些数据处理的程序，每次调用都需要将源码放到需要用的目
 录重新编译，然后再在SConstruct中调用,类似这样：
 
-``` python
+```python
 prog = Program('Mcode.c')
 exe = str(prog[0])
 # proj = Project()
@@ -22,6 +26,9 @@ Flow('out', ['inp1', 'inp2', exe],
     ${SOURCES[2].abspath} inp2=${SOURCES[1]}
     ''')
 ```
+
+<!--more-->
+
 若是只在一个project中用到倒还好，但若是比较通用的程序，在不同的文件夹中都要这么来调
 用的话未免太麻烦。而将我们的代码直接加入Mada中，就可以直接调用。不用将源码拷来拷去还
 要编译了。当然了，加入Mada的程序一般是我们的最终版本，测试的程序还是就放在测试目录中
@@ -29,7 +36,6 @@ Flow('out', ['inp1', 'inp2', exe],
 
 本文介绍怎么样将自己的程序加入到Madagascar中。
 
-<!--more-->
 
 ## 怎么样添加程序
 

@@ -3,8 +3,9 @@ title: macOS 安装 OpenCV
 date: 2018-04-07T16:01:06+08:00
 lastmod: 2018-04-07T16:01:06+08:00
 author: pzhang
-draft: true
-category: 安装
+draft: false
+categories:
+  - 安装
 tags:
   - macOS
   - OpenCV
@@ -16,11 +17,22 @@ slug: install-opencv-on-macos
 
 <!--more-->
 
+## 依赖
+
+- XCode
+- Cmake
+- Python
+- NumPy
+
+XCode 出厂自带。其他的可以通过 [HomeBrew](https://brew.sh/) 安装。
+
+安装 XCode Command Line Tools
+
+```bash
+$ sudo xcode-select --install
+```
+
 ## 从源码安装
-
-### 依赖
-
-`cmake`，`python3`，`numpy`
 
 ### 下载
 
@@ -47,6 +59,7 @@ mkdir -p $ippDir
 mv $ippFile $ippDir/$ippHash-$ippFile
 ```
 
+编译安装：
 
 ```bash
 mkdir release && cd release
@@ -62,10 +75,49 @@ sudo make install
 ## 从Homebrew安装
 
 ```shell
-brew install python3
-brew install opencv3
+brew update
+brew install opencv3 --with-python3
 ```
 
-```shell
-echo "/usr/local/opt/opencv/lib/python3.6/site-packages" >> /usr/local/lib/python3.6/site-packages/opencv3.pth
+会自动下载一系列依赖，并安装OpenCV3。
+
+## 测试
+
+`C++`测试：
+
+```cpp
+#include <opencv2/opencv.hpp>
+
+int main(int argc, char const *argv[])
+{
+    cv::VideoCapture cap(0);
+    cv::namedWindow("Test", cv::WINDOW_AUTOSIZE);
+
+    cv::Mat frame;
+    for (;;) {
+        cap >> frame;
+        cv::imshow("Test", frame);
+        if (cv::waitKey(17) > 0) break;
+    }
+
+    return 0;
+}
 ```
+
+编译运行：
+
+```bash
+$ clang++ test.cpp $(pkg-config --libs opencv) -o test.x
+$ ./test.x
+```
+
+会打开摄像头，按任意键退出。
+
+Python3测试：
+
+```bash
+$ python3 -c "import cv2; print(cv2.__version__)"
+3.4.1
+```
+
+至此已经成功安装OpenCV，并绑定了Python3。
