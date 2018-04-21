@@ -97,9 +97,7 @@ $$
 
 ### 矩阵和矩阵乘法
 
-进行矩阵乘法的矩阵形状必须匹配，矩阵 $\boldsymbol{A}$ 的列数必须和矩阵 $\boldsymbol{B}$ 的行数相等，
-若 $\boldsymbol{A} \in \mathbb{R}^{m \times n}$, $\boldsymbol{B} \in \mathbb{R}^{n \times p}$，
-则 $\boldsymbol{C} \in \mathbb{R}^{m \times p}$，有：
+进行矩阵乘法的两矩阵形状必须匹配，矩阵 $\boldsymbol{A}$ 的列数必须和矩阵 $\boldsymbol{B}$ 的行数相等，若 $\boldsymbol{A} \in \mathbb{R}^{m \times n}$, $\boldsymbol{B} \in \mathbb{R}^{n \times p}$，则 $\boldsymbol{C} \in \mathbb{R}^{m \times p}$，有：
 
 $$
 \boldsymbol{C = AB} \\
@@ -126,19 +124,24 @@ $$
 - 不同于标量乘积和向量乘积，矩阵乘法不满足交换律。
 
 
-## 逆矩阵、子空间和线性无关
+## 基本概念
 
-若一组向量中的任意一个向量都不能表示为其他向量的线性组合，则称这组向量线性无关。
-$$
-\boldsymbol{x_n} = \sum_i^{n-1} \alpha_i \boldsymbol{x_i}
-$$
-若存在不为零的实数 $\alpha_i$ 使得上式成立，则称向量组 ${\boldsymbol{x_1, x_2, \cdots, x_n}}$ 线性相关。
+### 向量空间和子空间
 
-矩阵 $\boldsymbol{A}$ 的列秩（column rank）为其最大线性无关列向量的个数。
+将二维直角坐标系想象成一个2D空间，空间由无数个点组成，每个点是一个从原点出发的向量。在所有的向量中，有一组向量是特别的：$\hat i = (1,0), \hat{j} = (0,1)$ ，有了$\hat{i}$ 和 $\hat{j}$ ，空间上所有的向量都可以表示为它们的线性组合。将所有可以表示为给定向量线性组合的向量的集合，称为给定向量张成（span）的空间。
+
+向量空间必须对对加法和乘法运算封闭，设$\boldsymbol{u}$ 和 $\boldsymbol{v}$ 为向量空间中的两个向量，$a,b,c$ 为任意实数，那么有：
+
+1. $a\boldsymbol{u} + b\boldsymbol{v}$ 必须落在该空间中
+2. $c \boldsymbol{u}$ 必须落在该空间中
+
+被包含于上述向量空间中的空间称为子空间（子空间必定包含原点！）。
+
+### 基本子空间
 
 考虑实数线性系统 $\boldsymbol{Ax = b}$，其中 $\boldsymbol{A} \in \mathbb{R}^{m \times n}, \boldsymbol{x} \in \mathbb{R}^{n \times 1}, \boldsymbol{b} \in \mathbb{R}^{m \times 1}$。
 
-$\boldsymbol{A}$ 的基本子空间：
+$\boldsymbol{A}$ 的四个基本子空间：
 
 - 矩阵 $\boldsymbol{A}$ 的列张成(span)的子空间称为 $\boldsymbol{A}$ 的列空间。$C(\boldsymbol{A}) \in \mathbb{R}^{m}$
 - 矩阵 $\boldsymbol{A}$ 的行张成(span)的子空间称为 $\boldsymbol{A}$ 的行空间。$R(\boldsymbol{A}) \in \mathbb{R}^{n}$
@@ -146,11 +149,27 @@ $\boldsymbol{A}$ 的基本子空间：
 - $\boldsymbol{A^Tx = 0}$ 的解张成的子空间称为  $\boldsymbol{A}$ 的左零空间，记为 $N(\boldsymbol{A^T})$
 
 易知四个基本子空间的关系如下：
+
 - $C(\boldsymbol{A}) \perp N(\boldsymbol{A^T})$
 
 - $R(\boldsymbol{A}) \perp N(\boldsymbol{A})$
 
-- $dimC(\boldsymbol{A}) + dimN(\boldsymbol{A}) = n$
+- $dimC(\boldsymbol{A}) + dimN(\boldsymbol{A}) = n $
+
+
+### 线性无关
+
+若一组向量中的任意一个都不能表示为其他向量的线性组合，则称这组向量线性无关。
+$$
+\boldsymbol{x_n} = \sum_i^{n-1} \alpha_i \boldsymbol{x_i}
+$$
+若存在不为零的实数 $\alpha_i$ 使得上式成立，则称向量组 ${\boldsymbol{x_1, x_2, \cdots, x_n}}$ 线性相关。
+
+### 秩和维数
+
+矩阵 $\boldsymbol{A}$ 的列秩（column rank）为其最大线性无关列向量的个数。
+
+- $$
 
 
 确定 $\boldsymbol{Ax = b}$ 是否有解相当于确定向量 $\boldsymbol{b}$ 是否在 $C(\boldsymbol{A})$ 中。为了使得 $\boldsymbol{Ax = b}$ 对任意向量 $\boldsymbol{b} \in \mathbb{R}^{m}$ 都有解，需要 $C(\boldsymbol{A})$ 构成整个 $\mathbb{R}^{m}$ 空间，这就需要 $\boldsymbol{A}$ 至少有 $m$ 列。
