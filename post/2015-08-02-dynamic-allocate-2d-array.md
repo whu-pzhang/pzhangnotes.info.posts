@@ -243,6 +243,7 @@ float ***alloc3float(size_t n1, size_t n2, size_t n3)
 
 ```c
 #include <stdio.h>
+#include <stdlib.h>
 
 int **alloc3float(size_t n1, size_t n2, size_t n3);
 
