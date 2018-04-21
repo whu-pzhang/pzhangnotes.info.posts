@@ -1,7 +1,7 @@
 ---
-title: C语言中二维数组的动态分配
+title: C语言中多维数组的动态分配
 date: 2015-08-02
-lastMod: 2015-08-02
+lastMod: 2018-04-21
 author: pzhang
 categories:
   - Programming
@@ -16,10 +16,18 @@ slug: dynamic-allocate-2d-array
 静态数据即数组长度预先定义好，一旦给定大小就无法再改变长度，静态数组用完后会自动释放
 内存。
 
-动态数组的长度则是随程序的需要来指定的。其需要的内存由内存分配函数 `malloc` 或 `calloc`
-从堆（heap）上分配，用完后需要程序员自己释放内存。
+c99 标准中加入了[变长数组VLA](http://en.cppreference.com/w/c/language/array)，
+数组大小可以用非整数常量表达式表示。例如：
 
-标准C语言中提供了一维数组动态分配和释放的函数，包含于头文件 `stdlib.h` 中。
+```c
+size_t n1 = 10, n2=35;
+float a[n1], b[n1][n2];
+```
+
+但当需要的数组大小过大时，栈（stack）上空间就会不够用，静态数组会失败，俗称爆栈。
+这时就需要动态地从堆（heap）上分配内存，即动态分配。
+动态数组的长度则是随程序的需要来指定的。
+标准C语言中提供动态分配和释放的函数，包含于头文件 `stdlib.h` 中。
 
 <!--more-->
 
@@ -43,16 +51,14 @@ extern void free(void *p);
 
 ```c
 // 给二维数组动态分配内存
-int **p;
-// 指针p指向数组array的第一维，有m个元素
-p = (int **)malloc(m * sizeof(int *));
+int **p = malloc(m * sizeof(int *));
 ```
 
 次层指针为 `array[]`, 是一个一维指针，直接对其分配内存就行了。
 
 ```c
 for (int i=0; i<n; i++)
-    p[i] = (int *)malloc(n * sizeof(int));
+    p[i] = malloc(n * sizeof(int));
 ```
 
 综合这两步：
@@ -63,9 +69,9 @@ for (int i=0; i<n; i++)
 int **alloc2int(size_t n1, size_t n2)
 {
     int **p;
-    if ((p = (int **)malloc(n1 * sizeof(int *))) == NULL) return NULL;
+    if ((p = malloc(n1 * sizeof(int *))) == NULL) return NULL;
     for (int i=0; i<n1; i++) {
-        if ((p[i] = (int *)malloc(n2 * sizeof(int))) == NULL) return NULL;
+        if ((p[i] = malloc(n2 * sizeof(int))) == NULL) return NULL;
     }
     return p;
 }
@@ -154,13 +160,13 @@ int **alloc2int(size_t n1, size_t n2)
 {
     int **m;
     // allocate pointers to rows (m is actually a pointer to an array)
-    // m 为一个行指针
     if ((m = (int **)malloc(n1*sizeof(int *))) == NULL) return NULL;
     // allocate rows and set pointers to them
     // m[0] 指向整个数组内存块的首地址
     if ((m[0] = (int *)malloc(n1*n2*sizeof(int))) == NULL) return NULL;
-    for (size_t i1=1; i1<n1; i1++) m[i1]=m[i1-1]+n2;
-    // return pointers to array of pointers to rows
+    for (size_t i1=1; i1<n1; i1++)
+        m[i1] = m[i1-1] + n2;
+
     return m;
 }
 
@@ -183,9 +189,7 @@ void free2int(int **p);
 
 int main()
 {
-    int **m;
-
-    m = alloc2int(ROW, COL);
+    int **m = alloc2int(ROW, COL);
     for (int i=0; i<ROW; i++)
         for (int j=0; j<COL; j++) {
             m[i][j] = i+j;
@@ -195,8 +199,6 @@ int main()
     int * const end = start + ROW*COL;
     for ( ; start != end; start++)
         printf("%p -> %d\n", start, *start);
-
-    //printf("%p\n", m[0]+4);
 
     free2int(m);
     return 0;
@@ -215,9 +217,84 @@ int main()
 
 可以看到，现在的二维数组内存是连续的了，我们用一个循环便可以遍历整个数组。
 
+## 更高维数组
+
+当需要更高维度的数组时，也是一样的道理。
+
+```c
+#include <stdlib.h>
+
+float ***alloc3float(size_t n1, size_t n2, size_t n3)
+{
+    float ***ptr = malloc(n1 * sizeof(float **) + /* level1 pointer */
+                          n1 * n2 * sizeof(float *) + /* level2 pointer */
+                          n1 * n2 * n3 * sizeof(float)); /* data pointer */
+    for (size_t i = 0; i < n1; ++i) {
+        ptr[i] = (float **)(ptr + n1) + i * n2;
+        for (size_t j = 0; j < n2; ++j)
+            ptr[i][j] = (float *)(ptr + n1 + n1 * n2) + i * n2 * n3 + j * n3;
+    }
+
+    return ptr;
+}
+```
+
+这里不仅数据内存是连续的，各级指针内存也是连续的。
+
+```c
+#include <stdio.h>
+
+int **alloc3float(size_t n1, size_t n2, size_t n3);
+
+int main(void)
+{
+    size_t n1 = 2, n2 = 3, n3 = 4;
+    float ***ar3 = alloc3float(n1, n2, n3);
+    for (size_t i = 0; i < n1; ++i)
+        for (size_t j = 0; j < n2; ++j)
+            for (size_t k = 0; k < n3; ++k)
+                ar3[i][j][k] = i + j + k;
+
+    float *start = &(ar3[0][0][0]);
+    float *end = start + n1 * n2 * n3;
+    for (; start != end; ++start)
+        printf("%p -> %f\n", start, *start);
+
+    free(ar3);
+    return 0;
+}
+```
+
+```bash
+$ gcc -Wall -std=c99 test.c alloc.c & ./a.out
+0x7ffeed4b63d0 -> 0.000000
+0x7ffeed4b63d4 -> 1.000000
+0x7ffeed4b63d8 -> 2.000000
+0x7ffeed4b63dc -> 3.000000
+0x7ffeed4b63e0 -> 1.000000
+0x7ffeed4b63e4 -> 2.000000
+0x7ffeed4b63e8 -> 3.000000
+0x7ffeed4b63ec -> 4.000000
+0x7ffeed4b63f0 -> 2.000000
+0x7ffeed4b63f4 -> 3.000000
+0x7ffeed4b63f8 -> 4.000000
+0x7ffeed4b63fc -> 5.000000
+0x7ffeed4b6400 -> 1.000000
+0x7ffeed4b6404 -> 2.000000
+0x7ffeed4b6408 -> 3.000000
+0x7ffeed4b640c -> 4.000000
+0x7ffeed4b6410 -> 2.000000
+0x7ffeed4b6414 -> 3.000000
+0x7ffeed4b6418 -> 4.000000
+0x7ffeed4b641c -> 5.000000
+0x7ffeed4b6420 -> 3.000000
+0x7ffeed4b6424 -> 4.000000
+0x7ffeed4b6428 -> 5.000000
+0x7ffeed4b642c -> 6.000000
+```
+
+
 ## 总结
 
-对与二维动态数组的分配，我们要了解C语言中数组和指针的联系和区别，具体可以参考
+对与多维动态数组的分配，我们要了解C语言中数组和指针的联系和区别，具体可以参考
 [数组和指针](/array-and-pointers.html)
-
-上述两种方法都可行，但是推荐用第二种方法！
