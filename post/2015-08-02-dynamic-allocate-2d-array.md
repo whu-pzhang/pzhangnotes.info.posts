@@ -266,7 +266,7 @@ int main(void)
 ```
 
 ```bash
-$ gcc -Wall -std=c99 test.c alloc.c & ./a.out
+$ gcc -Wall -std=c99 test.c alloc.c && ./a.out
 0x7ffeed4b63d0 -> 0.000000
 0x7ffeed4b63d4 -> 1.000000
 0x7ffeed4b63d8 -> 2.000000
