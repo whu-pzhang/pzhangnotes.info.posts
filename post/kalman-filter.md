@@ -100,60 +100,65 @@ $$
 
 ## 利用测量更新预测
 
-传感器得到的测量值可能与状态向量单位以及标度不同，因此需要将状态向量转换为我们读取的测量值，转换矩阵为 $\mathbf{H}_k​$ 。 
+传感器得到的测量值可能与状态向量的单位以及标度不同，因此需要将状态向量转换为我们读取的测量值，转换矩阵为 $\mathbf{H}_k$ 。 那么传感器的读数表示如下：
+$$
+\begin{split}
+\vec{\mu}_{expected} &= \mathbf{H}_k \color{deeppink}{\hat{\mathbf{x}}_k} \\
+\Sigma_{expected} &= \mathbf{H}_k \color{deeppink}{\mathbf{P}_k} \mathbf{H}_k^T
+\end{split}
+$$
+卡尔曼滤波海考虑了传感器的噪声影响，也就是说测量值也存在着不确定性，将传感器噪声的协方差表示为 $\color{mediumaquamarine}{\mathbf{R}_k}$ 。那么测量读数表示为 $\color{yellowgreen}{\vec{\mathbf{z}_k}}$ 。 
+
+现在我们有了两个值：一个预测值和一个观测值。两个值都遵循高斯分布。问题变为了如何将两个值融合起来得到新的状态向量。
 
 
 
-卡尔曼滤波模型中通过前一个时刻的状态来预测目标当前时刻的状态
-$$
-\boldsymbol{x}_t = \boldsymbol{F}_t  \boldsymbol{x}_{t-1} + \boldsymbol{B}_t \boldsymbol{u}_t + \boldsymbol{w}_t
-$$
-- $\boldsymbol{x}_t$ 为 $t$ 时刻的状态向量，如目标位置，速度等
-- $\boldsymbol{u}_t$ 为运动测量值，如加速度，转向等
-- $\boldsymbol{F}_t$ 为状态转移矩阵，将 $t-1$ 时刻的状态传递到 $t$ 时刻
-- $\boldsymbol{B}_t$ 为控制输入矩阵，将运动量测值 $\boldsymbol{u}_t$ 的作用映射到状态向量上去
-- $\boldsymbol{w}_t$ 是状态向量中每一项的噪声，服从均值为零，协方差矩阵为 $\boldsymbol{Q}_t$ 的高斯分布
+## 高斯分布的融合
 
-这个方程为状态方程，即卡尔曼滤波中的预测（predict）过程。
-
-类似的，量测（mesurement）方程如下：
+首先考虑一维的高斯分布：
 $$
-\boldsymbol{z}_t = \boldsymbol{H}_t \boldsymbol{x}_t + \boldsymbol{v}_t
+\mathcal{N}(x, \mu, \sigma) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}
 $$
-其中，
-
-- $\boldsymbol{z}_t$ 为观测值
-- $\boldsymbol{H}_t$ 为转换矩阵，将状态向量映射到测量值所在的空间上
-- $\boldsymbol{v}_t$ 为测量的高斯噪声，均值为零，协方差矩阵为 $\boldsymbol{R}_t$
+现在有两个分布均为高斯分布，将这两个概率密度函数相乘得到一个新的概率密度函数，可以证明这个PDF仍然是高斯分布，推导可得新分布的均值和方差：
+$$
+\begin{split}
+\mu_{fused} &= \mu_1 + \frac{\sigma_1^2(\mu_2 - \mu_1) }{\sigma_1^2 + \sigma_2^2} \\
+\sigma_{fused} &= \sigma_1^2 - \frac{\sigma_1^4}{\sigma_1^2 + \sigma_2^2}
+\end{split}
+$$
 
 
 
-对目标运动状态向量的估计即为预测：
-$$
-\boldsymbol{\hat x}_{t|t-1} = \boldsymbol{F}_t  \boldsymbol{\hat x}_{t-1} + \boldsymbol{B}_t \boldsymbol{u}_t
-$$
-这一步是根据模型计算得到的，不含噪声。
 
-$\boldsymbol{x}_t$ 为 $t$ 时刻状态向量的真值（不可知），那么预测误差 $\boldsymbol{e}_t$ 为：
-$$
-\boldsymbol{e}_t = \boldsymbol{x}_t - \boldsymbol{\hat x}_{t|t-1} = \boldsymbol{F}_t \left( \boldsymbol{x}_{t-1} - \boldsymbol{\hat x}_{t-1} \right) + \boldsymbol{w}_{t}
-$$
-误差的协方差矩阵 $\boldsymbol{P}_{t|t-1}$ 为：
-$$
-\begin{align}
-\boldsymbol{P}_{t|t-1} &= E \left( \boldsymbol{e}_t \boldsymbol{e}_t^T \right) \\
-  &= E \left[ \left( \boldsymbol{F}_t \left( \boldsymbol{x}_{t-1} - \boldsymbol{\hat x}_{t-1} \right) + \boldsymbol{w}_{t} \right) \cdot \left( \boldsymbol{F}_t \left( \boldsymbol{x}_{t-1} - \boldsymbol{\hat x}_{t-1} \right) + \boldsymbol{w}_{t} \right)^T \right]
-\end{align}
-$$
+## 总结
+
+卡尔曼滤波的核心思想在于**信息融合（information fusion）**：如何将预测和观测两个量融合得到新的描述物体运动的状态量。
+
 
 
 ## 附录
+
+### 协方差
+
 $$
 \begin{split}
 Cov(x) &= \Sigma \\
 Cov(\mathbf{A}x) &= \mathbf{A} \Sigma \mathbf{A}^T
 \end{split}
 $$
+
+### 高斯分布的乘积仍为高斯分布
+
+设有高斯分布 $p_1(x) = \mathcal{N}(\mu_1, \sigma_1)$ 和 $p_2(x) = \mathcal{N}(\mu_2, \sigma_2)$ ， 那么其乘积为：
+$$
+\begin{split}
+p_{fused} &= \frac{1}{\sigma_1 \sqrt{2\pi}} e^{-\frac{(x-\mu_1)^2}{2\sigma_1^2}} \times 
+\frac{1}{\sigma_2 \sqrt{2\pi}} e^{-\frac{(x-\mu_2)^2}{2\sigma_2^2}} \\
+&= \frac{1}{\sigma_1 \sigma_2 2\pi} e^{ -\frac{(x-\mu_1)^2}{2\sigma_1^2} - \frac{(x-\mu_2)^2}{2\sigma_2^2}}  \\
+&=
+\end{split}
+$$
+
 
 
 
