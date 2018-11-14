@@ -14,7 +14,7 @@ slug: kalman-filter
 
 ## 引言
 
-最近项目需要，要做目标跟踪以及轨迹预测的算法，翻了翻论文，应用比较多的就是卡尔曼滤波了。以前本科的时候就听过卡尔曼滤波，学大地测量的好像经常会用到这个，不过那时本身用不到，也就没关注。现在需要用到了，就去学习了一下，这里算是将其总结记录一下吧。
+最近项目需要，要做目标跟踪以及轨迹预测的算法，翻了翻论文，应用比较多的就是卡尔曼滤波了。以前本科的时候就听过卡尔曼滤波，学大地测量的做卫星轨道预测时好像经常会用到这个，不过那时本身用不到，也就没关注。现在需要用到了，就去学习了一下，这里算是将其总结记录一下吧。
 
 [Kalman filter](https://en.wikipedia.org/wiki/Kalman_filter) 的提出到现在已经快60年了，但其
 
@@ -49,10 +49,10 @@ $$
 &= \mathbf{F}_k \color{royalblue}{\mathbf{\hat{x}}_{k-1}}
 \end{align}
 $$
-$\mathbf{F}_k$ 称为状态转移矩阵（state transition matrix），也即是预测矩阵。通过该矩阵可以得到下个时刻的状态。那么状态向量的协方差呢？也通过该矩阵进行传递到下一状态。首先易知有如下关系：
+$\mathbf{F}_k$ 称为状态转移矩阵（state transition matrix），也即是预测矩阵。通过该矩阵可以得到下个时刻的状态。那么状态向量的协方差呢？也通过该矩阵传递到下一状态。首先易知有如下关系：
 $$
 \begin{split}
-Cov(x) &= \Sigma \\
+Cov(\boldsymbol{x}) &= \mathbf{\Sigma} \\
 Cov(\mathbf{A}x) &= \mathbf{A} \Sigma \mathbf{A}^T
 \end{split}
 $$
@@ -96,7 +96,7 @@ $$
 
 
 
-现在我们利用当前状态预测出了由 $\color{deeppink} {\hat{ \mathbf{x}}_k}$ 和 $\color{deeppink} {\mathbf{P}_k}$ 所描述的系统下一时刻的状态，那么当我们有了来自传感器的实际观测值后，应当如何对系统进行更新呢？这里涉及到预测状态和观测状态的融合。
+现在我们利用当前状态预测出了由 $\color{deeppink} {\hat{ \mathbf{x}}_k}$ 和 $\color{deeppink} {\mathbf{P}_k}$ 所描述的系统下一时刻的状态，那么当我们有了来自传感器的实际观测值后，应当如何对系统进行更新呢？这里涉及到卡尔曼滤波的关键部分了，也就是将预测的状态与观测的状态进行融合。
 
 ## 利用测量更新预测
 
@@ -119,14 +119,50 @@ $$
 $$
 \mathcal{N}(x, \mu, \sigma) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}
 $$
-现在有两个分布均为高斯分布，将这两个概率密度函数相乘得到一个新的概率密度函数，可以证明这个PDF仍然是高斯分布，推导可得新分布的均值和方差：
+现在有两个分布均为高斯分布，将这两个概率密度函数相乘得到一个新的概率密度函数，可以证明这个PDF仍然是高斯分布，推导可得新分布的均值和方差（见附录）：
 $$
 \begin{split}
-\mu_{fused} &= \mu_1 + \frac{\sigma_1^2(\mu_2 - \mu_1) }{\sigma_1^2 + \sigma_2^2} \\
-\sigma_{fused} &= \sigma_1^2 - \frac{\sigma_1^4}{\sigma_1^2 + \sigma_2^2}
+\color{royalblue}{\mu_{fused}} &= \mu_1 + \frac{\sigma_1^2(\mu_2 - \mu_1) }{\sigma_1^2 + \sigma_2^2} \\
+\color{royalblue}{\sigma_{fused}^2} &= \sigma_1^2 - \frac{\sigma_1^4}{\sigma_1^2 + \sigma_2^2}
 \end{split}
 $$
+我们引入$\color{purple}{k}$，那么融合后的高斯分布均值和方差表示为：
+$$
+\begin{split}
+\color{royalblue}{\mu_{fused}} & = \mu_1 + k (\mu_2 - \mu_1) \\
+\color{royalblue}{\sigma_{fused}^2} &= \sigma_1^2 - k \sigma_1^2
+\end{split}
+$$
+其中，$ \color{purple}{k} = \frac{\sigma_1^2}{\sigma_1^2 + \sigma_2^2}$ 
 
+上面是两个一维高斯分布的融合，对于多变量的高斯分布，只需要将方差替换为协方差矩阵，均值替换为均值向量即可：
+$$
+\begin{split}
+\color{purple}{\mathbf{K}} &= \Sigma_1(\Sigma_1 + \Sigma_2)^{-1} \\
+ & \\
+\color{royalblue}{\vec{\mu}_{fused}} &= \vec{\mu}_1 + \color{purple}{\mathbf{K}}(\vec{\mu}_2 - \vec{\mu}_1) \\
+\color{royalblue}{\Sigma_{fused}} &= \Sigma_1 - \color{purple}{\mathbf{K}} \Sigma_1
+\end{split}
+$$
+这里的 $\color{purple}{\mathbf{K}}$ 即为卡尔曼增益系数（Kalman gain） ，也即是将预测值和观测值进行融合的权系数。卡尔曼滤波的贡献就是找到了这个权系数。到此，我们将前面所有的步骤综合起来便是传统的卡尔曼滤波的过程了。
+
+
+
+## 小结
+
+通过状态方程我们得到了预测的状态分布：$(\color{deeppink}{ \mu_1, \mathbf{\Sigma}_1}) = (\color{deeppink}{\mathbf{H}_k \hat{\boldsymbol{x}}_k, \mathbf{H}_k \mathbf{P}_k \mathbf{H}^T})$；然后通过量测方程得到了测量状态分布：$(\color{yellowgreen}{\mu_2}, \color{mediumaquamarine}{\mathbf{\Sigma}_2}) = (\color{yellowgreen}{\vec{\mathbf{z}_k}}, \color{mediumaquamarine}{\mathbf{R}_k})$。将两个状态分布代入上式中：
+$$
+\begin{split}
+\mathbf{H}_k \color{royalblue}{\hat{ \boldsymbol{x}}_k^{fused}} &= \color{deeppink}{\mathbf{H}_k \hat{\boldsymbol{x}}_k} & + & \color{purple}{\mathbf{K}} (\color{yellowgreen}{\vec{\mathbf{z}_k}} - \color{deeppink}{\mathbf{H}_k \hat{\boldsymbol{x}}_k}) \\
+\mathbf{H}_k \color{royalblue}{\mathbf{P}_k^{fused}} \mathbf{H}_k^T  &=  \color{deeppink}{\mathbf{H}_k \mathbf{P}_k \mathbf{H}_k^T} & – & \color{purple}{\mathbf{K}} \color{deeppink}{\mathbf{H}_k \mathbf{P}_k \mathbf{H}_k^T}
+\end{split}
+$$
+同时可以得到卡尔曼增益为：
+$$
+\begin{equation} \label{eq:kalgainunsimplified} 
+\color{purple}{\mathbf{K}} = \color{deeppink}{\mathbf{H}_k \mathbf{P}_k \mathbf{H}_k^T} ( \color{deeppink}{\mathbf{H}_k \mathbf{P}_k \mathbf{H}_k^T} + \color{mediumaquamarine}{\mathbf{R}_k})^{-1} 
+\end{equation}
+$$
 
 
 
@@ -147,6 +183,24 @@ Cov(\mathbf{A}x) &= \mathbf{A} \Sigma \mathbf{A}^T
 \end{split}
 $$
 
+已知：
+
+$$
+Cov(\boldsymbol{x}) = \boldsymbol{x} \boldsymbol{x}^T
+$$
+
+那么
+$$
+\begin{split}
+Cov(\mathbf{A} \boldsymbol{x}) &= \mathbf{A} \boldsymbol{x} (\mathbf{A} \boldsymbol{x})^T \\
+&= \mathbf{A} \boldsymbol{x} \boldsymbol{x}^T \mathbf{A}^T \\
+&= \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T
+\end{split}
+$$
+
+
+
+
 ### 高斯分布的乘积仍为高斯分布
 
 设有高斯分布 $p_1(x) = \mathcal{N}(\mu_1, \sigma_1)$ 和 $p_2(x) = \mathcal{N}(\mu_2, \sigma_2)$ ， 那么其乘积为：
@@ -154,10 +208,22 @@ $$
 \begin{split}
 p_{fused} &= \frac{1}{\sigma_1 \sqrt{2\pi}} e^{-\frac{(x-\mu_1)^2}{2\sigma_1^2}} \times 
 \frac{1}{\sigma_2 \sqrt{2\pi}} e^{-\frac{(x-\mu_2)^2}{2\sigma_2^2}} \\
-&= \frac{1}{\sigma_1 \sigma_2 2\pi} e^{ -\frac{(x-\mu_1)^2}{2\sigma_1^2} - \frac{(x-\mu_2)^2}{2\sigma_2^2}}  \\
-&=
+&= \frac{1}{\sigma_1 \sigma_2 2\pi} e^{ - \left[ \frac{(x-\mu_1)^2}{2\sigma_1^2} + \frac{(x-\mu_2)^2}{2\sigma_2^2} \right]}  \\
+&= \frac{1}{\sigma_{fused} \sqrt{2\pi}} e ^{-\frac{(x-\mu_{fused})^2}{2\sigma_{fused}^2}}
 \end{split}
 $$
+经化简可得：
+$$
+\begin{split}
+\mu_{fused} &= \frac{\mu_1 \sigma_2^2 + \mu_2 \sigma_1^2} {\sigma_1^2 + \sigma_2^2} \\
+	&= \mu_1 + \frac{\sigma_1^2(\mu_2 - \mu_1)}{\sigma_1^2 + \sigma_2^2}
+\end{split}
+$$
+
+$$
+\sigma_{fused}^2 = \frac{\sigma_1^2 \sigma_2^2}{\sigma_1^2 + \sigma_2^2}
+$$
+
 
 
 
