@@ -151,5 +151,10 @@ margins[np.arange(num_train), y] = 0.0
 接下来是权重矩阵$\boldsymbol{W}$梯度的计算。
 
 $$
-\nabla_{w_{y_i}} = - \left ( \right)
+\begin{cases}
+\nabla_{w_{y_i}} L_i = - \left ( \sum_{j \ne y_i} {\mathbb{1} (margin_j > 0)} \right) x_i \\
+\nabla_{w_{j}} L_i = \mathbb{1} (margin_j > 0) x_i
+\end{cases}
 $$
+
+其中 $\mathbb{1}$ 为指示函数，条件为真时，其值为1；反之为零。上式表达的意思就是：每个 $margin > 0$  的分类会对正确类别产生 $-x_i$ 的贡献，而对于错误分类产生一个 $x_i$ 的贡献。对某个样本，所有 $margin>0$ 的错误分类（正确分类 $margin$ 为 0）对正确分类共产生 $NUM(margin > 0)​$ 次贡献，而对错误分类则只产生一次贡献。
