@@ -110,7 +110,7 @@ dists += np.sum(self.X_train**2, axis=1).reshape(1, num_train)
 dists -= 2 * (X @ self.X_train.T)
 ```
 
-计算得到距离后，然后就是预测了。可利用 `np.argsort()` 获取距离最近的前`k`个训练样本，然后采用 `np.bincount()` 与 `np.argmax()` 结合，得到高票标签作为预测输入。
+计算得到距离后，然后就是预测了。可利用 `np.argsort()` 获取距离最近的前`k`个训练样本，然后采用 `np.bincount()` 与 `np.argmax()` 结合，得到高票标签作为预测输出。
 
 最后部分是利用交叉验证得到kNN中的最佳的`k`值。
 
@@ -152,9 +152,70 @@ margins[np.arange(num_train), y] = 0.0
 
 $$
 \begin{cases}
-\nabla_{w_{y_i}} L_i = - \left ( \sum_{j \ne y_i} {\mathbb{1} (margin_j > 0)} \right) x_i \\
-\nabla_{w_{j}} L_i = \mathbb{1} (margin_j > 0) x_i
+\nabla_{w_{y_i}} L_i = - \left ( \sum_{j \ne y_i} {\mathbb{I} (margin_j > 0)} \right) x_i \\
+\nabla_{w_{j}} L_i = \mathbb{I} (margin_j > 0) x_i
 \end{cases}
 $$
 
-其中 $\mathbb{1}$ 为指示函数，条件为真时，其值为1；反之为零。上式表达的意思就是：每个 $margin > 0$  的分类会对正确类别产生 $-x_i$ 的贡献，而对于错误分类产生一个 $x_i$ 的贡献。对某个样本，所有 $margin>0$ 的错误分类（正确分类 $margin$ 为 0）对正确分类共产生 $NUM(margin > 0)​$ 次贡献，而对错误分类则只产生一次贡献。
+其中 $\mathbb{I}$ 为指示函数，条件为真时，其值为1；反之为零。上式表达的意思就是：每个 $margin > 0$  的分类会对正确类别产生 $-x_i$ 的贡献，而对于错误分类产生一个 $x_i$ 的贡献。对某个样本，所有 $margin>0$ 的错误分类（正确分类 $margin$ 为 0）对正确分类共产生 $NUM(margin > 0)​$ 次贡献，而对错误分类则只产生一次贡献。
+
+根据反向传播原理（链式法则）：
+
+$$
+\nabla_{\boldsymbol{W}} L = \frac{\partial L} {\partial \mathbf{s}} \frac{\partial \mathbf{s}} {\partial \boldsymbol{W}}
+$$
+
+其中，$\frac{\partial \mathbf{s}} {\partial \boldsymbol{W}} = \boldsymbol{X}^T$，因此只需要构造 $\frac{\partial L} {\partial \mathbf{s}}$ 即可。
+
+```python
+dS = np.zeros((num_train, num_classes))
+dS[margins > 0] = 1  # only margin > 0 contribute to gradient
+dS[np.arange(num_train), y] -= np.sum(coeff_mat, axis=1)
+
+dW = X.T @ dS
+```
+
+另外，计算损失和梯度时不要漏掉正则项即可。
+
+损失函数和梯度计算搞定后，小批量SGD就很简单了，直接根据学习率更新参数即可。
+
+### Softmax
+
+这部分是基于线性模型的softmax损失分类器，与SVM不同的是，损失函数里的子项是交叉熵（cross-entropy）：
+
+$$
+L_i = -\log \left( \frac{e^{f_{y_i}}} {\sum_{j} {e^{f_j}}} \right) =
+-f_{y_i} + \log (\sum_{j} {e^{f_j}})
+$$
+
+这里计算loss若采用的是第一种表示形式，那么需要注意数值稳定性的问题：分子分母中都有指数项。实现时，可先将得到的值shift一下，这样不会改变最终的结果，但是数值稳定。
+
+$$
+\frac{e^{f_{y_i}}} {\sum_{j} {e^{f_j}}} = \frac{C e^{f_{y_i}}} {C \sum_{j} {e^{f_j}}} = \frac{e^{f_{y_i} + \log C}} {\sum_{j} {e^{f_j + \log C}}}
+$$
+
+上式中，取 $\log C = - \max_j f_j$ 的话，实现如下：
+
+```python
+scores = X.dot(W)
+scores -= np.max(scores, axis=1, keepdims=True)  # N X 1
+```
+
+对权重矩阵的梯度如下：
+
+$$
+\nabla_\boldsymbol{W} L = \left( - \mathbb{I} (j = i) +  \frac{e^{\hat{f}_{y_i}}} {\sum_{j} {e^{\hat{f}_j}}} \right) x_i
+$$
+
+即样本对正确分类的贡献比错误分类的贡献小 $x_i$。具体实现和SVM类似：
+
+```python
+normalized_scores = np.exp(
+    scores) / np.sum(np.exp(scores), axis=1, keepdims=True)  # N X C
+normalized_scores[np.arange(num_train), y] += -1
+dW = X.T @ normalized_scores
+```
+
+### 两层神经网络
+
+这部分需要完成一个很简单的两层神经网络。包含一个隐藏层，激活函数为`ReLU`。
