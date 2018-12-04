@@ -218,4 +218,30 @@ dW = X.T @ normalized_scores
 
 ### 两层神经网络
 
-这部分需要完成一个很简单的两层神经网络。包含一个隐藏层，激活函数为`ReLU`。
+这部分需要完成一个很简单的两层神经网络。包含一个隐藏层，激活函数为`ReLU`，使用Softmax分类损失函数。
+
+loss 的计算和前面SVM以及Softmax类似，不再赘述。
+
+主要是梯度的计算过程。应用反向传播原理，理清顺序即可，最好画个示意图。
+
+```python
+dscores = np.exp(scores) / np.sum(np.exp(scores), axis=1, keepdims=True)
+dscores[np.arange(N), y] += -1
+dscores /= N
+grads['W2'] = h1_output.T @ dscores + 2.0 * reg * W2
+grads['b2'] = np.sum(dscores, axis=0)
+
+dh = dscores @ W2.T
+dh_ReLU = (h1_output > 0) * dh
+grads['W1'] = X.T @ dh_ReLU + 2.0 * reg * W1
+grads['b1'] = np.sum(dh_ReLU, axis=0)
+```
+
+### 更高级别的表示
+
+这部分主要是将 Histogram of Oriented(HoG) 特征和 color histogram 预先从图像中提取出来，然后作为特征加入到神经网络的输入中，从而达到提高预测准确率的目的。
+
+练习部分主要是调参，尝试不同的学习率和正则化强度后，达到最好的预测准确率即可。
+
+
+至此，作业1的全部内容就完成了！
