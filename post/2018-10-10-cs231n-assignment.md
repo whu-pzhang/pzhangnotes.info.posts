@@ -262,6 +262,8 @@ grads['b1'] = np.sum(dh_ReLU, axis=0)
 
 ### Batch Normalization
 
+
+#### forward
 假设每个小批量的训练集大小为 $m \times d$, 那么对每个批量的数据进行标准归一化可表示如下：
 
 $$
@@ -312,7 +314,27 @@ $$
 $$
 
 
-至此，正向传播就完成了。在反向传播时，我们需要计算 $\frac{\partial L}{\partial \boldsymbol{X}}$。
+至此，正向传播就完成了。
+
+为了方便计算梯度的反向传播，伪代码如下：
+
+```python
+mu = np.sum(x, axis=0, keepdims=True) / N   # (1) 计算均值
+xsmu = x - mu                               # (2) 减去均值（中心化）
+var = np.sum(x - mu)
+```
+
+#### backward
+
+一种方法是画出计算图，然后依次反传。
+
+伪代码如下：
+
+```python
+
+```
+
+反向传播时，我们需要计算 $\frac{\partial L}{\partial \boldsymbol{X}}$。
 
 由链式法则，可知：
 
@@ -346,8 +368,16 @@ $$
 $$
 \begin{align}
 \frac{\partial {(x_{kl} - \mu_l)}} {\partial x_{ij}} &= \delta_{ki} \delta_{lj} - \frac{1}{N} \delta_{lj} \\
+\\
 \frac{\partial \sigma_l^2} {\partial x_{ij}} &= \frac{1}{N} \sum_{k=1}^m {2(x_{kl} - \mu_{l}) (\delta_{ik} \delta_{lj} - \frac{1}{N} \delta_{lj})} \\
-&= \frac{2}{N} (x_{li} - \mu_l)\delta_{lj} - \frac{2}{N^2} \sum_{k=1}^m { \delta_{lj} (x_{kl}-\mu_l)} \\
-&=
+&= \frac{2}{N} (x_{il} - \mu_l)\delta_{lj} - \frac{2}{N^2} \sum_{k=1}^m { \delta_{lj} (x_{kl}-\mu_l)} \\
+&= \frac{2}{N} (x_{il} - \mu_l)\delta_{lj} - \frac{2}{N} \delta_{lj} \left( \frac{1}{N}\sum_{k=1}^N {x_{kl} - \mu_l} \right) \\
+&= \frac{2}{N} (x_{il} - \mu_l)\delta_{lj}
 \end{align}
+$$
+
+将上述式子代入 $\frac{\partial \boldsymbol{\hat{x}}}{\partial \boldsymbol{x}_i}$ 中， 可得：
+
+$$
+\frac{\partial \hat{x}_{kl}} {\partial x_{ij}} = (\delta_{ki} \delta_{lj} - \frac{1}{N} \delta_{lj} ) (\sigma^2 + \epsilon)^{-1/2} - (x_{kl} - \mu_l) \cdot (\sigma^2 + \epsilon)^{-3/2} \cdot \frac{1}{N} (x_{il} - \mu_l)\delta_{lj}
 $$
