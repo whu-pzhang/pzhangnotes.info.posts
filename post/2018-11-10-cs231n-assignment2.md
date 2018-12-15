@@ -11,13 +11,13 @@ tags:
   - Python
   - NumPy
 
-draft: false
+draft: true
 slug: cs231n-assignment2
 ---
 
 ## 简介
 
-Assignment1中我们分别采用KNN、线性分类器、SVM、Softmax分类以及简单两层神经网络对CIFAR-10数据集进行了分类。
+Assignment1中我们分别采用 `kNN`、线性分类器、`SVM`、`Softmax`分类以及简单两层神经网络对CIFAR-10数据集进行了分类。
 
 来到Assignment2中，需要自己搭建卷积神经网络（CNN）来进行图像分类。
 
@@ -68,7 +68,7 @@ y_i & \leftarrow \gamma \hat{x}_i + \beta
 \end{align}
 $$
 
-现在来推导BN层的反向传播求导公式。上游梯度已知为 $$dout$$
+现在来推导BN层的反向传播求导公式。上游梯度已知为 `dout`
 
 设输入为：
 
@@ -84,7 +84,7 @@ x_{m1} & x_{m2} & \cdots & x_{md}
 \end{bmatrix}
 $$
 
-在forward中，首先计算均值和方差如下：
+在forward过程中，首先计算均值和方差如下：
 
 
 $$
@@ -109,22 +109,31 @@ $$
 
 至此，正向传播就完成了。
 
-为了方便计算梯度的反向传播，伪代码如下：
+为了方便计算梯度的反向传播，将`forward`过程分解为如下9步：
 
 ```python
-mu = np.sum(x, axis=0, keepdims=True) / N   # (1) 计算均值
-xsmu = x - mu                               # (2) 减去均值（中心化）
-var = np.sum(x - mu)
+mu = 1.0 / N * np.sum(x, axis=0, keepdims=True)               # (1)
+xsubmu = x - mu                                               # (2)
+xsubmusqr = xsubmu**2                                         # (3)
+var = 1.0 / N * np.sum(xsubmusqr, axis=0, keepdims=True)      # (4)
+sqrtvar = np.sqrt(var + eps)                                  # (5)
+invsqrtvar = 1.0 / sqrtvar                                    # (6)
+x_norm = xsubmu * invsqrtvar                                  # (7)
+gammax = gamma * x_norm                                       # (8)
+out = gammax + beta                                           # (9)
 ```
 
 ### backward
 
-一种方法是画出计算图，然后依次反传。
-
-伪代码如下：
+`backward` 过程按照上面9步倒序进行即可：
 
 ```python
-
+dgammax = dout                                                # (9)
+dbeta = np.sum(dout, axis=0, keepdims=True)                   # (9)
+dgamma = np.sum(dgammax * x_norm, axis=0, keepdims=True)      # (8)
+dx_norm = dgammax * gamma                                     # (8)
+dxsubmu = dx_norm * invsqrtvar                                # (7)
+dinvsqrtvar = np.sum(dx_norm * xsubmu, axis=0, keepdims=True) # (7)
 ```
 
 反向传播时，我们需要计算 $\frac{\partial L}{\partial \boldsymbol{X}}$。
@@ -174,3 +183,5 @@ $$
 $$
 \frac{\partial \hat{x}_{kl}} {\partial x_{ij}} = (\delta_{ki} \delta_{lj} - \frac{1}{N} \delta_{lj} ) (\sigma^2 + \epsilon)^{-1/2} - (x_{kl} - \mu_l) \cdot (\sigma^2 + \epsilon)^{-3/2} \cdot \frac{1}{N} (x_{il} - \mu_l)\delta_{lj}
 $$
+
+### Layer Normalization

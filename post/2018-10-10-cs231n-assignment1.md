@@ -170,7 +170,7 @@ $$
 ```python
 dS = np.zeros((num_train, num_classes))
 dS[margins > 0] = 1  # only margin > 0 contribute to gradient
-dS[np.arange(num_train), y] -= np.sum(coeff_mat, axis=1)
+dS[np.arange(num_train), y] -= np.sum(dS, axis=1)
 
 dW = X.T @ dS
 ```
