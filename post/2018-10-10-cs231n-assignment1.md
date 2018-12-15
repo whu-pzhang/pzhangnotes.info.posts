@@ -30,6 +30,8 @@ Assignment主页： [CS231n Convolutional Neural Networks for Visual Recognition
 [Assignment #3: Image Captioning with Vanilla RNNs, Image Captioning with LSTMs, Network Visualization, Style Transfer, Generative Adversarial Networks](https://cs231n.github.io/assignments2018/assignment3/)
 
 
+## Assignment1简介
+
 Assignment1从最简单的kNN分类器开始，到基本的线性分类器，逐步实现SVM以及Softmax分类器，直到最后需要手写一个简单的双层神经网络分类器。
 
 
@@ -37,14 +39,12 @@ Assignment1从最简单的kNN分类器开始，到基本的线性分类器，逐
 
 <!--more-->
 
-## assignmet1
-
 作业1的前导课程主要包括课程介绍、对数据驱动方法的介绍，kNN方法，线性分类方法（SVM以及Softmax）以及神经网络方法（多层感知机和反向传播算法）。
 因此，作业1的内容也是基于这几个方面的。
 
 首先需要说明的是，所有分类方法的使用均分为两步：`train()` 和 `predict()`
 
-### kNN
+## `kNN`
 
 kNN（k-Nearest Neighbor）方法
 
@@ -114,7 +114,7 @@ dists -= 2 * (X @ self.X_train.T)
 
 最后部分是利用交叉验证得到kNN中的最佳的`k`值。
 
-### SVM
+## `SVM`
 
 第二部分是多分类的SVM算法。
 
@@ -179,7 +179,7 @@ dW = X.T @ dS
 
 损失函数和梯度计算搞定后，小批量SGD就很简单了，直接根据学习率更新参数即可。
 
-### Softmax
+## `Softmax`
 
 这部分是基于线性模型的softmax损失分类器，与SVM不同的是，损失函数里的子项是交叉熵（cross-entropy）：
 
@@ -216,7 +216,7 @@ normalized_scores[np.arange(num_train), y] += -1
 dW = X.T @ normalized_scores
 ```
 
-### 两层神经网络
+## 两层神经网络
 
 这部分需要完成一个简单的两层神经网络。包含一个隐藏层，激活函数为`ReLU`，使用Softmax分类损失函数。
 
@@ -245,7 +245,7 @@ grads['W1'] = X.T @ dh_ReLU + 2.0 * reg * W1
 grads['b1'] = np.sum(dh_ReLU, axis=0)
 ```
 
-### 更高级别的表示
+## 更高级别的表示
 
 这部分主要是将 Histogram of Oriented(HoG) 特征和 color histogram 预先从图像中提取出来，然后作为特征加入到神经网络的输入中，从而达到提高预测准确率的目的。
 
