@@ -134,7 +134,16 @@ dgamma = np.sum(dgammax * x_norm, axis=0, keepdims=True)      # (8)
 dx_norm = dgammax * gamma                                     # (8)
 dxsubmu = dx_norm * invsqrtvar                                # (7)
 dinvsqrtvar = np.sum(dx_norm * xsubmu, axis=0, keepdims=True) # (7)
+dsqrtvar = dinvsqrtvar * (-1.0) * (sqrtvar)**(-2)             # (6)
+dvar = dsqrtvar * (0.5 * (var + eps)**(-0.5))                 # (5)
+dxsubmusqr = dvar * (1.0 / N * np.ones((N, D)))               # (4)
+dxsubmu += dxsubmusqr * (2 * xsubmu)                          # (3)
+dx = dxsubmu                                                  # (2)
+dmu = -1.0 * np.sum(dxsubmu, axis=0, keepdims=True)           # (2)
+dx += dmu * (1.0 / N * np.ones((N, D)))                       # (1)
 ```
+
+### Alternative backward implement
 
 反向传播时，我们需要计算 $\frac{\partial L}{\partial \boldsymbol{X}}$。
 
