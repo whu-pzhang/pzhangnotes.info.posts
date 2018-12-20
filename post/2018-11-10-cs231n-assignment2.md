@@ -37,6 +37,8 @@ Assignment2主要分为5个部分：
 
 - **Dropout**
 
+Dropout 是缓解过拟合的一种方法。
+
 
 - **Convolutional Networks**
 
@@ -194,3 +196,36 @@ $$
 $$
 
 ### Layer Normalization
+
+Layer Normalization 可认为是
+
+## Convolutional Networks
+
+卷积神经网络（CNN）其实和常规的神经网络很像，由包含可学习的权重和偏置的神经元组成。
+每个神经元参数与输入做点积得到新的输出。CNN中通常包括卷积层（Convolutional layer）、池化层（Pooling layer）和全联接层（Fully-connected layer）。
+
+卷积层是CNN的核心。在处理图像这类高维的输入时，不可能将当前神经元与输入的全部神经元连接起来。在卷积层中，只将当前神经元与输入数据的局部区域进行连接。
+即神经元的局部感受野（Local receptive field），也即是卷积核的大小，这是一个Hyperparameter。
+此外，主要注意的是，这种空间局部连接在深度轴方向总是与输入的深度相等的。
+
+卷积层的输出大小由三个Hyperparameter控制：
+
+1. 输出深度（depth）
+
+对应着卷积层中卷积核的个数。每个卷积核在训练过程中会从输入中提取出不同的特征。
+
+2. 滑动步长（stride）
+
+控制着卷积核每次移动的像素数。当stride为2时，卷积核每次移动两个像素。
+
+3. zero-padding
+
+输入数据边缘需要填充的大小。可以控制输出的空间大小。
+
+输出的空间大小是着三个参数的函数。设输入数据大小为 $W$，卷积层神经元感受野大小为$F$，卷积核移动步幅为$S$，zero-padding大小为$P$，那么该卷积层输出的大小为
+
+$$
+(W - F + 2P) / S + 1
+$$
+
+卷积层的另外一个重要特点是参数共享。
