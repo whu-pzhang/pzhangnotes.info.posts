@@ -204,9 +204,7 @@ Layer Normalization 可认为是
 卷积神经网络（CNN）其实和常规的神经网络很像，由包含可学习的权重和偏置的神经元组成。
 每个神经元参数与输入做点积得到新的输出。CNN中通常包括卷积层（Convolutional layer）、池化层（Pooling layer）和全联接层（Fully-connected layer）。
 
-卷积层是CNN的核心。在处理图像这类高维的输入时，不可能将当前神经元与输入的全部神经元连接起来。在卷积层中，只将当前神经元与输入数据的局部区域进行连接。
-即神经元的局部感受野（Local receptive field），也即是卷积核的大小，这是一个Hyperparameter。
-此外，主要注意的是，这种空间局部连接在深度轴方向总是与输入的深度相等的。
+卷积层是CNN的核心。在处理图像这类高维的输入时，不可能将当前神经元与输入的全部神经元连接起来。在卷积层中，只将当前神经元与输入数据的局部区域进行连接。即神经元的局部感受野（Local receptive field），也即是卷积核的大小，这是一个Hyperparameter。此外，主要注意的是，这种空间局部连接在深度轴方向总是与输入的深度相等的。
 
 卷积层的输出大小由三个Hyperparameter控制：
 
@@ -229,3 +227,76 @@ $$
 $$
 
 卷积层的另外一个重要特点是参数共享。
+
+### forward
+
+先来看单通道，`S=1，P=0`的最简单的情况，设输入$X$ 为 $3 \times 3$，卷积核$K$为 $2 \times 2$，那么输出$Y$的大小为 $(3 - 2)/1 + 1 = 2$
+
+$$
+\begin{pmatrix}
+x_{11} & x_{12} & x_{13} \\
+x_{21} & x_{22} & x_{33} \\
+x_{31} & x_{32} & x_{33}
+\end{pmatrix} \otimes
+\begin{pmatrix}
+k_{11} & k_{12} \\
+k_{21} & k_{22}
+\end{pmatrix} =
+\begin{pmatrix}
+y_{11} & y_{12} \\
+y_{21} & y_{22}
+\end{pmatrix}
+$$
+
+即
+
+$$
+\begin{align}
+\begin{pmatrix}
+y_{11} \\
+y_{12} \\
+y_{21} \\
+y_{22}
+\end{pmatrix} & =
+\begin{pmatrix}
+x_{11} k_{11} + x_{12} k_{12} + x_{21} k_{21} + x_{22} k_{22} \\
+x_{12} k_{11} + x_{13} k_{12} + x_{22} k_{21} + x_{23} k_{22} \\
+x_{21} k_{11} + x_{22} k_{12} + x_{31} k_{21} + x_{32} k_{22} \\
+x_{22} k_{11} + x_{23} k_{12} + x_{32} k_{21} + x_{33} k_{22}
+\end{pmatrix} \\
+& =
+\begin{pmatrix}
+x_{11} & x_{12} & x_{21} & x_{22} \\
+x_{12} & x_{13} & x_{22} & x_{23} \\
+x_{21} & x_{22} & x_{31} & x_{32} \\
+x_{22} & x_{23} & x_{32} & x_{33}
+\end{pmatrix}
+\begin{pmatrix}
+k_{11} \\
+k_{12} \\
+k_{21} \\
+k_{22}
+\end{pmatrix}
+\end{align}
+$$
+
+卷积最终转化为了矩阵乘的形式。转换之后的 $X$， $K$ 和 $Y$ 分别为 $XC$， $KC$ 和 $YC$。
+$XC$的每一行为做卷积的局部区域展平得到。$KC$ 和 $YC$ 则分别是将 $K$ 和 $Y$ 展平后得到的列向量。
+
+### backward
+
+反向传播时，
+
+$$
+\frac{\partial L} {\partial x_{22}} = \frac{\partial L} {\partial \boldsymbol{y}} \frac{\partial \boldsymbol{y}} {\partial x_{22}}
+$$
+
+其中，
+
+$$
+\frac{\partial \boldsymbol{y}} {\partial x_{22}} =
+\begin{pmatrix}
+k_{22} & k_{21}\\
+k_{12} & k_{11}
+\end{pmatrix}
+$$
