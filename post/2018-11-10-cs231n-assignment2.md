@@ -250,7 +250,7 @@ $$
 
 即
 
-$$
+<!-- $$
 \begin{align}
 \begin{pmatrix}
 y_{11} \\
@@ -278,25 +278,77 @@ k_{21} \\
 k_{22}
 \end{pmatrix}
 \end{align}
+$$ -->
+
+$$
+\begin{align}
+\begin{pmatrix}
+y_{11} & y_{12} & y_{21} & y_{22}
+\end{pmatrix} & =
+\begin{pmatrix}
+k_{11} & k_{12} & k_{21} & k_{22} \\
+\end{pmatrix}
+\begin{pmatrix}
+x_{11} & x_{12} & x_{21} & x_{22} \\
+x_{12} & x_{13} & x_{22} & x_{23} \\
+x_{21} & x_{22} & x_{31} & x_{32} \\
+x_{22} & x_{23} & x_{32} & x_{33}
+\end{pmatrix}
+\end{align}
 $$
 
 卷积最终转化为了矩阵乘的形式。转换之后的 $X$， $K$ 和 $Y$ 分别为 $XC$， $KC$ 和 $YC$。
-$XC$的每一行为做卷积的局部区域展平得到。$KC$ 和 $YC$ 则分别是将 $K$ 和 $Y$ 展平后得到的列向量。
+$XC$的每一列为卷积核的局部区域（感受野）展平得到。$KC$ 和 $YC$ 则分别是将 $K$ 和 $Y$ 展平后得到的行向量。
+
+
 
 ### backward
 
-反向传播时，
+反向传播时，需要求$\boldsymbol{x}$, $\boldsymbol{w}$ 和 偏置项 $\boldsymbol{b}$ 这三项的梯度。根据链式法则，$\boldsymbol{x}$ 的梯度表示如下：
 
 $$
-\frac{\partial L} {\partial x_{22}} = \frac{\partial L} {\partial \boldsymbol{y}} \frac{\partial \boldsymbol{y}} {\partial x_{22}}
+\frac{\partial L} {\partial \boldsymbol{x}} = \frac{\partial L} {\partial \boldsymbol{y}} \frac{\partial \boldsymbol{y}} {\partial \boldsymbol{x}}
 $$
 
-其中，
+其中，$\frac{\partial L} {\partial \boldsymbol{y}}$ 为后面（通常为池化层或激活函数）传过来的梯度，记为 $\boldsymbol{\delta}$.
+
+通过前面forward过程，可将$\boldsymbol{x}$的梯度依次写出来：
 
 $$
-\frac{\partial \boldsymbol{y}} {\partial x_{22}} =
+\begin{split}
+\frac{\partial L} {\partial x_{11}} & =
+\boldsymbol{\delta} \cdot
 \begin{pmatrix}
-k_{22} & k_{21}\\
+k_{11} & 0 \\
+0 & 0
+\end{pmatrix} & =
+\delta_{11} k_{11} \\
+\frac{\partial L} {\partial x_{12}} & =
+\boldsymbol{\delta} \cdot
+\begin{pmatrix}
+k_{12} & k_{11} \\
+0 & 0
+\end{pmatrix} & = \delta_{11} k_{12} + \delta_{12} k_{11} \\
+\frac{\partial L} {\partial x_{13}} & =
+\boldsymbol{\delta} \cdot
+\begin{pmatrix}
+0 & k_{12} \\
+0 & 0
+\end{pmatrix} & = \delta_{12} k_{12} \\
+ & & \vdots \\
+\frac{\partial L} {\partial x_{22}} & =
+\boldsymbol{\delta} \cdot
+\begin{pmatrix}
+k_{22} & k_{21} \\
 k_{12} & k_{11}
-\end{pmatrix}
+\end{pmatrix} & = \delta_{11} k_{22} + \delta_{12} k_{21} + \delta_{21} k_{12} + \delta_{22} k_{11} \\
+ & & \vdots \\
+\frac{\partial L} {\partial x_{33}} & =
+\boldsymbol{\delta} \cdot
+\begin{pmatrix}
+0 & 0 \\
+0 & k_{22}
+\end{pmatrix} & =
+\delta_{22} k_{22}
+\end{split}
 $$
