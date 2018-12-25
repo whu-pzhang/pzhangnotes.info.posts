@@ -197,7 +197,7 @@ $$
 
 ### Layer Normalization
 
-Layer Normalization 可认为是
+Layer Normalization 是沿着另外一个轴进行的 Batch Normalization
 
 ## Convolutional Networks
 
@@ -300,11 +300,22 @@ $$
 卷积最终转化为了矩阵乘的形式。转换之后的 $X$， $K$ 和 $Y$ 分别为 $XC$， $KC$ 和 $YC$。
 $XC$的每一列为卷积核的局部区域（感受野）展平得到。$KC$ 和 $YC$ 则分别是将 $K$ 和 $Y$ 展平后得到的行向量。
 
+对于更常见的多通道输入，也是一样的原理：先将每个卷积核对应的局部感受野展平为一个列向量
+（该操作称为`im2col`），然后将卷积核展平为行向量。以AlexNet为例，输入图像形状为 $227 \times 227 \times 3$，
+卷积核形状为 $11 \times 11 \times 3$，步幅为4。那么就将卷积核的每个感受野展平为
+$11 \times 11 \times 3=363$ 大小的列向量。以步幅4遍历整个图像后，卷积核的输出宽和高均为 $(227-11)/4+1=55$，
+展平的话就是大小$55 \times 55=3025$的行向量。那么一幅图像经 `im2col` 后就变换成了大小 $363 \times 3025$ 的矩阵。
 
+卷积层的权重参数也是类似的展平为行向量，AlexNet中第一个卷积层深度为96，那么经展平后，权重就变为了
+$96 \times 363$ 大小的矩阵。
 
 ### backward
 
-反向传播时，需要求$\boldsymbol{x}$, $\boldsymbol{w}$ 和 偏置项 $\boldsymbol{b}$ 这三项的梯度。根据链式法则，$\boldsymbol{x}$ 的梯度表示如下：
+反向传播时，需要求$\boldsymbol{x}$, $\boldsymbol{w}$ 和 偏置项 $\boldsymbol{b}$ 这三项的梯度。
+
+
+
+根据链式法则，$\boldsymbol{x}$ 的梯度表示如下：
 
 $$
 \frac{\partial L} {\partial \boldsymbol{x}} = \frac{\partial L} {\partial \boldsymbol{y}} \frac{\partial \boldsymbol{y}} {\partial \boldsymbol{x}}
@@ -352,3 +363,13 @@ k_{12} & k_{11}
 \delta_{22} k_{22}
 \end{split}
 $$
+
+### Max pooling
+
+### Spatial batch normalization
+
+BatchNorm 不仅可以加快全连接深度神经网络的训练过程，而且对CNN也有效，只不过需要略微的调整，调整后称为 Spatial batch normalization.
+
+BatchNorm 是沿着minibatch维做归一化。假设
+
+### Group normalization
