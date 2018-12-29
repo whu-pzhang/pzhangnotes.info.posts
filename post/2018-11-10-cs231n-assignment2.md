@@ -25,7 +25,7 @@ Assignment2主要分为5个部分：
 
 - **Fully-connected Nerual Network**
 
-这部分为作业1中两层神经网络的延续，进一步需要将各个隐藏层的`forward`以及`backward`过程模块化，以便搭建任意层数的神经网络。
+这部分为作业1中两层神经网络的延续，需要将各个隐藏层的`forward`以及`backward`过程模块化，以便搭建任意层数的神经网络。
 
 - **Batch Normalization**
 
@@ -52,11 +52,85 @@ Dropout 是缓解过拟合的一种方法。
 
 ## Fully-connected Nerual Network
 
+这部分需要对每层实现一个 `forward` 和 `backward` 函数：`forward` 函数接收为输入、权重和其他参数，返回输出以及一个 `cache` 对象，包含反向传播计算梯度时用到的数据。
 
+```python
+def layer_forward(x, w):
+  """ Receive inputs x and weights w """
+  # Do some computations ...
+  z = # ... some intermediate value
+  # Do some more computations ...
+  out = # the output
+
+  cache = (x, w, z, out) # Values we need to compute gradients
+
+  return out, cache
+```
+
+`backward` 函数则接收upstream传过来的梯度和 `forward` 返回的 `cache` 对象，
+计算返回该层相对于输入和权重的梯度值。
+
+```python
+def layer_backward(dout, cache):
+  """
+  Receive dout (derivative of loss with respect to outputs) and cache,
+  and compute derivative with respect to inputs.
+  """
+  # Unpack cache values
+  x, w, z, out = cache
+
+  # Use values in cache to compute derivatives
+  dx = # Derivative of loss with respect to x
+  dw = # Derivative of loss with respect to w
+
+  return dx, dw
+```
+
+### affine layer
+
+全连接层的forward就是简单的矩阵乘法。需要先将每个实例展平为向量，然后和权重做矩阵乘法即可，最后别忘了偏置项。
+
+```python
+x_reshaped = x.reshape(x.shape[0], -1)
+out = x_reshaped.dot(w) + b
+```
+
+backward时，根据链式法计算即可，注意各个量的shape即可。
+
+```python
+dx = dout.dot(w.T).reshape(*x.shape)
+dw = x.reshape(x.shape[0], -1).T.dot(dout)
+db = np.sum(dout, axis=0)
+```
+
+### ReLU activation
+
+`ReLU` 激活只是应用一个mask，计算相当简单，直接用 `np.maximum()` 函数即可。
+
+backward时，注意只有大于零的项有梯度值。
+
+### 组合层
+
+将affine层和ReLU组合起来即可
+
+### loss layers
+
+在作业1中实现的`Softmax`和`SVM`损失函数可以直接拿过来用，不再赘述。
+
+### 搭建多层神经网络
+
+现在直接将前面实现的层组合起来便可以实现全连接层神经网络。
+搭建完成后，利用提供的`Solver`类，便可以实现神经网络的训练和验证。
+
+### 优化方法
+
+根据讲义里的各种优化方法，直接实现即可，没啥难度。主要是理解每个优化方法的思想。
+依次是 `SGD+Momentum`，`RMSProp` 和 `Adam`。
 
 
 ## Batch Normalization
 
+Batch Normalization是为了克服层数较多的神经网络在训练时的 internal covariate shift 现象，减弱梯度饱和。
 
 ### forward
 假设每个小批量的训练集大小为 $m \times d$, 那么对每个批量的数据进行标准归一化可表示如下：
