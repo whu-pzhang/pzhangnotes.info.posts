@@ -37,13 +37,17 @@ Assignment2主要分为5个部分：
 
 - **Dropout**
 
-Dropout 是缓解过拟合的一种方法。
+Dropout 是缓解过拟合的一种方法。会按比例随机的丢掉一部分激活值，达到缓解过拟合的目的。
 
 
 - **Convolutional Networks**
 
+这部分需要完成CNN的各个组件，然后组合在一起，搭建一个完整的CNN网络。
+
 
 - **PyTorch/TensofFlow on CIFAR-10**
+
+主要是这两个框架的练习。
 
 
 我的代码实现[whu-pzhang/cs231n](https://github.com/whu-pzhang/cs231n).
@@ -130,38 +134,12 @@ backward时，注意只有大于零的项有梯度值。
 
 ## Batch Normalization
 
-Batch Normalization是为了克服层数较多的神经网络在训练时的 internal covariate shift 现象，减弱梯度饱和。
+Batch Normalization是为了克服层数较多的神经网络在训练时的 internal covariate shift 现象，减弱梯度饱和。此外，还可以加快训练速度，学习率也可以设置的较大。
 
 ### forward
-假设每个小批量的训练集大小为 $m \times d$, 那么对每个批量的数据进行标准归一化可表示如下：
 
-$$
-\begin{align}
-\mu_{\mathcal{B}} &\leftarrow \frac{1} {m} \sum_{i=1}^m {x_i} \\
-\sigma_{\mathcal{B}}^2 & \leftarrow \frac{1}{m} \sum_{i=1}^m { (x_i - \mu_{\mathcal{B}})^2 } \\
-\hat{x}_i & \leftarrow \frac{ x_i - \mu_{\mathcal{B}}} {\sqrt{\sigma_{\mathcal{B}}^2 + \epsilon}} \\
-y_i & \leftarrow \gamma \hat{x}_i + \beta
-\end{align}
-$$
-
-现在来推导BN层的反向传播求导公式。上游梯度已知为 `dout`
-
-设输入为：
-
-$$
-\mathbf{X} = \begin{bmatrix}
-\boldsymbol{x}_1 & \boldsymbol{x}_2 & \cdots & \boldsymbol{x}_N
-\end{bmatrix} ^T =
-\begin{bmatrix}
-x_{11} & x_{12} & \cdots & x_{1d} \\
-x_{21} & x_{22} & \cdots & x_{2d} \\
-\vdots & \vdots & \ddots & \vdots \\
-x_{m1} & x_{m2} & \cdots & x_{md}
-\end{bmatrix}
-$$
-
-在forward过程中，首先计算均值和方差如下：
-
+设BN层的小批量输入为 $\boldsymbol{X} \in \mathbb{R}^{ N \times D}$。
+在forward过程中，首先计算每个特征的均值和方差：
 
 $$
 \begin{align}
@@ -170,7 +148,7 @@ $$
 \end{align}
 $$
 
-接着得到标准差 $\boldsymbol{\sigma} = \sqrt{\boldsymbol{\sigma}^2 + \epsilon}$就可以对输入进行归一化：
+接着就可以对输入进行归一化：
 
 $$
 \boldsymbol{\hat{x}}_i = \frac{ \boldsymbol{x}_i - \boldsymbol{\mu}} { \sqrt{\boldsymbol{\sigma}^2 + \epsilon} }
@@ -182,10 +160,16 @@ $$
 \boldsymbol{y}_i = \gamma \, \boldsymbol{\hat x}_i + \beta
 $$
 
+其中，$\gamma, \beta \in \mathbb{R}^{1 \times D}$。整个forward过程可记为：
+
+$$
+\boldsymbol{\hat{X}} = \frac{\boldsymbol{X} - \boldsymbol{\mu}} {\sqrt{ \boldsymbol{\sigma}^2 + \epsilon}} \\
+\boldsymbol{Y} = \gamma \odot \boldsymbol{\hat{X}} + \beta
+$$
 
 至此，正向传播就完成了。
 
-为了方便计算梯度的反向传播，将`forward`过程分解为如下9步：
+为了方便计算梯度的反向传播，根据计算图可将`forward`过程分解为如下9步：
 
 ```python
 mu = 1.0 / N * np.sum(x, axis=0, keepdims=True)               # (1)
@@ -221,53 +205,75 @@ dx += dmu * (1.0 / N * np.ones((N, D)))                       # (1)
 
 ### Alternative backward implement
 
-反向传播时，我们需要计算 $\frac{\partial L}{\partial \boldsymbol{X}}$。
+BatchNorm backward前面的实现是按照计算图一步步来的，实际上可以直接推导出BatchNorm的梯度计算公式，这样能够简化计算。
 
-由链式法则，可知：
+设 $L$ 为训练损失，我们已知从upstream传来的 $\frac{\partial L}{\partial \boldsymbol{Y}} \in \mathbb{R}^{N \times D}$， 反向传播时，我们需要计算：
 
-$$
-\frac{\partial L}{\partial \boldsymbol{x}_i} = \frac{\partial L}{\partial \boldsymbol{y}} \cdot \frac{\partial \boldsymbol{y}} {\partial \boldsymbol{\hat{x}}} \cdot \frac{\partial \boldsymbol{\hat{x}}} {\partial \boldsymbol{x}_i}
-$$
+1. $\frac{\partial L}{\partial \beta} \in \mathbb{R}^{1 \times D}$
+2. $\frac{\partial L}{\partial \gamma} \in \mathbb{R}^{1 \times D}$
+3. $\frac{\partial L}{\partial \boldsymbol{X}} \in \mathbb{R}^{N \times D}$。
 
-其中，$\frac{\partial L} {\partial \boldsymbol{\hat{x}}_i}$ 已由上游梯度给出，因此只需计算后半部分即可。这里设 $m=1, d=3$，则
-
-$$
-\begin{align}
-\frac{\partial \boldsymbol{\hat{x}}}{\partial \boldsymbol{x}_i} &= \frac{\partial } {\partial \boldsymbol{x}_i} { (\boldsymbol{x} - \boldsymbol{\mu}) \cdot (\boldsymbol{\sigma}^{2} + \epsilon)^{-1/2} } \\
-&= \frac{\partial (\boldsymbol{x} - \boldsymbol{\mu}) } {\partial \boldsymbol{x}_i} \cdot (\boldsymbol{\sigma}^{2} + \epsilon)^{-1/2} + (\boldsymbol{x}_i - \boldsymbol{\mu}) \cdot \frac{-1}{2} (\boldsymbol{\sigma}^{2} + \epsilon)^{-3/2} \frac{\partial \boldsymbol{\sigma}^2} {\partial \boldsymbol{x}_i}
-\end{align}
-$$
-
-那么现在只需要分别求得 $\frac{\partial (\boldsymbol{x} - \boldsymbol{\mu}) } {\partial \boldsymbol{x}_i}$ 和 $\frac{\partial \boldsymbol{\sigma}^2} {\partial \boldsymbol{x}_i}$ 即可。
-
-已知，$\boldsymbol{x} \in \mathbb{R}^{m \times d}, \boldsymbol{\mu} \in \mathbb{R}^{1 \times d}, \boldsymbol{\sigma}^2 \in \mathbb{R}^{1 \times d}$ ，有：
+$\frac{\partial L}{\partial \beta}$ 和 $\frac{\partial L}{\partial \gamma}$ 的计算很直观：
 
 $$
 \begin{align}
-\mu_l &= \frac{1}{N} \sum_{k=1}^m {x_{kl}} \\
-\sigma_l^2 &= \frac{1}{N} \sum_{k=1}^m (x_{kl} - \mu_l)^2 \\
-\hat{x}_{kl} &= (x_{kl} - \mu_l) \, (\sigma_l^2 + \epsilon)^{-1/2}
+\frac{\partial L}{\partial \gamma} & = \sum_{i}^N { \frac{\partial L} {\partial \boldsymbol{y}_i} \odot \boldsymbol{\hat{x}_i}} \\
+\frac{\partial L}{\partial \beta} & = \sum_i^N {\frac{\partial L} {\partial \boldsymbol{y}_i}}
 \end{align}
 $$
 
-对于一个元素的偏导数如下：
+而 $\frac{\partial L}{\partial \boldsymbol{X}}$ 的计算则比较复杂。
+由于 $\boldsymbol{\mu}, \boldsymbol{\sigma}$ 都是 $\boldsymbol{X}$ 的函数，根据链式法则：
+
+$$
+\frac{\partial L}{\partial \boldsymbol{X}} =
+\frac{\partial L}{\partial \boldsymbol{\hat{X}}} \frac{\partial \boldsymbol{\hat{X}}}{\partial \boldsymbol{X}} +
+\frac{\partial L}{\partial \boldsymbol{\sigma}^2} \frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{X}} +
+\frac{\partial L}{\partial \boldsymbol{\mu}} \frac{\partial \boldsymbol{\mu}}{\partial \boldsymbol{X}}
+$$
+
+我们可以依次计算这三项。第一项比较简单：
 
 $$
 \begin{align}
-\frac{\partial {(x_{kl} - \mu_l)}} {\partial x_{ij}} &= \delta_{ki} \delta_{lj} - \frac{1}{N} \delta_{lj} \\
-\\
-\frac{\partial \sigma_l^2} {\partial x_{ij}} &= \frac{1}{N} \sum_{k=1}^m {2(x_{kl} - \mu_{l}) (\delta_{ik} \delta_{lj} - \frac{1}{N} \delta_{lj})} \\
-&= \frac{2}{N} (x_{il} - \mu_l)\delta_{lj} - \frac{2}{N^2} \sum_{k=1}^m { \delta_{lj} (x_{kl}-\mu_l)} \\
-&= \frac{2}{N} (x_{il} - \mu_l)\delta_{lj} - \frac{2}{N} \delta_{lj} \left( \frac{1}{N}\sum_{k=1}^N {x_{kl} - \mu_l} \right) \\
-&= \frac{2}{N} (x_{il} - \mu_l)\delta_{lj}
+\frac{\partial L}{\partial \boldsymbol{\hat{X}}} & =
+\gamma \odot \frac{\partial L}{\partial \boldsymbol{Y}} \\
+\frac{\partial \boldsymbol{\hat{X}}}{\partial \boldsymbol{X}} & =
+(\boldsymbol{\sigma}^2 + \epsilon) ^ {-1/2} \\
+ & \Downarrow \\
+\frac{\partial L}{\partial \boldsymbol{\hat{X}}} \frac{\partial \boldsymbol{\hat{X}}}{\partial \boldsymbol{X}} & =
+\gamma \odot \frac{\partial L}{\partial \boldsymbol{Y}} \, (\boldsymbol{\sigma}^2 + \epsilon) ^ {-1/2}
 \end{align}
 $$
 
-将上述式子代入 $\frac{\partial \boldsymbol{\hat{x}}}{\partial \boldsymbol{x}_i}$ 中， 可得：
+接下来计算第二项：
 
 $$
-\frac{\partial \hat{x}_{kl}} {\partial x_{ij}} = (\delta_{ki} \delta_{lj} - \frac{1}{N} \delta_{lj} ) (\sigma^2 + \epsilon)^{-1/2} - (x_{kl} - \mu_l) \cdot (\sigma^2 + \epsilon)^{-3/2} \cdot \frac{1}{N} (x_{il} - \mu_l)\delta_{lj}
+\frac{\partial L}{\partial \boldsymbol{\sigma}^2} =
+\frac{\partial L}{\partial \boldsymbol{\hat{X}}} \,
+\frac{\partial \boldsymbol{\hat{X}}}{\partial \boldsymbol{\sigma}^2} =
+-\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-3/2}}{2} \,
+\sum_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i} (\boldsymbol{x}_i - \boldsymbol{\mu}) }
 $$
+
+计算相对于 $\boldsymbol{\sigma}$ 的梯度时，需要沿着批量中所有的实例求和，对 $\boldsymbol{\mu}$ 求导（第三项）时也是一样：
+
+$$
+\begin{align}
+\frac{\partial L}{\partial \boldsymbol{\mu}} & =
+\frac{\partial L}{\partial \boldsymbol{\hat{X}}}
+\frac{\partial \boldsymbol{\hat{X}}}{\partial \boldsymbol{\mu}} +
+\frac{\partial L}{\partial \boldsymbol{\sigma}^2}
+\frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{\mu}} \\
+& = -\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2} \,
+\sum_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i}} +
+\frac{\partial L}{\partial \boldsymbol{\sigma}^2} \cdot (-\frac{2}{N}) \cdot \sum_i^N (\boldsymbol{x}_i - \boldsymbol{\mu}) \\
+& = -\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2} \,
+\sum_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i}}
+\end{align}
+$$
+
+接下来分别求得 $\frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{X}}$ 和 $\frac{\partial \boldsymbol{\mu}}{\partial \boldsymbol{X}}$ 即可。
 
 ### Layer Normalization
 
