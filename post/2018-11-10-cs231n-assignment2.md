@@ -222,27 +222,27 @@ $$
 \end{align}
 $$
 
-而 $\frac{\partial L}{\partial \boldsymbol{X}}$ 的计算则比较复杂。
-由于 $\boldsymbol{\mu}, \boldsymbol{\sigma}$ 都是 $\boldsymbol{X}$ 的函数，根据链式法则：
+而 $\frac{\partial L}{\partial \boldsymbol{x}_i}$ 的计算则比较复杂。
+由于 $\boldsymbol{\mu}, \boldsymbol{\sigma}$ 都是 $\boldsymbol{x}_i$ 的函数，根据链式法则：
 
 $$
-\frac{\partial L}{\partial \boldsymbol{X}} =
-\frac{\partial L}{\partial \boldsymbol{\hat{X}}} \frac{\partial \boldsymbol{\hat{X}}}{\partial \boldsymbol{X}} +
-\frac{\partial L}{\partial \boldsymbol{\sigma}^2} \frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{X}} +
-\frac{\partial L}{\partial \boldsymbol{\mu}} \frac{\partial \boldsymbol{\mu}}{\partial \boldsymbol{X}}
+\frac{\partial L}{\partial \boldsymbol{x}_i} =
+\frac{\partial L}{\partial \boldsymbol{\hat{x}}_i} \frac{\partial \boldsymbol{\hat{x}}_i}{\partial \boldsymbol{x}_i} +
+\frac{\partial L}{\partial \boldsymbol{\sigma}^2} \frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{x}_i} +
+\frac{\partial L}{\partial \boldsymbol{\mu}} \frac{\partial \boldsymbol{\mu}}{\partial \boldsymbol{x}_i}
 $$
 
 我们可以依次计算这三项。第一项比较简单：
 
 $$
 \begin{align}
-\frac{\partial L}{\partial \boldsymbol{\hat{X}}} & =
-\gamma \odot \frac{\partial L}{\partial \boldsymbol{Y}} \\
-\frac{\partial \boldsymbol{\hat{X}}}{\partial \boldsymbol{X}} & =
+\frac{\partial L}{\partial \boldsymbol{\hat{x}}_i} & =
+\gamma \odot \frac{\partial L}{\partial \boldsymbol{y}_i} \\
+\frac{\partial \boldsymbol{\hat{x}}_i}{\partial \boldsymbol{x}_i} & =
 (\boldsymbol{\sigma}^2 + \epsilon) ^ {-1/2} \\
  & \Downarrow \\
-\frac{\partial L}{\partial \boldsymbol{\hat{X}}} \frac{\partial \boldsymbol{\hat{X}}}{\partial \boldsymbol{X}} & =
-\gamma \odot \frac{\partial L}{\partial \boldsymbol{Y}} \, (\boldsymbol{\sigma}^2 + \epsilon) ^ {-1/2}
+\frac{\partial L}{\partial \boldsymbol{\hat{x}}_i} \frac{\partial \boldsymbol{\hat{x}}_i}{\partial \boldsymbol{x}_i} & =
+\gamma \odot \frac{\partial L}{\partial \boldsymbol{y}_i} \, (\boldsymbol{\sigma}^2 + \epsilon) ^ {-1/2}
 \end{align}
 $$
 
@@ -250,10 +250,10 @@ $$
 
 $$
 \frac{\partial L}{\partial \boldsymbol{\sigma}^2} =
-\frac{\partial L}{\partial \boldsymbol{\hat{X}}} \,
-\frac{\partial \boldsymbol{\hat{X}}}{\partial \boldsymbol{\sigma}^2} =
+\sum_i^N { \frac{\partial L}{\partial \boldsymbol{\hat{x}}_i} \,
+\frac{\partial \boldsymbol{\hat{x}}_i}{\partial \boldsymbol{\sigma}^2} } =
 -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-3/2}}{2} \,
-\sum_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i} (\boldsymbol{x}_i - \boldsymbol{\mu}) }
+\sum_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot (\boldsymbol{x}_i - \boldsymbol{\mu}) }
 $$
 
 计算相对于 $\boldsymbol{\sigma}$ 的梯度时，需要沿着批量中所有的实例求和，对 $\boldsymbol{\mu}$ 求导（第三项）时也是一样：
@@ -261,8 +261,8 @@ $$
 $$
 \begin{align}
 \frac{\partial L}{\partial \boldsymbol{\mu}} & =
-\frac{\partial L}{\partial \boldsymbol{\hat{X}}}
-\frac{\partial \boldsymbol{\hat{X}}}{\partial \boldsymbol{\mu}} +
+\sum_i^N { \frac{\partial L}{\partial \boldsymbol{\hat{x}}_i}
+\frac{\partial \boldsymbol{\hat{x}}_i}{\partial \boldsymbol{\mu}} } +
 \frac{\partial L}{\partial \boldsymbol{\sigma}^2}
 \frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{\mu}} \\
 & = -\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2} \,
@@ -273,7 +273,64 @@ $$
 \end{align}
 $$
 
-接下来分别求得 $\frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{X}}$ 和 $\frac{\partial \boldsymbol{\mu}}{\partial \boldsymbol{X}}$ 即可。
+接下来分别求得 $\frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{x}_i}$ 和 $\frac{\partial \boldsymbol{\mu}}{\partial \boldsymbol{x}_i}$:
+
+$$
+\frac{\partial \boldsymbol{\mu}} {\partial \boldsymbol{x}_i} = \frac{1}{N} \\
+\frac{\partial \boldsymbol{\sigma}^2} {\partial \boldsymbol{x}_i} =
+\frac{2}{N} \sum_i^N (\boldsymbol{x}_i - \boldsymbol{\mu})
+$$
+
+现在可得第二项为：
+
+$$
+\begin{align}
+\frac{\partial L}{\partial \boldsymbol{\sigma}^2} \frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{x}_i} & =
+-\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-3/2}}{2} \,
+\sum_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot (\boldsymbol{x}_i - \boldsymbol{\mu}) } \cdot \frac{2}{N} (\boldsymbol{x}_j - \boldsymbol{\mu}) \\
+& = -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N}
+\left( \sum_i^N {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot (\boldsymbol{x}_i - \boldsymbol{\mu}) } \right)  \frac{ \boldsymbol{x}_j - \boldsymbol{\mu}} {\boldsymbol{\sigma}^2 + \epsilon} \\
+& = -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N}
+\left( \sum_i^N {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot \boldsymbol{\hat{x}_i}\sqrt{\boldsymbol{\sigma}^2 + \epsilon} } \right)  \frac{ \boldsymbol{x}_j - \boldsymbol{\mu}} {\boldsymbol{\sigma}^2 + \epsilon} \\
+& = -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N}
+\left( \sum_i^N {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot \boldsymbol{\hat{x}_i} } \right)  \frac{ \boldsymbol{x}_j - \boldsymbol{\mu}} { \sqrt{\boldsymbol{\sigma}^2 + \epsilon} } \\
+& = -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N} \cdot
+\frac{\partial L} {\partial \gamma} \cdot
+\boldsymbol{\hat{x}_j}
+\end{align}
+$$
+
+第三项为：
+
+$$
+\begin{align}
+\frac{\partial L}{\partial \boldsymbol{\mu}} \frac{\partial \boldsymbol{\mu}}{\partial \boldsymbol{x}_i} & =
+-\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N} \cdot
+\sum_i^N { \frac{\partial L} {\partial \boldsymbol{y}_i}} \\
+& = -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N} \cdot
+\frac{\partial L} {\partial \beta}
+\end{align}
+$$
+
+现在将这三项加在一块即可得：
+
+$$
+\frac{\partial L}{\partial \boldsymbol{x}_i} = \frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N}
+\left( N \frac{\partial L} {\partial \boldsymbol{y}_i} - \frac{\partial L} {\partial \gamma} \cdot
+\boldsymbol{\hat{x}_j} - \frac{\partial L} {\partial \beta} \right)
+$$
+
+最终我们得到了$\frac{\partial L}{\partial \boldsymbol{x}_i}$的数学表达式，相比前面基于计算图的实现更为简便。实现代码如下：
+
+```python
+xsubmu, var, sqrtvar, invsqrtvar, x_norm, gamma, eps = cache
+N, D = xsubmu.shape
+dbeta = np.sum(dout, axis=0, keepdims=True)
+dgamma = np.sum(x_norm * dout, axis=0, keepdims=True)
+dx = (1. / N) * gamma * invsqrtvar * (N * dout - dgamma * x_norm - dbeta)
+```
+
+这个实现相比基于计算图的实现，会快上2~4倍。
 
 ### Layer Normalization
 
