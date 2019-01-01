@@ -334,7 +334,17 @@ dx = (1. / N) * gamma * invsqrtvar * (N * dout - dgamma * x_norm - dbeta)
 
 ### Layer Normalization
 
-Layer Normalization 是沿着另外一个轴进行的 Batch Normalization
+BatchNorm对batch size的依赖使其在复杂网络的训练中受限。因此发展出了多种batchnorm的变种。
+Layer Normalization 是沿着特征轴进行的 Batch Normalization。其实现只需要对batchnorm进行些许的改动即可。
+
+## Dropout
+
+[Dropout](https://arxiv.org/abs/1207.0580)是在forward过程中通过随机将一部分特征设为零来实现的一种正则化方法。实现起来也很简单，不过为了使测试时的代码不发生改变，通常使用的是 **Inverted dropout**，在训练时进行放大。
+
+```python
+mask = (np.random.rand(*x.shape) < p) / p
+out = x * mask
+```
 
 ## Convolutional Networks
 
@@ -502,6 +512,8 @@ k_{12} & k_{11}
 $$
 
 ### Max pooling
+
+pooling层起到下采样的作用，可以大幅度的减少网络的参数，使训练变得容易。最常用的即是max pooling，
 
 ### Spatial batch normalization
 
