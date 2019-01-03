@@ -460,8 +460,6 @@ $96 \times 363$ 大小的矩阵。
 
 反向传播时，需要求$\boldsymbol{x}$, $\boldsymbol{w}$ 和 偏置项 $\boldsymbol{b}$ 这三项的梯度。
 
-
-
 根据链式法则，$\boldsymbol{x}$ 的梯度表示如下：
 
 $$
@@ -513,12 +511,157 @@ $$
 
 ### Max pooling
 
-pooling层起到下采样的作用，可以大幅度的减少网络的参数，使训练变得容易。最常用的即是max pooling，
+pooling层起到下采样的作用，可以大幅度的减少网络的参数，使训练变得容易。最常用的即是max pooling。pooling层参数和卷积层相同，根据pooling的大小以及padding等参数来确定其输出的
+大小，计算公式和卷积层相同。
+
+forward时，依次处理每个pooling区域内的值，以max pooling为例，只保留pooling区域内的最大值作为输出值。若输入为 $4 \times 4$，pooling的核大小为2，stride=1，没有padding时，输出大小为 $2 \times 2$:
+
+$$
+\begin{bmatrix}
+5 & 3 & 1 & 2\\
+1 & 2 & 3 & 2\\
+4 & 2 & 2 & 5\\
+3 & 6 & 1 & 1
+\end{bmatrix} \Rightarrow
+\begin{bmatrix}
+5 & 3 \\
+6 & 5
+\end{bmatrix}
+$$
+
+backward时，先将梯度矩阵还原为pooling前的大小，接着将梯度直接传给前一层取最大值位置处的，其他位置梯度为零，保证梯度总大小不变：
+
+$$
+\begin{bmatrix}
+1 & 0 & 0 & 0\\
+0 & 0 & 0.8 & 0\\
+0 & 0 & 0 & 0.6\\
+0 & 0.4 & 0 & 0
+\end{bmatrix} \Leftarrow
+\begin{bmatrix}
+1 & 0.8 \\
+0.4 & 0.6
+\end{bmatrix}
+$$
+
+若是Average pooling层，backward时，则是将梯度平均分配到原来的位置上去：
+
+$$
+\begin{bmatrix}
+0.25 & 0.25 & 0.2 & 0.2\\
+0.25 & 0.25 & 0.2 & 0.2\\
+0.1 & 0.1 & 0.15 & 0.15\\
+0.1 & 0.1 & 0.15 & 0.15
+\end{bmatrix} \Leftarrow
+\begin{bmatrix}
+1 & 0.8 \\
+0.4 & 0.6
+\end{bmatrix}
+$$
+
+原始实现代码如下：
+
+forward：
+
+```python
+for i in range(Hout):
+    for j in range(Wout):
+        xblock = x[:, :, i * stride:i * stride +
+                    HH, j * stride:j * stride + WW]
+        out[:, :, i, j] = np.max(xblock, axis=(2, 3))
+```
+
+Backward:
+
+```python
+for i in range(Hout):
+    for j in range(Wout):
+        xblock = x[:, :, i * stride:i * stride +
+                     HH, j * stride:j * stride + WW]
+        max_values = np.max(xblock, axis=(2, 3), keepdims=True)
+        mask = (xblock == max_values)
+        dx[:, :, i * stride:i * stride +
+           HH, j * stride:j * stride + WW] += dout[:, :, i, j][:, :, None, None] * mask
+```
 
 ### Spatial batch normalization
 
-BatchNorm 不仅可以加快全连接深度神经网络的训练过程，而且对CNN也有效，只不过需要略微的调整，调整后称为 Spatial batch normalization.
+BatchNorm 不仅可以加快全连接深度神经网络的训练过程，而且对CNN也有效，只不过需要略微的调整，调整后称为 **Spatial batch normalization**.
 
-BatchNorm 是沿着minibatch维做归一化。假设
+BatchNorm 是沿着小批量维做归一化，输入为 $\mathbb{R}^{N \times D}$，则沿着 $N$ 方向做归一化。但是在CNN中，BatchNorm的输入大小为 $\mathbb{R}^{N \times C \times H \times W}$，$N$ 为小批量实例数目，$H \times W$ 为特征图大小。
+
+Spatial batch normalization对每个通道 $C$ 计算均值和方差，然后对数据进行归一化。
+因此，将batchnorm程序稍作修改即可：
+
+Forward:
+
+```python
+N, C, H, W = x.shape
+x_reshaped = np.transpose(x, axes=[0, 2, 3, 1]).reshape(-1, C)
+out, cache = batchnorm_forward(x_reshaped, gamma, beta, bn_param)
+out = np.transpose(out.reshape((N, H, W, C)), axes=[0, 3, 1, 2])
+```
+
+backward:
+
+```python
+N, C, H, W = dout.shape
+dout_reshaped = np.transpose(dout, axes=[0, 2, 3, 1]).reshape(-1, C)
+dx, dgamma, dbeta = batchnorm_backward(dout_reshaped, cache)
+dx = np.transpose(dx.reshape((N, H, W, C)), axes=[0, 3, 1, 2])
+```
 
 ### Group normalization
+
+LayerNorm是BatchNorm的一种缓解batchsize依赖的选择，但研究人员发现，在CNN中，LayerNorm表现不如BatchNorm。因此又提出了一种新的归一化方法： **Group normalization**，为LayerNorm和BatchNorm的折衷。
+
+![](/images/normalization.png)
+
+相比如LayerNorm和BatchNorm，GroupNorm多了一个控制Group的参数 `G`。
+
+forward：
+
+```python
+group_size = C // G
+x_reshaped = np.transpose(x, axes=[0, 2, 3, 1]).reshape(-1, C)
+gamma_reshaped = np.transpose(gamma, axes=[0, 2, 3, 1]).reshape(C,)
+beta_reshaped = np.transpose(beta, axes=[0, 2, 3, 1]).reshape(C,)
+for i in range(G):
+    index = np.arange(i * group_size, (i + 1) * group_size)
+    group_x = x_reshaped[:, index]
+    group_gamma = gamma_reshaped[index]
+    group_beta = beta_reshaped[index]
+    group_out, group_cache = layernorm_forward(
+        group_x, group_gamma, group_beta, gn_param)
+
+    out[:, index, :, :] = np.transpose(
+        group_out.reshape(N, H, W, group_size), axes=[0, 3, 1, 2])
+    cache.append(group_cache)
+```
+
+backward:
+
+```python
+N, C, H, W = dout.shape
+dx = np.zeros_like(dout)
+dgamma = np.zeros((1, C, 1, 1), dtype=dout.dtype)
+dbeta = np.zeros((1, C, 1, 1), dtype=dout.dtype)
+G = len(cache)
+group_size = C // G
+dout_reshaped = np.transpose(dout, axes=[0, 2, 3, 1]).reshape(-1, C)
+for i in range(G):
+    index = np.arange(i * group_size, (i + 1) * group_size)
+    group_dout = dout_reshaped[:, index]
+    group_cache = cache[i]
+    group_dx, group_dgamma, group_dbeta = layernorm_backward(
+        group_dout, group_cache)
+    dx[:, index, :, :] = np.transpose(
+        group_dx.reshape(N, H, W, group_size), axes=[0, 3, 1, 2])
+    dgamma[:, index, :, :] = group_dgamma[:, :, None, None]
+    dbeta[:, index, :, :] = group_dbeta[:, :, None, None]
+```
+
+
+## 总结
+
+作业2的核心在于实现一个可用的CNN网络，重点是卷积层原理和实现以及BatchNorm层的原理和实现，作业中的卷积层采用的是原始的循环方法，是较为低效的实现，实际中一般采用 `im2col` 来实现，可以充分利用计算机的并行优势。而BatchNorm则是优化训练效果和速度的黑魔法，后面的LayerNorm以及GroupNorm均为其变种。
