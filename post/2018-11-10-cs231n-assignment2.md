@@ -11,7 +11,7 @@ tags:
   - Python
   - NumPy
 
-draft: true
+draft: false
 slug: cs231n-assignment2
 ---
 
