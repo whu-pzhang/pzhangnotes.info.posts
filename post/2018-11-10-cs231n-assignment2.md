@@ -454,7 +454,7 @@ $11 \times 11 \times 3=363$ 大小的列向量。以步幅4遍历整个图像后
 展平的话就是大小$55 \times 55=3025$的行向量。那么一幅图像经 `im2col` 后就变换成了大小 $363 \times 3025$ 的矩阵。
 
 卷积层的权重参数也是类似的展平为行向量，AlexNet中第一个卷积层深度为96，那么经展平后，权重就变为了
-$96 \times 363$ 大小的矩阵。
+$96 \times 363$ 大小的矩阵。接下来直接进行矩阵乘法就完成了forward过程，得到的输出大小为 $96 \times 3025$，对其`reshape`一下就得到了输出大小 $96 \times 55 \times 55$。
 
 ### backward
 
@@ -508,6 +508,34 @@ k_{12} & k_{11}
 \delta_{22} k_{22}
 \end{split}
 $$
+
+观察发现，可以用一个卷积来计算：
+
+$$
+\begin{pmatrix}
+0 & 0 & 0 & 0 \\
+0 & \delta_{11} & \delta_{12} & 0 \\
+0 & \delta_{21} & \delta_{22} & 0 \\
+0 & 0 & 0 & 0
+\end{pmatrix} *
+\begin{pmatrix}
+k_{22} & k_{21} \\
+k_{12} & k_{11}
+\end{pmatrix} =
+\begin{pmatrix}
+\nabla x_{11} & \nabla x_{12} & \nabla x_{13} \\
+\nabla x_{21} & \nabla x_{22} & \nabla x_{23} \\
+\nabla x_{31} & \nabla x_{32} & \nabla x_{33}
+\end{pmatrix}
+$$
+
+该卷积核为forward中卷积核翻转之后得到。因此，卷积层对输入的梯度可以表示为：
+
+$$
+\frac{\partial L} {\partial \boldsymbol{x}} = \boldsymbol{\delta} * flipped(\boldsymbol{k})
+$$
+
+同理，对 $\boldsymbol{w}$ 和 $\boldsymbol{b}$ 的梯度也可以用同样的原理来计算。
 
 ### Max pooling
 
