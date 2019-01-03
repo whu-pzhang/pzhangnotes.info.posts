@@ -50,7 +50,7 @@ Dropout 是缓解过拟合的一种方法。会按比例随机的丢掉一部分
 主要是这两个框架的练习。
 
 
-我的代码实现[whu-pzhang/cs231n](https://github.com/whu-pzhang/cs231n).
+我的代码实现[whu-pzhang/cs231n](https://github.com/whu-pzhang/cs231n/tree/master/assignment2).
 
 <!--more-->
 
