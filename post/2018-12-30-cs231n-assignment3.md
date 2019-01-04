@@ -85,7 +85,7 @@ dh0 = dprev_ht
 
 在用RNN对图像进行标注前，还需要进行单词嵌入(word embeding)操作，因为神经网络不能将单词作为输入，所以需要将单词映射为单词索引的形式。
 
-现在就可以来搭建RNN的架构了。首先需要把输入图像通过全连接层转换为初始的隐藏状态（$\boldsymbol{h}_0$），接着将captions做词嵌入输入RNN单元中，再利用一个仿射变换将RNN单元的输出转换为单词字典索引，接着采用softmax损失计算loss。
+现在就可以来搭建RNN的架构了。首先需要把图像经CNN提取的特征（作业中采用的是在ImageNet数据集上预训练的VGG16模型的fc7层提取得到的特征）通过全连接层转换为初始的隐藏状态（$\boldsymbol{h}_0$），接着将captions做词嵌入输入RNN单元中，再利用一个仿射变换将RNN单元的输出转换为单词字典索引，接着采用softmax损失计算loss。
 
 ```python
 h0, h0cache = affine_forward(features, W_proj, b_proj)
@@ -115,3 +115,8 @@ for t in range(1, max_length):
     idx = np.argmax(out, axis=1)
     captions[:, t] = idx
 ```
+
+## LSTM captioning
+
+RNN应该能够记住许多时间步之前见过的信息，但实际中由于梯度消失（vanishing gradient problem）问题，随着层数的增加，网络将变得无法训练。
+LSTM(Long Short Term Memory)和GRU都是为了解决这个问题而提出的。
