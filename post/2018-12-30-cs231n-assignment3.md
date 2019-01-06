@@ -48,7 +48,7 @@ $$
 向上的箭头为每个时间步的输出，是一个softmax层
 
 $$
-\boldsymbol{y}_t = \Softmax (\mathbf{W}_{hy} * \boldsymbol{h}_t)
+\boldsymbol{y}_t = Softmax (\mathbf{W}_{hy} * \boldsymbol{h}_t)
 $$
 
 根据上述公式，RNN单元的 `rnn_step_forward` 如下：
@@ -126,3 +126,76 @@ for t in range(1, max_length):
 
 RNN应该能够记住许多时间步之前见过的信息，但实际中由于梯度消失（vanishing gradient problem）问题，随着层数的增加，网络将变得无法训练。
 LSTM(Long Short Term Memory)和GRU都是为了解决这个问题而提出的。
+LSTM单元结构如下：
+
+![](./images/lstm.png)
+
+forward过程计算公式如下：
+
+$$
+\begin{align}
+\begin{pmatrix}
+i \\
+f \\
+o \\
+g
+\end{pmatrix} & =
+\begin{pmatrix}
+\sigma \\
+\sigma \\
+\sigma \\
+\tanh
+\end{pmatrix} \,
+\mathbf{W}
+\begin{pmatrix}
+h_{t-1} \\
+x_t
+\end{pmatrix} \\
+\\
+c_t & = f \odot c_{t-1} + i \odot g \\
+h_t & = o \odot \tanh(c_t)
+\end{align}
+$$
+
+注意到每个LSTM单元有3个输入：$c, h, x$。实际计算时4个gate的线性部分可以通过一次计算完成，然后将不同gate对应的值分开即可。
+
+```python
+H = prev_h.shape[1]
+z = x @ Wx + prev_h @ Wh + b
+igate = sigmoid(z[:, :H])
+fgate = sigmoid(z[:, H:2 * H])
+ogate = sigmoid(z[:, 2 * H:3 * H])
+ggate = np.tanh(z[:, 3 * H:])
+
+next_c = fgate * prev_c + igate * ggate
+next_h = ogate * np.tanh(next_c)
+```
+
+backward时，相比RNN，反传过来的值有两个 **`dnext_h`, `dnext_c`**。需要求：
+`dx`, `dWx`, `dWh`, `db`, `dprev_h` 和 `dprev_c` 的梯度。
+弄清楚哪些变量之间有关联，然后利用链式法则即可：
+
+```python
+dogate = dnext_h * np.tanh(next_c)
+dnext_c += dnext_h * ogate * (1.0 - np.tanh(next_c)**2)
+dfgate = dnext_c * prev_c
+dprev_c = dnext_c * fgate
+digate = dnext_c * ggate
+dggate = dnext_c * igate
+
+dz = np.zeros((N, 4 * H))
+dz[:, :H] = digate * igate * (1.0 - igate)
+dz[:, H:2 * H] = dfgate * fgate * (1. - fgate)
+dz[:, 2 * H:3 * H] = dogate * ogate * (1.0 - ogate)
+dz[:, 3 * H:4 * H] = dggate * (1.0 - ggate**2)
+
+dx = dz @ Wx.T
+dWx = x.T @ dz
+dprev_h = dz @ Wh.T
+dWh = prev_h.T @ dz
+db = np.sum(dz, axis=0)
+```
+
+在完整的LSTM中大体和RNN相同，注意多了一个变量 `c`，不论是forward和backward都记得在循环里更新即可。
+
+## Network Visualization
