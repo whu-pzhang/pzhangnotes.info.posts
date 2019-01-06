@@ -351,21 +351,15 @@ out = x * mask
 卷积神经网络（CNN）其实和常规的神经网络很像，由包含可学习的权重和偏置的神经元组成。
 每个神经元参数与输入做点积得到新的输出。CNN中通常包括卷积层（Convolutional layer）、池化层（Pooling layer）和全联接层（Fully-connected layer）。
 
-卷积层是CNN的核心。在处理图像这类高维的输入时，不可能将当前神经元与输入的全部神经元连接起来。在卷积层中，只将当前神经元与输入数据的局部区域进行连接。即神经元的局部感受野（Local receptive field），也即是卷积核的大小，这是一个Hyperparameter。此外，主要注意的是，这种空间局部连接在深度轴方向总是与输入的深度相等的。
+卷积层是CNN的核心。在处理图像这类高维的输入时，不可能将当前神经元与输入的全部神经元连接起来。在卷积层中，只将当前神经元与输入数据的局部区域进行连接。即神经元的**局部感受野（Local receptive field）**，也即是卷积核的大小，这是一个Hyperparameter。此外，主要注意的是，这种空间局部连接在深度轴方向总是与输入的深度相等的。
 
 卷积层的输出大小由三个Hyperparameter控制：
 
-1. 输出深度（depth）
+1. 输出深度（depth）：对应着卷积层中卷积核的个数。每个卷积核在训练过程中会从输入中提取出不同的特征。
 
-对应着卷积层中卷积核的个数。每个卷积核在训练过程中会从输入中提取出不同的特征。
+2. 滑动步幅（stride）：控制着卷积核每次移动的像素数。当stride为2时，卷积核每次移动两个像素。
 
-2. 滑动步长（stride）
-
-控制着卷积核每次移动的像素数。当stride为2时，卷积核每次移动两个像素。
-
-3. zero-padding
-
-输入数据边缘需要填充的大小。可以控制输出的空间大小。
+3. zero-padding：输入数据边缘需要填充的大小。可以控制输出的空间大小。
 
 输出的空间大小是着三个参数的函数。设输入数据大小为 $W$，卷积层神经元感受野大小为$F$，卷积核移动步幅为$S$，zero-padding大小为$P$，那么该卷积层输出的大小为
 
@@ -373,139 +367,164 @@ $$
 (W - F + 2P) / S + 1
 $$
 
-卷积层的另外一个重要特点是参数共享。
+卷积层的另外一个重要特点是**权值共享（weight sharing）**，也就是说对同一层的每个神经元的权重都是同一个，这样可使网络的参数大大减少。
 
-### forward
+作业2中的卷积采用的是原始实现，通过两层循环即可，这里不多讲，直接贴我的代码实现：
 
-先来看单通道，`S=1，P=0`的最简单的情况，设输入$X$ 为 $3 \times 3$，卷积核$K$为 $2 \times 2$，那么输出$Y$的大小为 $(3 - 2)/1 + 1 = 2$
+forward：
 
+```python
+stride = conv_param['stride']
+pad = conv_param['pad']
+N, C, H, W = x.shape
+F, C, HH, WW = w.shape
+Hout = (H + 2 * pad - HH) // stride + 1
+Wout = (W + 2 * pad - WW) // stride + 1
+out = np.zeros((N, F, Hout, Wout), dtype=x.dtype)
+
+padx = np.pad(x, ((0, 0), (0, 0), (pad, pad), (pad, pad)), 'constant')
+for i in range(Hout):
+    for j in range(Wout):
+        xblock = padx[:, :, i * stride:i *
+                      stride + HH, j * stride:j * stride + WW]
+        for k in range(F):
+            out[:, k, i, j] = np.sum(xblock * w[k], axis=(1, 2, 3))
+
+out += b[np.newaxis, :, np.newaxis, np.newaxis]
+```
+
+backward:
+
+```python
+dw = np.zeros_like(w)
+dpadx = np.zeros_like(padx)
+db = np.sum(dout, axis=(0, 2, 3))
+for i in range(Hout):
+    for j in range(Wout):
+        xblock = padx[:, :, i * stride:i *
+                      stride + HH, j * stride:j * stride + WW]
+        for k in range(F):
+            dw[k, :, :, :] += np.sum(xblock * dout[:, k, i, j]
+                                     [:, None, None, None], axis=0)
+        for n in range(N):
+            dpadx[n, :, i * stride:i * stride + HH, j * stride:j * stride +
+                  WW] += np.sum(dout[n, :, i, j][:, None, None, None] * w, axis=0)
+```
+
+### `im2col`
+
+这里来推导CNN基于矩阵乘法的高效实现。
+先来看单通道的情况。为了简单起见， 设输入$X$ 为 $3 \times 3$，卷积核$W$为 $2 \times 2$，步幅为1，没有pading，那么输出$Y$的大小为 $(3 - 2)/1 + 1 = 2$。在实际计算中，为了提高效率，通常会把二维卷积转为矩阵乘法，这样就避免了循环。具体就是先将输入中卷积核对应的每个局部感受野展平为向量，然后叠成一个大的矩阵，矩阵的大小计算根据输出大小和卷积核大小确定：本例中，输出为 $2 \times 2$，展平即为 $4 \times 1$，卷积核大小为 $2 \times 2$，展平为 $4 \times 1$，因此输入 $X$ 会变成 $4 \times 4$ 的矩阵，记为 $X_{col}$，这个操作称为 `im2col`:
 $$
 \begin{pmatrix}
 x_{11} & x_{12} & x_{13} \\
-x_{21} & x_{22} & x_{33} \\
+x_{21} & x_{22} & x_{23} \\
 x_{31} & x_{32} & x_{33}
-\end{pmatrix} \otimes
+\end{pmatrix}
+\xrightarrow{\mathrm{im2col}}
 \begin{pmatrix}
-k_{11} & k_{12} \\
-k_{21} & k_{22}
-\end{pmatrix} =
-\begin{pmatrix}
-y_{11} & y_{12} \\
-y_{21} & y_{22}
+x_{11} & x_{12} & x_{21} & x_{22} \\
+x_{12} & x_{13} & x_{22} & x_{23} \\
+x_{21} & x_{22} & x_{31} & x_{32} \\
+x_{22} & x_{23} & x_{32} & x_{33}
 \end{pmatrix}
 $$
 
-即
+如此一来，卷积就变为了矩阵乘：
 
-<!-- $$
+$$
 \begin{align}
+X \otimes W = X_{col} \, W_{col} & =
 \begin{pmatrix}
-y_{11} \\
-y_{12} \\
-y_{21} \\
-y_{22}
-\end{pmatrix} & =
+x_{11} & x_{12} & x_{21} & x_{22} \\
+x_{12} & x_{13} & x_{22} & x_{23} \\
+x_{21} & x_{22} & x_{31} & x_{32} \\
+x_{22} & x_{23} & x_{32} & x_{33}
+\end{pmatrix}
 \begin{pmatrix}
-x_{11} k_{11} + x_{12} k_{12} + x_{21} k_{21} + x_{22} k_{22} \\
-x_{12} k_{11} + x_{13} k_{12} + x_{22} k_{21} + x_{23} k_{22} \\
-x_{21} k_{11} + x_{22} k_{12} + x_{31} k_{21} + x_{32} k_{22} \\
-x_{22} k_{11} + x_{23} k_{12} + x_{32} k_{21} + x_{33} k_{22}
+w_{11} \\
+w_{12} \\
+w_{21} \\
+w_{22}
 \end{pmatrix} \\
 & =
 \begin{pmatrix}
-x_{11} & x_{12} & x_{21} & x_{22} \\
-x_{12} & x_{13} & x_{22} & x_{23} \\
-x_{21} & x_{22} & x_{31} & x_{32} \\
-x_{22} & x_{23} & x_{32} & x_{33}
+x_{11} w_{11} + x_{12} w_{12} + x_{21} w_{21} + x_{22} w_{22} \\
+x_{12} w_{11} + x_{13} w_{12} + x_{22} w_{21} + x_{23} w_{22} \\
+x_{21} w_{11} + x_{22} w_{12} + x_{31} w_{21} + x_{32} w_{22} \\
+x_{22} w_{11} + x_{23} w_{12} + x_{32} w_{21} + x_{33} w_{22} \\
 \end{pmatrix}
-\begin{pmatrix}
-k_{11} \\
-k_{12} \\
-k_{21} \\
-k_{22}
-\end{pmatrix}
-\end{align}
-$$ -->
-
-$$
-\begin{align}
-\begin{pmatrix}
-y_{11} & y_{12} & y_{21} & y_{22}
-\end{pmatrix} & =
-\begin{pmatrix}
-k_{11} & k_{12} & k_{21} & k_{22} \\
-\end{pmatrix}
-\begin{pmatrix}
-x_{11} & x_{12} & x_{21} & x_{22} \\
-x_{12} & x_{13} & x_{22} & x_{23} \\
-x_{21} & x_{22} & x_{31} & x_{32} \\
-x_{22} & x_{23} & x_{32} & x_{33}
-\end{pmatrix}
+= \boldsymbol{Y}_{col}
 \end{align}
 $$
 
-卷积最终转化为了矩阵乘的形式。转换之后的 $X$， $K$ 和 $Y$ 分别为 $XC$， $KC$ 和 $YC$。
-$XC$的每一列为卷积核的局部区域（感受野）展平得到。$KC$ 和 $YC$ 则分别是将 $K$ 和 $Y$ 展平后得到的行向量。
+这样卷积层的计算就和常规的线性回归一样了，易知：
 
-对于更常见的多通道输入，也是一样的原理：先将每个卷积核对应的局部感受野展平为一个列向量
-（该操作称为`im2col`），然后将卷积核展平为行向量。以AlexNet为例，输入图像形状为 $227 \times 227 \times 3$，
+$$
+\mathrm{d} {X_{col}} = \delta \  W_{col}^T \\
+\mathrm{d} {W_{col}} = X_{col} \ \delta
+$$
+
+其中，$\delta$ 为上游传过来的梯度。在backward过程中，求 $\mathrm{d} W$ 只需要将 $\mathrm{d} {W_{col}}$ reshape一下即可。但是求 $\mathrm{d} X$ 就不能简单的通过reshape来进行。
+我们还需要将 $\mathrm{d} {X_{col}}$ 再转回二维矩阵的形式，也就是 `col2im`：
+
+![](./images/col2im.png)
+
+转换时，同一位置的值是不断累加的。
+
+对于多通道输入，也是一样的原理：先将每个卷积核对应的局部感受野展平为一个列向量，
+然后将卷积核展平为行向量。以AlexNet为例，输入图像形状为 $227 \times 227 \times 3$，
 卷积核形状为 $11 \times 11 \times 3$，步幅为4。那么就将卷积核的每个感受野展平为
 $11 \times 11 \times 3=363$ 大小的列向量。以步幅4遍历整个图像后，卷积核的输出宽和高均为 $(227-11)/4+1=55$，
 展平的话就是大小$55 \times 55=3025$的行向量。那么一幅图像经 `im2col` 后就变换成了大小 $363 \times 3025$ 的矩阵。
 
-卷积层的权重参数也是类似的展平为行向量，AlexNet中第一个卷积层深度为96，那么经展平后，权重就变为了
+卷积层的权重参数也是类似的展平为列向量，AlexNet中第一个卷积层深度为96，那么经展平后，权重就变为了
 $96 \times 363$ 大小的矩阵。接下来直接进行矩阵乘法就完成了forward过程，得到的输出大小为 $96 \times 3025$，对其`reshape`一下就得到了输出大小 $96 \times 55 \times 55$。
 
-### backward
+![](./images/im2col.png)
 
-反向传播时，需要求$\boldsymbol{x}$, $\boldsymbol{w}$ 和 偏置项 $\boldsymbol{b}$ 这三项的梯度。
+### 新的计算公式
 
-根据链式法则，$\boldsymbol{x}$ 的梯度表示如下：
+`col2im` 计算复杂度很高，计算 $\nabla X$ 通常还有其他的方法。
 
-$$
-\frac{\partial L} {\partial \boldsymbol{x}} = \frac{\partial L} {\partial \boldsymbol{y}} \frac{\partial \boldsymbol{y}} {\partial \boldsymbol{x}}
-$$
-
-其中，$\frac{\partial L} {\partial \boldsymbol{y}}$ 为后面（通常为池化层或激活函数）传过来的梯度，记为 $\boldsymbol{\delta}$.
-
-通过前面forward过程，可将$\boldsymbol{x}$的梯度依次写出来：
+根据forward计算得到的结果 $Y_{col}$ 可以依次写出每个 $x_{ij}$ 的导数如下：
 
 $$
 \begin{split}
 \frac{\partial L} {\partial x_{11}} & =
 \boldsymbol{\delta} \cdot
 \begin{pmatrix}
-k_{11} & 0 \\
+w_{11} & 0 \\
 0 & 0
 \end{pmatrix} & =
-\delta_{11} k_{11} \\
+\delta_{11} w_{11} \\
 \frac{\partial L} {\partial x_{12}} & =
 \boldsymbol{\delta} \cdot
 \begin{pmatrix}
-k_{12} & k_{11} \\
+w_{12} & w_{11} \\
 0 & 0
-\end{pmatrix} & = \delta_{11} k_{12} + \delta_{12} k_{11} \\
+\end{pmatrix} & = \delta_{11} w_{12} + \delta_{12} w_{11} \\
 \frac{\partial L} {\partial x_{13}} & =
 \boldsymbol{\delta} \cdot
 \begin{pmatrix}
-0 & k_{12} \\
+0 & w_{12} \\
 0 & 0
-\end{pmatrix} & = \delta_{12} k_{12} \\
+\end{pmatrix} & = \delta_{12} w_{12} \\
  & & \vdots \\
 \frac{\partial L} {\partial x_{22}} & =
 \boldsymbol{\delta} \cdot
 \begin{pmatrix}
-k_{22} & k_{21} \\
-k_{12} & k_{11}
-\end{pmatrix} & = \delta_{11} k_{22} + \delta_{12} k_{21} + \delta_{21} k_{12} + \delta_{22} k_{11} \\
+w_{22} & w_{21} \\
+w_{12} & w_{11}
+\end{pmatrix} & = \delta_{11} w_{22} + \delta_{12} w_{21} + \delta_{21} w_{12} + \delta_{22} w_{11} \\
  & & \vdots \\
 \frac{\partial L} {\partial x_{33}} & =
 \boldsymbol{\delta} \cdot
 \begin{pmatrix}
 0 & 0 \\
-0 & k_{22}
+0 & w_{22}
 \end{pmatrix} & =
-\delta_{22} k_{22}
+\delta_{22} w_{22}
 \end{split}
 $$
 
@@ -519,8 +538,8 @@ $$
 0 & 0 & 0 & 0
 \end{pmatrix} *
 \begin{pmatrix}
-k_{22} & k_{21} \\
-k_{12} & k_{11}
+w_{22} & w_{21} \\
+w_{12} & w_{11}
 \end{pmatrix} =
 \begin{pmatrix}
 \nabla x_{11} & \nabla x_{12} & \nabla x_{13} \\
@@ -529,13 +548,16 @@ k_{12} & k_{11}
 \end{pmatrix}
 $$
 
-该卷积核为forward中卷积核翻转之后得到。因此，卷积层对输入的梯度可以表示为：
+该卷积核为forward中卷积核翻转之后得到，这是对 $\delta$ 做卷积，称之为逆向卷积（有的地方称为去卷积(deconvolution)，但用在这里并不合适，deconvolution在信号和图像处理中有明确的定义，与这里的操作不同。）：
 
 $$
-\frac{\partial L} {\partial \boldsymbol{x}} = \boldsymbol{\delta} * flipped(\boldsymbol{k})
+\frac{\partial L} {\partial \boldsymbol{X}} = \boldsymbol{\delta} \otimes flipped(\boldsymbol{W})
 $$
 
-同理，对 $\boldsymbol{w}$ 和 $\boldsymbol{b}$ 的梯度也可以用同样的原理来计算。
+具体计算过程中，先对 $\delta$ 做zero-padding，然后就和forward过程一样了，通过`im2col`映射为 $\delta_{col}$，接着就是矩阵乘。最后将得到的 $\nabla X_{col}$ reshape 一下得到原始大小即可。
+
+
+同理，$\boldsymbol{W}$ 的梯度也可以用同样的原理来计算。
 
 ### Max pooling
 
