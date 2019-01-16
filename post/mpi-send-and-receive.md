@@ -1,5 +1,5 @@
 ---
-title: MPI学习 - 点对点通信
+title: MPI之点对点通信
 author: pzhang
 date: 2018-04-08
 lastMod: 2018-04-08
@@ -10,7 +10,7 @@ tags:
   - 高性能计算
 
 draft: true
-slug: mpi-send-and-receive
+slug: mpi-point-to-point
 ---
 
 发送和接收信息是MPI的基础，本文为MPI阻塞点对点通信学习笔记。
@@ -52,6 +52,7 @@ int MPI_Recv(
 看起来参数很多，但是很容易理解。和邮件的收发是类似的
 
 - `buf`, `count` 和 `datatype`是被信封打包起来的信息
+  - buf 为数据缓存，`count` 为最多接收的元素字节数，`datatype` 为数据类型
 - `dest`: 收件人地址(进程ID)
 - `source`: 发件人地址
 - `tag`: 邮戳，可以区分邮件的顺序
@@ -69,26 +70,26 @@ typedef struct _MPI_Status {
 } MPI_Status
 ```
 
-而 `MPI_Datatype` 也是MPI定义的数据类型，和c语言基本类型是一一对应的。
+而 `MPI_Datatype` 为MPI定义的数据类型，和c语言基本类型是一一对应的。
 
-<!-- ## MPI基本数据类型
+## MPI基本数据类型
 
 常用的MPI数据类型和C语言基本类型的对应关系如下：
 
-| MPI datatype             | C equivalent                   |
-|:-------------------------|:-------------------------------|
-| `MPI_SHORT`              | `short int`                    |
-| `MPI_INT`                | `int`                          |
-| `MPI_LONG`               | `long int`                     |
-| `MPI_LONG_LONG`          | `long long int`                |
-| `MPI_UNSIGNED_CHAR`      | `unsigned char`                |
-| `MPI_UNSIGNED_SHORT`     | `unsigned short int`           |
-| `MPI_UNSIGNED`           | `unsigned int`                 |
-| `MPI_UNSIGNED_LONG`      | `unsigned long int`            |
-| `MPI_UNSIGNED_LONG_LONG` | `unsigned long long int`       |
-| `MPI_FLOAT`              | `float`                        |
-| `MPI_DOUBLE`             | `double`                       |
-| `MPI_LONG_DOUBLE`        | `long double`                  |
-| `MPI_BYTE`               | `char`                   | --> |
+| MPI datatype             | C equivalent             |
+| :----------------------- | :----------------------- |
+| `MPI_SHORT`              | `short int`              |
+| `MPI_INT`                | `int`                    |
+| `MPI_LONG`               | `long int`               |
+| `MPI_LONG_LONG`          | `long long int`          |
+| `MPI_UNSIGNED_CHAR`      | `unsigned char`          |
+| `MPI_UNSIGNED_SHORT`     | `unsigned short int`     |
+| `MPI_UNSIGNED`           | `unsigned int`           |
+| `MPI_UNSIGNED_LONG`      | `unsigned long int`      |
+| `MPI_UNSIGNED_LONG_LONG` | `unsigned long long int` |
+| `MPI_FLOAT`              | `float`                  |
+| `MPI_DOUBLE`             | `double`                 |
+| `MPI_LONG_DOUBLE`        | `long double`            |
+| `MPI_BYTE`               | `char`                   |
 
 点对点通信要求`send`和`recv`要一一配对。
