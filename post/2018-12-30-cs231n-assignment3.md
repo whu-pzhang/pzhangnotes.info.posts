@@ -19,21 +19,20 @@ slug: cs231n-assignment3
 
 ## 简介
 
-在作业2中手撸CNN后，cs231n讲述了RNN，LSTM，GRU以及语言模型、图像标注、检测、定位、分割、识别等多方面的内容。
-
+在作业 2 中手撸 CNN 后，cs231n 讲述了 RNN，LSTM，GRU 以及语言模型、图像标注、检测、定位、分割、识别等多方面的内容。
 
 ## RNN captioning
 
-常规DNN和CNN都只能单独的处理一个个的输入，每个输入之间是完全没有联系的，这对于类似图像分类的任务来说是没有问题的，但某些任务需要更好地处理序列的信息，即前面的输入和后面的输入是有联系的，例如：
+常规 DNN 和 CNN 都只能单独的处理一个个的输入，每个输入之间是完全没有联系的，这对于类似图像分类的任务来说是没有问题的，但某些任务需要更好地处理序列的信息，即前面的输入和后面的输入是有联系的，例如：
 
-1. 图像标注问题(one to many)： image -> sequence of words
-2. 情感分类(many to one): sequence of words -> sentiment
-3. 机器翻译(many to many): seq of words -> seq of words
-4. 帧级别的视频分类(many to many)
-5. ……
+1.  图像标注问题(one to many)： image -> sequence of words
+2.  情感分类(many to one): sequence of words -> sentiment
+3.  机器翻译(many to many): seq of words -> seq of words
+4.  帧级别的视频分类(many to many)
+5.  ……
 
 为了更好地处理序列的信息，RNN(Recurrent Neural Network)就诞生了。
-RNN通常要预测一个和时间相关的量，其基本架构如下：
+RNN 通常要预测一个和时间相关的量，其基本架构如下：
 
 ![](/images/rnn.jpg)
 
@@ -42,16 +41,16 @@ RNN通常要预测一个和时间相关的量，其基本架构如下：
 $$
 \boldsymbol{h}_t = f_W (\boldsymbol{h}_{t-1}, \boldsymbol{x}_t) \\
 \downarrow \\
-\boldsymbol{h}_t = tanh (\mathbf{W}_{hh}\boldsymbol{h}_{t-1} + \mathbf{W}_{xh} \boldsymbol{x}_t)
+\boldsymbol{h}\_t = tanh (\mathbf{W}_{hh}\boldsymbol{h}_{t-1} + \mathbf{W}_{xh} \boldsymbol{x}\_t)
 $$
 
-向上的箭头为每个时间步的输出，是一个softmax层
+向上的箭头为每个时间步的输出，是一个 softmax 层
 
 $$
-\boldsymbol{y}_t = Softmax (\mathbf{W}_{hy} * \boldsymbol{h}_t)
+\boldsymbol{y}_t = Softmax (\mathbf{W}_{hy} \* \boldsymbol{h}\_t)
 $$
 
-根据上述公式，RNN单元的 `rnn_step_forward` 如下：
+根据上述公式，RNN 单元的 `rnn_step_forward` 如下：
 
 ```python
 prev_hWh = prev_h @ Wh                          # (1)
@@ -60,7 +59,7 @@ hsum = prev_hWh + xWx + b                       # (3)
 next_h = np.tanh(hsum)                          # (4)
 ```
 
-根据计算图反推，backward也很简单：
+根据计算图反推，backward 也很简单：
 
 ```python
 dhsum = (1 - np.tanh(hsum)**2) * dnext_h      # (4)
@@ -73,10 +72,9 @@ dWh = prev_h.T @ dprev_hWh                    # (1)
 dprev_h = dprev_hWh @ Wh.T                    # (1)
 ```
 
-接下来就是完整的RNN了，forward过程需要对RNN单元循环 `T` 次（`T`为序列长度），
-在循环内部每次记得更新 $\boldsymbol{h}_t$ 即可。
+接下来就是完整的 RNN 了，forward 过程需要对 RNN 单元循环 `T` 次（`T`为序列长度），在循环内部每次记得更新 $\boldsymbol{h}\_t$ 即可。
 
-backward过程和以前的神经网络不太一样，RNN从上游传过来的梯度不只一个，除了从右边传过来的梯度外，还有每个时间点（上面）传过来的梯度。首先需要逆序循环，然后每个循环内更新RNN单元需要的梯度值。此外，在RNN中，Wx, Wh, b这三个参数是共享的，对每个时间步对视一样的，因此它们的梯度是一个累加的值。
+backward 过程和以前的神经网络不太一样，RNN 从上游传过来的梯度不只一个，除了从右边传过来的梯度外，还有每个时间点（上面）传过来的梯度。首先需要逆序循环，然后每个循环内更新 RNN 单元需要的梯度值。此外，在 RNN 中，Wx, Wh, b 这三个参数是共享的，对每个时间步对视一样的，因此它们的梯度是一个累加的值。
 
 ```python
 dprev_ht = np.zeros((N, H))
@@ -89,9 +87,9 @@ for t in reversed(range(T)):
 dh0 = dprev_ht
 ```
 
-在用RNN对图像进行标注前，还需要进行单词嵌入(word embeding)操作，因为神经网络不能将单词作为输入，所以需要将单词映射为单词索引的形式。
+在用 RNN 对图像进行标注前，还需要进行单词嵌入(word embeding)操作，因为神经网络不能将单词作为输入，所以需要将单词映射为单词索引的形式。
 
-现在就可以来搭建RNN的架构了。首先需要把图像经CNN提取的特征（作业中采用的是在ImageNet数据集上预训练的VGG16模型的fc7层提取得到的特征）通过全连接层转换为初始的隐藏状态（$\boldsymbol{h}_0$），接着将captions做词嵌入输入RNN单元中，再利用一个仿射变换将RNN单元的输出转换为单词字典索引，接着采用softmax损失计算loss。
+现在就可以来搭建 RNN 的架构了。首先需要把图像经 CNN 提取的特征（作业中采用的是在 ImageNet 数据集上预训练的 VGG16 模型的 fc7 层提取得到的特征）通过全连接层转换为初始的隐藏状态（$\boldsymbol{h}\_0$），接着将 captions 做词嵌入输入 RNN 单元中，再利用一个仿射变换将 RNN 单元的输出转换为单词字典索引，接着采用 softmax 损失计算 loss。
 
 ```python
 h0, h0cache = affine_forward(features, W_proj, b_proj)
@@ -104,7 +102,7 @@ x, xcache = temporal_affine_forward(rnnout, W_vocab, b_vocab)
 loss, dx = temporal_softmax_loss(x, captions_out, mask)
 ```
 
-上面描述的是RNN训练过程，在测试时就不一样了。测试时没有真值标注作为输入，需要一个起始单词（`<START>`）作为开始，然后按序列依次更新隐藏状态，并预测输出下一个标注单词。
+上面描述的是 RNN 训练过程，在测试时就不一样了。测试时没有真值标注作为输入，需要一个起始单词（`<START>`）作为开始，然后按序列依次更新隐藏状态，并预测输出下一个标注单词。
 
 ```python
 prev_h, _ = affine_forward(features, W_proj, b_proj)
@@ -124,13 +122,13 @@ for t in range(1, max_length):
 
 ## LSTM captioning
 
-RNN应该能够记住许多时间步之前见过的信息，但实际中由于梯度消失（vanishing gradient problem）问题，随着层数的增加，网络将变得无法训练。
-LSTM(Long Short Term Memory)和GRU都是为了解决这个问题而提出的。
-LSTM单元结构如下：
+RNN 应该能够记住许多时间步之前见过的信息，但实际中由于梯度消失（vanishing gradient problem）问题，随着层数的增加，网络将变得无法训练。
+LSTM(Long Short Term Memory)和 GRU 都是为了解决这个问题而提出的。
+LSTM 单元结构如下：
 
 ![](./images/lstm.png)
 
-forward过程计算公式如下：
+forward 过程计算公式如下：
 
 $$
 \begin{align}
@@ -148,16 +146,16 @@ g
 \end{pmatrix} \,
 \mathbf{W}
 \begin{pmatrix}
-h_{t-1} \\
+h*{t-1} \\
 x_t
 \end{pmatrix} \\
 \\
-c_t & = f \odot c_{t-1} + i \odot g \\
+c_t & = f \odot c*{t-1} + i \odot g \\
 h_t & = o \odot \tanh(c_t)
 \end{align}
 $$
 
-注意到每个LSTM单元有3个输入：$c, h, x$。实际计算时4个gate的线性部分可以通过一次计算完成，然后将不同gate对应的值分开即可。
+注意到每个 LSTM 单元有 3 个输入：$c, h, x$。实际计算时 4 个 gate 的线性部分可以通过一次计算完成，然后将不同 gate 对应的值分开即可。
 
 ```python
 H = prev_h.shape[1]
@@ -171,9 +169,8 @@ next_c = fgate * prev_c + igate * ggate
 next_h = ogate * np.tanh(next_c)
 ```
 
-backward时，相比RNN，反传过来的值有两个 **`dnext_h`, `dnext_c`**。需要求：
-`dx`, `dWx`, `dWh`, `db`, `dprev_h` 和 `dprev_c` 的梯度。
-弄清楚哪些变量之间有关联，然后利用链式法则即可：
+backward 时，相比 RNN，反传过来的值有两个 **`dnext_h`, `dnext_c`**。需要求：
+`dx`, `dWx`, `dWh`, `db`, `dprev_h` 和 `dprev_c` 的梯度。弄清楚哪些变量之间有关联，然后利用链式法则即可：
 
 ```python
 dogate = dnext_h * np.tanh(next_c)
@@ -196,6 +193,66 @@ dWh = prev_h.T @ dz
 db = np.sum(dz, axis=0)
 ```
 
-在完整的LSTM中大体和RNN相同，注意多了一个变量 `c`，不论是forward和backward都记得在循环里更新即可。
+在完整的 LSTM 中大体和 RNN 相同，注意多了一个变量 `c`，不论是 forward 和 backward 都记得在循环里更新即可。
 
 ## Network Visualization
+
+之前训练模型都是利用 SGD 来更新模型参数使其达到损失函数定义下的要求。而在这一节中，我们利用已经训练好的预训练模型来定义相对于图像的损失函数，利用反向传播计算损失对图像像素的梯度，保持模型不变，通过更新图像来最小化损失函数。
+
+主要包括三个方面的内容：
+
+* 显著性图（Saliency Maps）
+
+显著性图告诉我们图像中每个像素影响图像类别分数的程度。通过计算正确类未规范化的分数相对于每个像素的梯度来得到。
+
+```python
+scores = model(X) # correct class scores
+scores = scores.gather(1, y.view(-1, 1)).squeeze() # backward
+scores.backward(torch.ones(X.size(0)))
+
+ # image gradient
+saliency = X.grad
+
+ # absolute the value and take the maximum value over the 3 channels
+saliency = torch.abs(saliency)
+saliency, _ = torch.max(saliency, dim=1)
+```
+
+* Fooling images
+
+Fooling images 则是在给定图像和类别时，通过梯度上升法不断地更新图像，最后使得模型认为该图像就是这个类别的图像为止。
+
+```python
+while (True):
+    scores = model(X*fooling)
+    idx = torch.argmax(scores)
+
+    if idx.item() == target_y:
+        break
+
+    scores[0, target_y].backward()
+
+    dX = X_fooling.grad.data
+
+    # update image using gradient ascent
+    X_fooling.data += learning_rate * (dX / dX.norm())
+
+    X_fooling.grad.zero_()
+```
+
+* 类别可视化（Class Visualization）
+
+这里和 fooling images 差不多，都是预训练的模型通过梯度上升将输入的随机噪音图像变为指定类别的图像。
+
+```python
+scores = model(img)
+loss = scores[0, target_y] - l2_reg * img.norm()
+loss.backward()
+grad = img.grad.data
+img.data += learning_rate * grad
+img.grad.zero_()
+```
+
+## Style Transfer
+
+这节的内容是风格迁移。
