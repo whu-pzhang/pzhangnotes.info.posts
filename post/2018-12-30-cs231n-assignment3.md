@@ -11,7 +11,6 @@ tags:
   - Python
   - NumPy
   - PyTorch
-  - TensorFlow
 
 draft: true
 slug: cs231n-assignment3
@@ -41,13 +40,13 @@ RNN 通常要预测一个和时间相关的量，其基本架构如下：
 $$
 \boldsymbol{h}_t = f_W (\boldsymbol{h}_{t-1}, \boldsymbol{x}_t) \\
 \downarrow \\
-\boldsymbol{h}\_t = tanh (\mathbf{W}_{hh}\boldsymbol{h}_{t-1} + \mathbf{W}_{xh} \boldsymbol{x}\_t)
+\boldsymbol{h}_t = tanh (\mathbf{W}_{hh}\boldsymbol{h}_{t-1} + \mathbf{W}_{xh} \boldsymbol{x}_t)
 $$
 
 向上的箭头为每个时间步的输出，是一个 softmax 层
 
 $$
-\boldsymbol{y}_t = Softmax (\mathbf{W}_{hy} \* \boldsymbol{h}\_t)
+\boldsymbol{y}_t = Softmax (\mathbf{W}_{hy} * \boldsymbol{h}_t)
 $$
 
 根据上述公式，RNN 单元的 `rnn_step_forward` 如下：
@@ -72,7 +71,7 @@ dWh = prev_h.T @ dprev_hWh                    # (1)
 dprev_h = dprev_hWh @ Wh.T                    # (1)
 ```
 
-接下来就是完整的 RNN 了，forward 过程需要对 RNN 单元循环 `T` 次（`T`为序列长度），在循环内部每次记得更新 $\boldsymbol{h}\_t$ 即可。
+接下来就是完整的 RNN 了，forward 过程需要对 RNN 单元循环 `T` 次（`T`为序列长度），在循环内部每次记得更新 $\boldsymbol{h}_t$ 即可。
 
 backward 过程和以前的神经网络不太一样，RNN 从上游传过来的梯度不只一个，除了从右边传过来的梯度外，还有每个时间点（上面）传过来的梯度。首先需要逆序循环，然后每个循环内更新 RNN 单元需要的梯度值。此外，在 RNN 中，Wx, Wh, b 这三个参数是共享的，对每个时间步对视一样的，因此它们的梯度是一个累加的值。
 
@@ -89,7 +88,7 @@ dh0 = dprev_ht
 
 在用 RNN 对图像进行标注前，还需要进行单词嵌入(word embeding)操作，因为神经网络不能将单词作为输入，所以需要将单词映射为单词索引的形式。
 
-现在就可以来搭建 RNN 的架构了。首先需要把图像经 CNN 提取的特征（作业中采用的是在 ImageNet 数据集上预训练的 VGG16 模型的 fc7 层提取得到的特征）通过全连接层转换为初始的隐藏状态（$\boldsymbol{h}\_0$），接着将 captions 做词嵌入输入 RNN 单元中，再利用一个仿射变换将 RNN 单元的输出转换为单词字典索引，接着采用 softmax 损失计算 loss。
+现在就可以来搭建 RNN 的架构了。首先需要把图像经 CNN 提取的特征（作业中采用的是在 ImageNet 数据集上预训练的 VGG16 模型的 fc7 层提取得到的特征）通过全连接层转换为初始的隐藏状态（$\boldsymbol{h}_0$），接着将 captions 做词嵌入输入 RNN 单元中，再利用一个仿射变换将 RNN 单元的输出转换为单词字典索引，接着采用 softmax 损失计算 loss。
 
 ```python
 h0, h0cache = affine_forward(features, W_proj, b_proj)
@@ -255,4 +254,156 @@ img.grad.zero_()
 
 ## Style Transfer
 
-这节的内容是风格迁移。
+风格迁移的目的是将参考图像的风格应用于目标图像，同时保留目标图像的内容，从而生成一副新的图像。
+
+![](./images/20190329.jpg)
+
+风格迁移的思想与纹理生成的想法密切相关。实现风格迁移背后的关键思想与所有深度学习算法的思想一样：
+需要先定义一个损失函数定义要实现的目标，然后采用梯度下降法最小化这个损失函数。
+目标就是保存原始图像内容的同时实现风格化，若能在数学上给出 content 和 style 的定义，那么损失函数
+可以定义如下：
+
+```
+loss = distance(style(reference_image) - style(generated_image)) +
+       distance(content(original_image) - content(generated_image))
+```
+
+这里的 `distance` 是一个范数，如 L2 范数。`content` 和 `style` 分别是计算输入图像内容和风格
+的函数。
+
+### content loss
+
+内容损失描述的是网络从目标图像提取出的特征图与从生成图像提取的特征图之间的差别。通常选择的是靠近
+顶部的某一特征图来进行逐元素比较。代码如下：
+
+```python
+def content_loss(content_weight, content_current, content_original):
+    """
+    Compute the content loss for style transfer.
+    
+    Inputs:
+    - content_weight: Scalar giving the weighting for the content loss.
+    - content_current: features of the current image; this is a PyTorch Tensor of shape
+      (1, C_l, H_l, W_l).
+    - content_target: features of the content image, Tensor with shape (1, C_l, H_l, W_l).
+    
+    Returns:
+    - scalar content loss
+    """
+    loss = content_weight * torch.sum((content_current - content_original)**2)
+    return loss
+```
+
+
+### style loss
+
+不同于内容损失，风格损失使用卷积网络的多个层来定义，以此来捕捉参考图像和生成图像上不同空间尺度上
+的信息。使用 Gram Matrix 来表示不同激活层之间的相关性：我们希望生成图像的激活统计量与风格图像的
+激活统计量相匹配。有很多种方法可以来表示这种相关，但 Gram Matrix 易于计算且效果很好。
+
+对于 shape 为 $(C_l, M_l)$ 的特征图 $F^l$ ，其 Gram 矩阵 shape 为 $(C_l, C_l)$:
+
+$$
+G_{ij}^l = \sum_k {F_{ik}^l F_{jk}^l}
+$$
+
+假定 $G^l$ 为当前图像的 Gram 矩阵，$A^l$ 为参考风格图像的特征图 Gram 矩阵，$w_l$ 为权重，
+那么 $l$ 层的风格损失可以简单的定义为两个 Gram 矩阵之间的欧氏距离：
+
+$$
+L_s^l = w_l \sum_{i,j} {(G_{ij}^l - A_{ij}^l)^2}
+$$
+
+而风格损失是多个层的损失和：
+
+$$
+L_s = \sum_{l \in \mathcal{L}} {L_s^l}
+$$
+
+首先实现 Gram 矩阵的计算：
+
+```python
+def gram_matrix(features, normalize=True):
+    """
+    Compute the Gram matrix from features.
+    
+    Inputs:
+    - features: PyTorch Tensor of shape (N, C, H, W) giving features for
+      a batch of N images.
+    - normalize: optional, whether to normalize the Gram matrix
+        If True, divide the Gram matrix by the number of neurons (H * W * C)
+    
+    Returns:
+    - gram: PyTorch Tensor of shape (N, C, C) giving the
+      (optionally normalized) Gram matrices for the N input images.
+    """
+    N, C, H, W = features.size()
+    features_reshaped = features.reshape(N, C, H * W)
+    gram = torch.bmm(features_reshaped, features_reshaped.transpose(1, 2))
+    if normalize:
+        gram /= H * W * C
+    return gram
+```
+
+接着，我们实现风格损失函数：
+
+```python
+def style_loss(feats, style_layers, style_targets, style_weights):
+    """
+    Computes the style loss at a set of layers.
+    
+    Inputs:
+    - feats: list of the features at every layer of the current image, as produced by
+      the extract_features function.
+    - style_layers: List of layer indices into feats giving the layers to include in the
+      style loss.
+    - style_targets: List of the same length as style_layers, where style_targets[i] is
+      a PyTorch Tensor giving the Gram matrix of the source style image computed at
+      layer style_layers[i].
+    - style_weights: List of the same length as style_layers, where style_weights[i]
+      is a scalar giving the weight for the style loss at layer style_layers[i].
+      
+    Returns:
+    - style_loss: A PyTorch Tensor holding a scalar giving the style loss.
+    """
+    # Hint: you can do this with one for loop over the style layers, and should
+    # not be very much code (~5 lines). You will need to use your gram_matrix function.
+    loss = torch.FloatTensor([0]).type(dtype)
+    for i, idx in enumerate(style_layers):
+        gram = gram_matrix(feats[idx])
+        loss += torch.sum(style_weights[i] * (gram - style_targets[i])**2)       
+    return loss
+```
+
+### Total-variation regularization
+
+除了内容损失和风格损失之外，还需要添加一个全变分正则化损失，使生成图像
+的像素具有空间连续性和平滑，避免图像过度像素化。
+
+全变分损失定义为水平和垂直方向相邻像素差的平方和，对于不同的通道之间也是相加。
+
+```python
+def tv_loss(img, tv_weight):
+    """
+    Compute total variation loss.
+    
+    Inputs:
+    - img: PyTorch Variable of shape (1, 3, H, W) holding an input image.
+    - tv_weight: Scalar giving the weight w_t to use for the TV loss.
+    
+    Returns:
+    - loss: PyTorch Variable holding a scalar giving the total variation loss
+      for img weighted by tv_weight.
+    """
+    # Your implementation should be vectorized and not require any loops!
+    hsum = torch.sum((img[:,:,:-1,:] - img[:,:,1:,:])**2)
+    wsum = torch.sum((img[:,:,:,:-1] - img[:,:,:,1:])**2)
+    return tv_weight * (hsum + wsum)
+```
+
+在风格迁移中，我们需要最小化的损失即为内容损失、风格损失和全变差损失这三部分之和。
+接下来，只需要将这三部分组合起来，利用梯度下降法来得到最后的图像即可。具体可以参考
+[StyleTransfer-Pytorch.ipynb](https://github.com/whu-pzhang/cs231n/blob/master/assignment3/StyleTransfer-PyTorch.ipynb)
+
+
+## GAN
