@@ -407,3 +407,65 @@ def tv_loss(img, tv_weight):
 
 
 ## GAN
+
+在此之前，cs231n中所有的神经网络都是判别式模型，从给定的输入得到一个类别标记输出。其应用范围从图像分类
+到生成图像描述。在这一小节中，我们利用神经网络来构建生成模型。
+
+2014年，[Goodfellow et al.](https://arxiv.org/abs/1406.2661)提出了训练生成模型的生成对抗网络
+（Generative Adversarial Networks，GAN）。在该方法中，需要构建两个不同的网络：
+第一个网络是传统的分类网络，成为判别器（discriminator），其功能是判断输入图像是真实的（输入训练集）
+还是假的（不属于训练集）。第二个网络称为生成器（generator），将随机噪声作为输入并产生一张图像。
+生成器的目的是骗过判别器，使其认为生成的图像是真实的。
+
+可以把判别器和生成器的博弈看作是一个最小最大的过程：
+
+$$
+\min_{G} \max_{D} \mathbb{E}_{x~p_{data}} \left[ \log D(x) \right] + \mathbb{E}_{z~p(z)} \left[ \log (1-D(G(z))) \right]
+$$
+
+其中，$z~p(z)$ 为随机噪声样本，$G(z)$ 为生成器 $G$ 产生的图像，$D$ 为判别器的输出，表示输入为
+真实图像的概率。在[Goodfellow et al.](https://arxiv.org/abs/1406.2661)中，作者分析了这个
+最小最大过程和最小化训练数据分布与生成样本之间Jensen-Shannon散度的关联。
+
+为了优化这个最小最大过程，可以选择对 $G$ 进行梯度下降优化，对 $D$ 进行梯度上升优化：
+
+1. 更新生成器 $G$ 使得判别器作出正确判断的概率最小
+2. 更新判别器 $D$ 使得判别器作出正确判断的概率最大
+
+但是上述两个过程实际中难以work。因此，实际中**更新生成器的准则是最大化判别器作出错误判断的概率**。
+
+该小节中，我们将交替执行如下更新：
+
+1. 最大化判别器作出错误判断的概率来更新生成器 $G$:
+
+$$
+\max_{G} \mathbb{E}_{z~p(z)} \left[ \log D(G(z)) \right]
+$$
+
+2. 最大化判别器在真实数据和生成数据上作出正确判断的概率来更新判别器 $D$
+
+$$
+\max_{D} \mathbb{E}_{x~p_{data}} \left[ \log D(x) \right] + \mathbb{E}_{z~p_{z}} \left[ \log (1-D(G(z))) \right]
+$$
+
+
+实际上，自2014年GAN提出以来，有关GAN的论文层出不穷，相较于其他的生成模型，GAN能生成质量最高图像的同时，
+也需要高超的训练技巧。这个[repo](https://github.com/soumith/ganhacks)里包含了训练GAN的17个trick。
+提升GAN训练的稳定性和鲁棒性是一个开放的研究领域，每天都会用小的paper出来。最近的GAN教程，可以看
+[这里](https://arxiv.org/abs/1701.00160)。
+最近将目标函数变为Wasserstein距离的GAN模型（[WGAN](https://arxiv.org/abs/1701.07875)，[WGAN-GP](https://arxiv.org/abs/1704.00028)）获得了更稳定的结果。
+
+需要注意的是，GAN不是训练生成模型的唯一方法！另一个流行的方法是Variational Autoencoders
+（由[here](https://arxiv.org/abs/1312.6114) 和 [here](https://arxiv.org/abs/1401.4082)共同发现）。VAE易于训练，但其生成的图像质量远不如GAN。
+
+
+GAN的损失函数是用BCE（Binary Cross-Entropy）定义的，也即是对数回归的损失函数：
+
+$$
+bce(s,y) = -y * \log(s) - (1-y) * \log(1-s)
+$$
+
+这里的$s$为经sigmoid函数后，各个类别的分数。
+
+
+https://www.tensorflow.org/api_docs/python/tf/nn/sigmoid_cross_entropy_with_logits
