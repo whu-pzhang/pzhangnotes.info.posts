@@ -465,7 +465,40 @@ $$
 bce(s,y) = -y * \log(s) - (1-y) * \log(1-s)
 $$
 
-这里的$s$为经sigmoid函数后，各个类别的分数。
+这里的$s$为经sigmoid函数后，各个类别的分数，即 $s = \sigma(x)$，其值在0～1之间。那么直接
+计算bce loss 的时候就会有数值不稳定的问题：若s的值很小，那么 $\log(s)$ 便会接近 
+$-\infty$。
 
+$$
+\begin{align}
+& -y \log(\sigma(x)) - (1-y) \log(1 - \sigma(x)) \\
+&= -y \log(\frac{1}{1+e^{-x}}) - (1-y) \log(e^{-x} - \frac{1}{1+e^{-x}}) \\
+&= y \log(1 + e^{-x}) + (1 - y) (x + \log(1 + e^{-x})) \\
+&= (1 - y) x + \log(1 + e^{-x}) \\
+&= x - xy + \log(1 + e^{-x})  % 避免 x < 0时， exp(-x) 溢出 \\
+&= -xy + \log(1 + e^x)
+\end{align}
+$$
 
-https://www.tensorflow.org/api_docs/python/tf/nn/sigmoid_cross_entropy_with_logits
+为了确保稳定性，实现如下：
+
+```python
+def bce_loss(input, target):
+    """
+    Numerically stable version of the binary cross-entropy loss function.
+
+    As per https://github.com/pytorch/pytorch/issues/751
+    See the TensorFlow docs for a derivation of this formula:
+    https://www.tensorflow.org/api_docs/python/tf/nn/sigmoid_cross_entropy_with_logits
+
+    Inputs:
+    - input: PyTorch Tensor of shape (N, ) giving scores.
+    - target: PyTorch Tensor of shape (N,) containing 0 and 1 giving targets.
+
+    Returns:
+    - A PyTorch Tensor containing the mean BCE loss over the minibatch of input data.
+    """
+    neg_abs = - input.abs()
+    loss = input.clamp(min=0) - input * target + (1 + neg_abs.exp()).log()
+    return loss.mean()
+```
