@@ -20,6 +20,8 @@ slug: cs231n-assignment3
 
 在作业 2 中手撸 CNN 后，cs231n 讲述了 RNN，LSTM，GRU 以及语言模型、图像标注、检测、定位、分割、识别等多方面的内容。
 
+<!--more-->
+
 ## RNN captioning
 
 常规 DNN 和 CNN 只能依次处理一个个的输入，输入之间是完全没有联系的，这对于图像分类的任务来说
