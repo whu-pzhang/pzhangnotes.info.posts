@@ -22,7 +22,8 @@ slug: cs231n-assignment3
 
 ## RNN captioning
 
-常规 DNN 和 CNN 都只能单独的处理一个个的输入，每个输入之间是完全没有联系的，这对于类似图像分类的任务来说是没有问题的，但某些任务需要更好地处理序列的信息，即前面的输入和后面的输入是有联系的，例如：
+常规 DNN 和 CNN 只能依次处理一个个的输入，输入之间是完全没有联系的，这对于图像分类的任务来说
+是没有问题的，但某些需要处理序列之间关系的任务而言就不适合了。例如：
 
 1.  图像标注问题(one to many)： image -> sequence of words
 2.  情感分类(many to one): sequence of words -> sentiment
@@ -30,8 +31,8 @@ slug: cs231n-assignment3
 4.  帧级别的视频分类(many to many)
 5.  ……
 
-为了更好地处理序列的信息，RNN(Recurrent Neural Network)就诞生了。
-RNN 通常要预测一个和时间相关的量，其基本架构如下：
+为了更好地处理序列的信息，RNN(Recurrent Neural Network)诞生了。
+RNN 需要预测一个和时间相关的量，其基本架构如下：
 
 ![](/images/rnn.jpg)
 
@@ -73,7 +74,9 @@ dprev_h = dprev_hWh @ Wh.T                    # (1)
 
 接下来就是完整的 RNN 了，forward 过程需要对 RNN 单元循环 `T` 次（`T`为序列长度），在循环内部每次记得更新 $\boldsymbol{h}_t$ 即可。
 
-backward 过程和以前的神经网络不太一样，RNN 从上游传过来的梯度不只一个，除了从右边传过来的梯度外，还有每个时间点（上面）传过来的梯度。首先需要逆序循环，然后每个循环内更新 RNN 单元需要的梯度值。此外，在 RNN 中，Wx, Wh, b 这三个参数是共享的，对每个时间步对视一样的，因此它们的梯度是一个累加的值。
+backward 过程和以前的神经网络不太一样，RNN 从上游传过来的梯度不只一个，除了从右边传过来的梯度外，
+还有每个时间点（上面）传过来的梯度。首先需要逆序循环，然后每个循环内更新 RNN 单元需要的梯度值。
+此外，在 RNN 中，Wx, Wh, b 这三个参数是共享的，对每个时间步都是一样的，因此它们的梯度是一个累加的值。
 
 ```python
 dprev_ht = np.zeros((N, H))
@@ -86,7 +89,8 @@ for t in reversed(range(T)):
 dh0 = dprev_ht
 ```
 
-在用 RNN 对图像进行标注前，还需要进行单词嵌入(word embeding)操作，因为神经网络不能将单词作为输入，所以需要将单词映射为单词索引的形式。
+在用 RNN 对图像进行标注前，还需要进行词嵌入(word embeding)操作。
+神经网络不能将单词作为输入，所以需要将单词映射为单词索引的形式。
 
 现在就可以来搭建 RNN 的架构了。首先需要把图像经 CNN 提取的特征（作业中采用的是在 ImageNet 数据集上预训练的 VGG16 模型的 fc7 层提取得到的特征）通过全连接层转换为初始的隐藏状态（$\boldsymbol{h}_0$），接着将 captions 做词嵌入输入 RNN 单元中，再利用一个仿射变换将 RNN 单元的输出转换为单词字典索引，接着采用 softmax 损失计算 loss。
 
@@ -101,7 +105,7 @@ x, xcache = temporal_affine_forward(rnnout, W_vocab, b_vocab)
 loss, dx = temporal_softmax_loss(x, captions_out, mask)
 ```
 
-上面描述的是 RNN 训练过程，在测试时就不一样了。测试时没有真值标注作为输入，需要一个起始单词（`<START>`）作为开始，然后按序列依次更新隐藏状态，并预测输出下一个标注单词。
+上面描述的是 RNN 训练过程，测试时没有真值标注作为输入，需要一个起始单词（`<START>`）作为开始，然后按序列依次更新隐藏状态，并预测输出下一个标注单词。
 
 ```python
 prev_h, _ = affine_forward(features, W_proj, b_proj)
@@ -121,8 +125,9 @@ for t in range(1, max_length):
 
 ## LSTM captioning
 
-RNN 应该能够记住许多时间步之前见过的信息，但实际中由于梯度消失（vanishing gradient problem）问题，随着层数的增加，网络将变得无法训练。
-LSTM(Long Short Term Memory)和 GRU 都是为了解决这个问题而提出的。
+RNN 应该能够记住许多时间步之前见过的信息，但实际中由于梯度消失（vanishing gradient problem）问题，
+随着层数的增加，网络将变得无法训练。LSTM(Long Short Term Memory)和 GRU 都是为了解决这个问题而提出的。
+
 LSTM 单元结构如下：
 
 ![](./images/lstm.png)
@@ -168,7 +173,7 @@ next_c = fgate * prev_c + igate * ggate
 next_h = ogate * np.tanh(next_c)
 ```
 
-backward 时，相比 RNN，反传过来的值有两个 **`dnext_h`, `dnext_c`**。需要求：
+backward 时，相比 RNN，反传过来的值有两个 **`dnext_h`, `dnext_c`**。求：
 `dx`, `dWx`, `dWh`, `db`, `dprev_h` 和 `dprev_c` 的梯度。弄清楚哪些变量之间有关联，然后利用链式法则即可：
 
 ```python
@@ -192,11 +197,11 @@ dWh = prev_h.T @ dz
 db = np.sum(dz, axis=0)
 ```
 
-在完整的 LSTM 中大体和 RNN 相同，注意多了一个变量 `c`，不论是 forward 和 backward 都记得在循环里更新即可。
+完整的 LSTM 大体和 RNN 相同，注意多了一个变量 `c`，不论是 forward 和 backward 都记得在循环里更新即可。
 
 ## Network Visualization
 
-之前训练模型都是利用 SGD 来更新模型参数使其达到损失函数定义下的要求。而在这一节中，我们利用已经训练好的预训练模型来定义相对于图像的损失函数，利用反向传播计算损失对图像像素的梯度，保持模型不变，通过更新图像来最小化损失函数。
+之前训练模型都是利用 SGD 来更新模型参数使其达到损失函数定义下的要求。而在这一节中，我们利用已经训练好的预训练模型来定义相对于图像的损失函数，利用反向传播计算图像像素的梯度，保持模型不变，通过更新图像来最小化损失函数。
 
 主要包括三个方面的内容：
 
@@ -401,7 +406,7 @@ def tv_loss(img, tv_weight):
     return tv_weight * (hsum + wsum)
 ```
 
-在风格迁移中，我们需要最小化的损失即为内容损失、风格损失和全变差损失这三部分之和。
+在风格迁移中，我们需要最小化的损失为内容损失、风格损失和全变差损失这三部分之和。
 接下来，只需要将这三部分组合起来，利用梯度下降法来得到最后的图像即可。具体可以参考
 [StyleTransfer-Pytorch.ipynb](https://github.com/whu-pzhang/cs231n/blob/master/assignment3/StyleTransfer-PyTorch.ipynb)
 
@@ -413,9 +418,9 @@ def tv_loss(img, tv_weight):
 
 2014年，[Goodfellow et al.](https://arxiv.org/abs/1406.2661)提出了训练生成模型的生成对抗网络
 （Generative Adversarial Networks，GAN）。在该方法中，需要构建两个不同的网络：
-第一个网络是传统的分类网络，成为判别器（discriminator），其功能是判断输入图像是真实的（输入训练集）
+第一个网络是传统的分类网络，称为判别器（discriminator），其功能是判断输入图像是真实的（输入训练集）
 还是假的（不属于训练集）。第二个网络称为生成器（generator），将随机噪声作为输入并产生一张图像。
-生成器的目的是骗过判别器，使其认为生成的图像是真实的。
+生成器的目标是骗过判别器，使其认为其生成的图像是真实的。
 
 可以把判别器和生成器的博弈看作是一个最小最大的过程：
 
@@ -455,7 +460,7 @@ $$
 [这里](https://arxiv.org/abs/1701.00160)。
 最近将目标函数变为Wasserstein距离的GAN模型（[WGAN](https://arxiv.org/abs/1701.07875)，[WGAN-GP](https://arxiv.org/abs/1704.00028)）获得了更稳定的结果。
 
-需要注意的是，GAN不是训练生成模型的唯一方法！另一个流行的方法是Variational Autoencoders
+需要注意的是，GAN不是训练生成模型的唯一方法！另一个流行的方法是变分自编码器（Variational Autoencoders）
 （由[here](https://arxiv.org/abs/1312.6114) 和 [here](https://arxiv.org/abs/1401.4082)共同发现）。VAE易于训练，但其生成的图像质量远不如GAN。
 
 
@@ -465,9 +470,9 @@ $$
 bce(s,y) = -y * \log(s) - (1-y) * \log(1-s)
 $$
 
-这里的$s$为经sigmoid函数后，各个类别的分数，即 $s = \sigma(x)$，其值在0～1之间。那么直接
-计算bce loss 的时候就会有数值不稳定的问题：若s的值很小，那么 $\log(s)$ 便会接近 
-$-\infty$。
+这里的$s$为经sigmoid函数作用后各个类别的分数，即 $s = \sigma(x)$，其值在0～1之间。那么直接
+计算bce loss 的时候就会有数值不稳定的问题：若s的值很小，那么 $\log(s)$ 便会接近 $-\infty$。
+因此，需做如下优化：
 
 $$
 \begin{align}
@@ -502,3 +507,16 @@ def bce_loss(input, target):
     loss = input.clamp(min=0) - input * target + (1 + neg_abs.exp()).log()
     return loss.mean()
 ```
+
+在此基础上，便可以分别实现判别器和生成器的损失函数了。这里就不贴代码了。
+后面的部分是介绍不同的GAN以及实现了。作业可以参考我的repo：[GANs-Pytorch.ipynb](https://github.com/whu-pzhang/cs231n/blob/master/assignment3/GANs-PyTorch.ipynb)
+
+
+
+## 总结
+
+作业3的内容更多的是将深度学习的多个应用展示一下，然后通过作业的形式来熟悉深度学习框架。
+设计到的内容很丰富，想要深入理解的话，需要自己去查看相关文献才行。
+
+至此，cs231n的作业笔记全部完成！🎉
+
