@@ -103,3 +103,12 @@ End()
 
 - 取模时，`c` 往负无穷取整
 - 取余时，`c` 往靠近零的方向取整
+
+2. arXiv加速
+
+将 `https://arxiv.org`替换为 `http://xxx.itp.ac.cn`
+
+3. Github克隆加速
+
+将 `github.com` 替换为 `github.com/cnpmjs.org`
+
