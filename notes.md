@@ -112,3 +112,16 @@ End()
 
 将 `github.com` 替换为 `github.com/cnpmjs.org`
 
+4. ssh login without password
+   1. generate authentication keys
+
+      `ssh-keygen -t rsa`
+
+   2. use `ssh` to create a directory `~/.ssh` on remote server
+
+      `ssh user_name@server_ip mkdir -p .ssh`
+
+   3. Append your new public key to `user@server_ip: .ssh/authorized_keys`
+
+      `cat .ssh/id_rsa.pub | ssh user@server_ip 'cat >> .ssh/authorized_keys'`
+
