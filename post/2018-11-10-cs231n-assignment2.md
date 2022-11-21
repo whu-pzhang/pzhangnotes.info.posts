@@ -3,14 +3,15 @@ title: cs231n作业2笔记
 author: pzhang
 date: 2018-11-10
 lastMod: 2018-11-10
-markup: mmark
-mathjax: true
+# markup: mmark
+# mathjax: true
+math: mathjax
 categories:
   - 计算机视觉
 tags:
   - Python
   - NumPy
-
+  - cs231n
 draft: false
 slug: cs231n-assignment2
 ---
@@ -143,8 +144,8 @@ Batch Normalization是为了克服层数较多的神经网络在训练时的 int
 
 $$
 \begin{align}
-\boldsymbol{\mu} &= \frac{1}{N} \sum_{k=1}^N \boldsymbol{x}_k \\
-\boldsymbol{\sigma}^2 & = \frac{1}{N} \sum_{k=1}^N { (\boldsymbol{x}_k - \boldsymbol{\mu})^2 }
+\boldsymbol{\mu} &= \frac{1}{N} \sum_{k=1}^N \boldsymbol{x}_k \\\
+\boldsymbol{\sigma}^2 &= \frac{1}{N} \sum\_{k=1}^N { (\boldsymbol{x}_k - \boldsymbol{\mu})^2 }
 \end{align}
 $$
 
@@ -163,8 +164,10 @@ $$
 其中，$\gamma, \beta \in \mathbb{R}^{1 \times D}$。整个forward过程可记为：
 
 $$
-\boldsymbol{\hat{X}} = \frac{\boldsymbol{X} - \boldsymbol{\mu}} {\sqrt{ \boldsymbol{\sigma}^2 + \epsilon}} \\
-\boldsymbol{Y} = \gamma \odot \boldsymbol{\hat{X}} + \beta
+\begin{align}
+\boldsymbol{\hat{X}} &= \frac{\boldsymbol{X} - \boldsymbol{\mu}} {\sqrt{ \boldsymbol{\sigma}^2 + \epsilon}} \\\
+\boldsymbol{Y} &= \gamma \odot \boldsymbol{\hat{X}} + \beta
+\end{align}
 $$
 
 至此，正向传播就完成了。
@@ -217,7 +220,7 @@ $\frac{\partial L}{\partial \beta}$ 和 $\frac{\partial L}{\partial \gamma}$ 的
 
 $$
 \begin{align}
-\frac{\partial L}{\partial \gamma} & = \sum_{i}^N { \frac{\partial L} {\partial \boldsymbol{y}_i} \odot \boldsymbol{\hat{x}_i}} \\
+\frac{\partial L}{\partial \gamma} & = \sum_{i}^N { \frac{\partial L} {\partial \boldsymbol{y}_i} \odot \boldsymbol{\hat{x}_i}} \\\
 \frac{\partial L}{\partial \beta} & = \sum_i^N {\frac{\partial L} {\partial \boldsymbol{y}_i}}
 \end{align}
 $$
@@ -237,10 +240,10 @@ $$
 $$
 \begin{align}
 \frac{\partial L}{\partial \boldsymbol{\hat{x}}_i} & =
-\gamma \odot \frac{\partial L}{\partial \boldsymbol{y}_i} \\
+\gamma \odot \frac{\partial L}{\partial \boldsymbol{y}_i} \\\
 \frac{\partial \boldsymbol{\hat{x}}_i}{\partial \boldsymbol{x}_i} & =
-(\boldsymbol{\sigma}^2 + \epsilon) ^ {-1/2} \\
- & \Downarrow \\
+(\boldsymbol{\sigma}^2 + \epsilon) ^ {-1/2} \\\
+ & \Downarrow \\\
 \frac{\partial L}{\partial \boldsymbol{\hat{x}}_i} \frac{\partial \boldsymbol{\hat{x}}_i}{\partial \boldsymbol{x}_i} & =
 \gamma \odot \frac{\partial L}{\partial \boldsymbol{y}_i} \, (\boldsymbol{\sigma}^2 + \epsilon) ^ {-1/2}
 \end{align}
@@ -250,35 +253,37 @@ $$
 
 $$
 \frac{\partial L}{\partial \boldsymbol{\sigma}^2} =
-\sum_i^N { \frac{\partial L}{\partial \boldsymbol{\hat{x}}_i} \,
+\sum\_i^N { \frac{\partial L}{\partial \boldsymbol{\hat{x}}_i} \,
 \frac{\partial \boldsymbol{\hat{x}}_i}{\partial \boldsymbol{\sigma}^2} } =
 -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-3/2}}{2} \,
-\sum_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot (\boldsymbol{x}_i - \boldsymbol{\mu}) }
+\sum\_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot (\boldsymbol{x}_i - \boldsymbol{\mu}) }
 $$
 
 计算相对于 $\boldsymbol{\sigma}$ 的梯度时，需要沿着批量中所有的实例求和，对 $\boldsymbol{\mu}$ 求导（第三项）时也是一样：
 
 $$
 \begin{align}
-\frac{\partial L}{\partial \boldsymbol{\mu}} & =
-\sum_i^N { \frac{\partial L}{\partial \boldsymbol{\hat{x}}_i}
+\frac{\partial L}{\partial \boldsymbol{\mu}} &=
+\sum\_i^N { \frac{\partial L}{\partial \boldsymbol{\hat{x}}_i}
 \frac{\partial \boldsymbol{\hat{x}}_i}{\partial \boldsymbol{\mu}} } +
 \frac{\partial L}{\partial \boldsymbol{\sigma}^2}
-\frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{\mu}} \\
+\frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{\mu}} \\\
 & = -\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2} \,
-\sum_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i}} +
-\frac{\partial L}{\partial \boldsymbol{\sigma}^2} \cdot (-\frac{2}{N}) \cdot \sum_i^N (\boldsymbol{x}_i - \boldsymbol{\mu}) \\
+\sum\_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i}} +
+\frac{\partial L}{\partial \boldsymbol{\sigma}^2} \cdot (-\frac{2}{N}) \cdot \sum\_i^N (\boldsymbol{x}_i - \boldsymbol{\mu}) \\\
 & = -\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2} \,
-\sum_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i}}
+\sum\_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i}}
 \end{align}
 $$
 
 接下来分别求得 $\frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{x}_i}$ 和 $\frac{\partial \boldsymbol{\mu}}{\partial \boldsymbol{x}_i}$:
 
 $$
-\frac{\partial \boldsymbol{\mu}} {\partial \boldsymbol{x}_i} = \frac{1}{N} \\
-\frac{\partial \boldsymbol{\sigma}^2} {\partial \boldsymbol{x}_i} =
+\begin{align}
+\frac{\partial \boldsymbol{\mu}} {\partial \boldsymbol{x}_i} &= \frac{1}{N} \\\
+\frac{\partial \boldsymbol{\sigma}^2} {\partial \boldsymbol{x}_i} &=
 \frac{2}{N} \sum_i^N (\boldsymbol{x}_i - \boldsymbol{\mu})
+\end{align}
 $$
 
 现在可得第二项为：
@@ -287,13 +292,13 @@ $$
 \begin{align}
 \frac{\partial L}{\partial \boldsymbol{\sigma}^2} \frac{\partial \boldsymbol{\sigma}^2}{\partial \boldsymbol{x}_i} & =
 -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-3/2}}{2} \,
-\sum_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot (\boldsymbol{x}_i - \boldsymbol{\mu}) } \cdot \frac{2}{N} (\boldsymbol{x}_j - \boldsymbol{\mu}) \\
+\sum\_{i}^{N} {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot (\boldsymbol{x}_i - \boldsymbol{\mu}) } \cdot \frac{2}{N} (\boldsymbol{x}_j - \boldsymbol{\mu}) \\\
 & = -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N}
-\left( \sum_i^N {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot (\boldsymbol{x}_i - \boldsymbol{\mu}) } \right)  \frac{ \boldsymbol{x}_j - \boldsymbol{\mu}} {\boldsymbol{\sigma}^2 + \epsilon} \\
+\left( \sum\_i^N {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot (\boldsymbol{x}_i - \boldsymbol{\mu}) } \right)  \frac{ \boldsymbol{x}_j - \boldsymbol{\mu}} {\boldsymbol{\sigma}^2 + \epsilon} \\\
 & = -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N}
-\left( \sum_i^N {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot \boldsymbol{\hat{x}_i}\sqrt{\boldsymbol{\sigma}^2 + \epsilon} } \right)  \frac{ \boldsymbol{x}_j - \boldsymbol{\mu}} {\boldsymbol{\sigma}^2 + \epsilon} \\
+\left( \sum\_i^N {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot \boldsymbol{\hat{x}_i}\sqrt{\boldsymbol{\sigma}^2 + \epsilon} } \right)  \frac{ \boldsymbol{x}_j - \boldsymbol{\mu}} {\boldsymbol{\sigma}^2 + \epsilon} \\\
 & = -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N}
-\left( \sum_i^N {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot \boldsymbol{\hat{x}_i} } \right)  \frac{ \boldsymbol{x}_j - \boldsymbol{\mu}} { \sqrt{\boldsymbol{\sigma}^2 + \epsilon} } \\
+\left( \sum\_i^N {\frac{\partial L}{\partial \boldsymbol{y}_i} \odot \boldsymbol{\hat{x}_i} } \right)  \frac{ \boldsymbol{x}_j - \boldsymbol{\mu}} { \sqrt{\boldsymbol{\sigma}^2 + \epsilon} } \\\
 & = -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N} \cdot
 \frac{\partial L} {\partial \gamma} \cdot
 \boldsymbol{\hat{x}_j}
@@ -306,7 +311,7 @@ $$
 \begin{align}
 \frac{\partial L}{\partial \boldsymbol{\mu}} \frac{\partial \boldsymbol{\mu}}{\partial \boldsymbol{x}_i} & =
 -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N} \cdot
-\sum_i^N { \frac{\partial L} {\partial \boldsymbol{y}_i}} \\
+\sum_i^N { \frac{\partial L} {\partial \boldsymbol{y}_i}} \\\
 & = -\frac{\gamma (\boldsymbol{\sigma}^2 + \epsilon)^{-1/2}} {N} \cdot
 \frac{\partial L} {\partial \beta}
 \end{align}
@@ -417,15 +422,15 @@ for i in range(Hout):
 先来看单通道的情况。为了简单起见， 设输入$X$ 为 $3 \times 3$，卷积核$W$为 $2 \times 2$，步幅为1，没有pading，那么输出$Y$的大小为 $(3 - 2)/1 + 1 = 2$。在实际计算中，为了提高效率，通常会把二维卷积转为矩阵乘法，这样就避免了循环。具体就是先将输入中卷积核对应的每个局部感受野展平为向量，然后叠成一个大的矩阵，矩阵的大小计算根据输出大小和卷积核大小确定：本例中，输出为 $2 \times 2$，展平即为 $4 \times 1$，卷积核大小为 $2 \times 2$，展平为 $4 \times 1$，因此输入 $X$ 会变成 $4 \times 4$ 的矩阵，记为 $X_{col}$，这个操作称为 `im2col`:
 $$
 \begin{pmatrix}
-x_{11} & x_{12} & x_{13} \\
-x_{21} & x_{22} & x_{23} \\
+x_{11} & x_{12} & x_{13} \\\
+x_{21} & x_{22} & x_{23} \\\
 x_{31} & x_{32} & x_{33}
 \end{pmatrix}
 \xrightarrow{\mathrm{im2col}}
 \begin{pmatrix}
-x_{11} & x_{12} & x_{21} & x_{22} \\
-x_{12} & x_{13} & x_{22} & x_{23} \\
-x_{21} & x_{22} & x_{31} & x_{32} \\
+x_{11} & x_{12} & x_{21} & x_{22} \\\
+x_{12} & x_{13} & x_{22} & x_{23} \\\
+x_{21} & x_{22} & x_{31} & x_{32} \\\
 x_{22} & x_{23} & x_{32} & x_{33}
 \end{pmatrix}
 $$
@@ -436,23 +441,23 @@ $$
 \begin{align}
 X \otimes W = X_{col} \, W_{col} & =
 \begin{pmatrix}
-x_{11} & x_{12} & x_{21} & x_{22} \\
-x_{12} & x_{13} & x_{22} & x_{23} \\
-x_{21} & x_{22} & x_{31} & x_{32} \\
+x_{11} & x_{12} & x_{21} & x_{22} \\\
+x_{12} & x_{13} & x_{22} & x_{23} \\\
+x_{21} & x_{22} & x_{31} & x_{32} \\\
 x_{22} & x_{23} & x_{32} & x_{33}
 \end{pmatrix}
 \begin{pmatrix}
-w_{11} \\
-w_{12} \\
-w_{21} \\
+w_{11} \\\
+w_{12} \\\
+w_{21} \\\
 w_{22}
-\end{pmatrix} \\
+\end{pmatrix} \\\
 & =
 \begin{pmatrix}
-x_{11} w_{11} + x_{12} w_{12} + x_{21} w_{21} + x_{22} w_{22} \\
-x_{12} w_{11} + x_{13} w_{12} + x_{22} w_{21} + x_{23} w_{22} \\
-x_{21} w_{11} + x_{22} w_{12} + x_{31} w_{21} + x_{32} w_{22} \\
-x_{22} w_{11} + x_{23} w_{12} + x_{32} w_{21} + x_{33} w_{22} \\
+x_{11} w_{11} + x_{12} w_{12} + x_{21} w_{21} + x_{22} w_{22} \\\
+x_{12} w_{11} + x_{13} w_{12} + x_{22} w_{21} + x_{23} w_{22} \\\
+x_{21} w_{11} + x_{22} w_{12} + x_{31} w_{21} + x_{32} w_{22} \\\
+x_{22} w_{11} + x_{23} w_{12} + x_{32} w_{21} + x_{33} w_{22} \\\
 \end{pmatrix}
 = \boldsymbol{Y}_{col}
 \end{align}
@@ -461,8 +466,10 @@ $$
 这样卷积层的计算就和常规的线性回归一样了，易知：
 
 $$
-\mathrm{d} {X_{col}} = \delta \  W_{col}^T \\
+\begin{align}
+\mathrm{d} {X_{col}} = \delta \  W_{col}^T \\\
 \mathrm{d} {W_{col}} = X_{col} \ \delta
+\end{align}
 $$
 
 其中，$\delta$ 为上游传过来的梯度。在backward过程中，求 $\mathrm{d} W$ 只需要将 $\mathrm{d} {W_{col}}$ reshape一下即可。但是求 $\mathrm{d} X$ 就不能简单的通过reshape来进行。
@@ -494,34 +501,34 @@ $$
 \frac{\partial L} {\partial x_{11}} & =
 \boldsymbol{\delta} \cdot
 \begin{pmatrix}
-w_{11} & 0 \\
+w_{11} & 0 \\\
 0 & 0
 \end{pmatrix} & =
-\delta_{11} w_{11} \\
+\delta_{11} w_{11} \\\
 \frac{\partial L} {\partial x_{12}} & =
 \boldsymbol{\delta} \cdot
 \begin{pmatrix}
-w_{12} & w_{11} \\
+w_{12} & w_{11} \\\
 0 & 0
-\end{pmatrix} & = \delta_{11} w_{12} + \delta_{12} w_{11} \\
+\end{pmatrix} &= \delta_{11} w_{12} + \delta_{12} w_{11} \\\
 \frac{\partial L} {\partial x_{13}} & =
 \boldsymbol{\delta} \cdot
 \begin{pmatrix}
-0 & w_{12} \\
+0 & w_{12} \\\
 0 & 0
-\end{pmatrix} & = \delta_{12} w_{12} \\
- & & \vdots \\
+\end{pmatrix} & = \delta_{12} w_{12} \\\
+ & & \vdots \\\
 \frac{\partial L} {\partial x_{22}} & =
 \boldsymbol{\delta} \cdot
 \begin{pmatrix}
-w_{22} & w_{21} \\
+w_{22} & w_{21} \\\
 w_{12} & w_{11}
-\end{pmatrix} & = \delta_{11} w_{22} + \delta_{12} w_{21} + \delta_{21} w_{12} + \delta_{22} w_{11} \\
- & & \vdots \\
+\end{pmatrix} & = \delta_{11} w_{22} + \delta_{12} w_{21} + \delta_{21} w_{12} + \delta_{22} w_{11} \\\
+ & & \vdots \\\
 \frac{\partial L} {\partial x_{33}} & =
 \boldsymbol{\delta} \cdot
 \begin{pmatrix}
-0 & 0 \\
+0 & 0 \\\
 0 & w_{22}
 \end{pmatrix} & =
 \delta_{22} w_{22}
@@ -532,18 +539,18 @@ $$
 
 $$
 \begin{pmatrix}
-0 & 0 & 0 & 0 \\
-0 & \delta_{11} & \delta_{12} & 0 \\
-0 & \delta_{21} & \delta_{22} & 0 \\
+0 & 0 & 0 & 0 \\\
+0 & \delta_{11} & \delta_{12} & 0 \\\
+0 & \delta_{21} & \delta_{22} & 0 \\\
 0 & 0 & 0 & 0
 \end{pmatrix} *
 \begin{pmatrix}
-w_{22} & w_{21} \\
+w_{22} & w_{21} \\\
 w_{12} & w_{11}
 \end{pmatrix} =
 \begin{pmatrix}
-\nabla x_{11} & \nabla x_{12} & \nabla x_{13} \\
-\nabla x_{21} & \nabla x_{22} & \nabla x_{23} \\
+\nabla x_{11} & \nabla x_{12} & \nabla x_{13} \\\
+\nabla x_{21} & \nabla x_{22} & \nabla x_{23} \\\
 \nabla x_{31} & \nabla x_{32} & \nabla x_{33}
 \end{pmatrix}
 $$
@@ -568,13 +575,13 @@ forward时，依次处理每个pooling区域内的值，以max pooling为例，�
 
 $$
 \begin{bmatrix}
-5 & 3 & 1 & 2\\
-1 & 2 & 3 & 2\\
-4 & 2 & 2 & 5\\
+5 & 3 & 1 & 2\\\
+1 & 2 & 3 & 2\\\
+4 & 2 & 2 & 5\\\
 3 & 6 & 1 & 1
 \end{bmatrix} \Rightarrow
 \begin{bmatrix}
-5 & 3 \\
+5 & 3 \\\
 6 & 5
 \end{bmatrix}
 $$
@@ -583,13 +590,13 @@ backward时，先将梯度矩阵还原为pooling前的大小，接着将梯度�
 
 $$
 \begin{bmatrix}
-1 & 0 & 0 & 0\\
-0 & 0 & 0.8 & 0\\
-0 & 0 & 0 & 0.6\\
+1 & 0 & 0 & 0\\\
+0 & 0 & 0.8 & 0\\\
+0 & 0 & 0 & 0.6\\\
 0 & 0.4 & 0 & 0
 \end{bmatrix} \Leftarrow
 \begin{bmatrix}
-1 & 0.8 \\
+1 & 0.8 \\\
 0.4 & 0.6
 \end{bmatrix}
 $$
@@ -598,13 +605,13 @@ $$
 
 $$
 \begin{bmatrix}
-0.25 & 0.25 & 0.2 & 0.2\\
-0.25 & 0.25 & 0.2 & 0.2\\
-0.1 & 0.1 & 0.15 & 0.15\\
+0.25 & 0.25 & 0.2 & 0.2\\\
+0.25 & 0.25 & 0.2 & 0.2\\\
+0.1 & 0.1 & 0.15 & 0.15\\\
 0.1 & 0.1 & 0.15 & 0.15
 \end{bmatrix} \Leftarrow
 \begin{bmatrix}
-1 & 0.8 \\
+1 & 0.8 \\\
 0.4 & 0.6
 \end{bmatrix}
 $$

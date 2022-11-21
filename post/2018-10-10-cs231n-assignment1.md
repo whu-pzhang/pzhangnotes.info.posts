@@ -3,14 +3,15 @@ title: cs231n作业1笔记
 author: pzhang
 date: 2018-10-10
 lastMod: 2018-10-10
-markup: mmark
-mathjax: true
+# markup: mmark
+# mathjax: true
+math: mathjax
 categories:
   - 计算机视觉
 tags:
   - Python
   - NumPy
-
+  - cs231n
 draft: false
 slug: cs231n-assignment1
 ---
@@ -58,15 +59,17 @@ kNN 方法的主要计算量在计算测试数据与训练集数据的距离这�
 3. 无循环：令测试集为$P$，其维度为 $M \times D$，训练集$C$的维度为 $N \times D$，其中 $M$ 为测试集样本数， $D$为每个样本的维度， $N$为训练集样本数。记 $P_i$为其中一个测试样本，$C_j$ 为一个任意一个训练样本
 
 $$
-P_i = [P_{i1}, P_{i2}, \cdots, P_{iD}] \\
-C_j = [C_{j1}, C_{j2}, \cdots, C_{jD}]
+\begin{align}
+P_i &= [P_{i1}, P_{i2}, \cdots, P_{iD}] \\\
+C_j &= [C_{j1}, C_{j2}, \cdots, C_{jD}]
+\end{align}
 $$
 
 那么 $P_i$ 和 $C_j$ 的距离的平方为：
 
 $$
 \begin{align}
-d(P_i, C_j) &= \sum_{k=1}^D {(P_{ik} - C_{jk})^2} \\
+d(P_i, C_j) &= \sum_{k=1}^D {(P_{ik} - C_{jk})^2} \\\
 &= \Vert P_i \Vert^2 + \Vert C_j \Vert^2 - 2 P_i C_j^T
 \end{align}
 $$
@@ -75,8 +78,8 @@ $$
 
 $$
 \begin{align}
-\boldsymbol{R}_i &= [\Vert P_i \Vert^2 \quad \Vert P_i \Vert^2 \quad \cdots \quad \Vert P_i \Vert^2 ] + [\Vert C_1 \Vert^2 \quad \Vert C_2 \Vert^2 \quad \cdots \quad \Vert C_N \Vert^2] - 2 P_i [C_1^T \quad C_2^T \quad \cdots \quad C_N^T] \\
-&= [\Vert P_i \Vert^2 \quad \Vert P_i \Vert^2 \quad \cdots \quad \Vert P_i \Vert^2 ] + [\Vert C_1 \Vert^2 \quad \Vert C_2 \Vert^2 \quad \cdots \quad \Vert C_N \Vert^2] - 2 P_i C^T]
+\boldsymbol{R}_i &= [\Vert P_i \Vert^2 \quad \Vert P_i \Vert^2 \quad \cdots \quad \Vert P_i \Vert^2 ] + [\Vert C_1 \Vert^2 \quad \Vert C_2 \Vert^2 \quad \cdots \quad \Vert C_N \Vert^2] - 2 P_i [C_1^T \quad C_2^T \quad \cdots \quad C_N^T] \\\
+&= [\Vert P_i \Vert^2 \quad \Vert P_i \Vert^2 \quad \cdots \quad \Vert P_i \Vert^2 ] + [\Vert C_1 \Vert^2 \quad \Vert C_2 \Vert^2 \quad \cdots \quad \Vert C_N \Vert^2] - 2 P_i C^T ]
 \end{align}
 $$
 
@@ -86,15 +89,15 @@ $$
 $$
 \begin{align}
 \boldsymbol{R} &= \begin{bmatrix}
-\Vert P_1 \Vert^2 & \Vert P_1 \Vert^2 & \cdots & \Vert P_1 \Vert^2 \\
-\Vert P_2 \Vert^2 & \Vert P_2 \Vert^2 & \cdots & \Vert P_2 \Vert^2 \\
-\vdots & \vdots & \ddots & \vdots \\
+\Vert P_1 \Vert^2 & \Vert P_1 \Vert^2 & \cdots & \Vert P_1 \Vert^2 \\\
+\Vert P_2 \Vert^2 & \Vert P_2 \Vert^2 & \cdots & \Vert P_2 \Vert^2 \\\
+\vdots & \vdots & \ddots & \vdots \\\
 \Vert P_M \Vert^2 & \Vert P_M \Vert^2 & \cdots & \Vert P_M \Vert^2
 \end{bmatrix} +
 \begin{bmatrix}
-\Vert C_1 \Vert^2 & \Vert C_2 \Vert^2 & \cdots & \Vert C_N \Vert^2 \\
-\Vert C_1 \Vert^2 & \Vert C_2 \Vert^2 & \cdots & \Vert C_N \Vert^2 \\
-\vdots & \vdots & \ddots & \vdots \\
+\Vert C_1 \Vert^2 & \Vert C_2 \Vert^2 & \cdots & \Vert C_N \Vert^2 \\\
+\Vert C_1 \Vert^2 & \Vert C_2 \Vert^2 & \cdots & \Vert C_N \Vert^2 \\\
+\vdots & \vdots & \ddots & \vdots \\\
 \Vert C_1 \Vert^2 & \Vert C_2 \Vert^2 & \cdots & \Vert C_N \Vert^2
 \end{bmatrix} - 2 \boldsymbol{P} \boldsymbol{C}^T
 \end{align}
@@ -152,7 +155,7 @@ margins[np.arange(num_train), y] = 0.0
 
 $$
 \begin{cases}
-\nabla_{w_{y_i}} L_i = - \left ( \sum_{j \ne y_i} {\mathbb{I} (margin_j > 0)} \right) x_i \\
+\nabla_{w_{y_i}} L_i = - \left ( \sum_{j \ne y_i} {\mathbb{I} (margin_j > 0)} \right) x_i \\\
 \nabla_{w_{j}} L_i = \mathbb{I} (margin_j > 0) x_i
 \end{cases}
 $$
@@ -204,7 +207,7 @@ scores -= np.max(scores, axis=1, keepdims=True)  # N X 1
 对权重矩阵的梯度如下：
 
 $$
-\nabla_\boldsymbol{W} L = \left( - \mathbb{I} (j = i) +  \frac{e^{\hat{f}_{y_i}}} {\sum_{j} {e^{\hat{f}_j}}} \right) x_i
+\nabla_{\boldsymbol{W}} L = \left( {\mathbb{I}} (j = i) + \frac{e^{\hat{f}_{y_i}}}{\sum_j {e^{\hat{f}_j}}}  \right) x_i
 $$
 
 即样本对正确分类的贡献比错误分类的贡献小 $x_i$。具体实现和SVM类似：

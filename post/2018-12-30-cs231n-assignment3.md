@@ -3,15 +3,14 @@ title: cs231n作业3笔记
 author: pzhang
 date: 2018-12-20
 lastMod: 2018-12-20
-markup: mmark
-mathjax: true
+math: mathjax
 categories:
   - 计算机视觉
 tags:
   - Python
   - NumPy
   - PyTorch
-
+  - cs231n
 draft: false
 slug: cs231n-assignment3
 ---
@@ -41,15 +40,17 @@ RNN 需要预测一个和时间相关的量，其基本架构如下：
 每个时间步都要根据前一个状态和当前输入计算一个新的状态。
 
 $$
-\boldsymbol{h}_t = f_W (\boldsymbol{h}_{t-1}, \boldsymbol{x}_t) \\
-\downarrow \\
-\boldsymbol{h}_t = tanh (\mathbf{W}_{hh}\boldsymbol{h}_{t-1} + \mathbf{W}_{xh} \boldsymbol{x}_t)
+\begin{align}
+\boldsymbol{h}\_t &= f_W (\boldsymbol{h}\_{t-1}, \boldsymbol{x}\_t) \\\
+&\downarrow \\\
+\boldsymbol{h}\_t &= tanh (\mathbf{W}\_{hh}\boldsymbol{h}\_{t-1} + \mathbf{W}\_{xh} \boldsymbol{x}\_t)
+\end{align}
 $$
 
 向上的箭头为每个时间步的输出，是一个 softmax 层
 
 $$
-\boldsymbol{y}_t = Softmax (\mathbf{W}_{hy} * \boldsymbol{h}_t)
+\boldsymbol{y}_t = Softmax (\mathbf{W}\_{hy} * \boldsymbol{h}_t)
 $$
 
 根据上述公式，RNN 单元的 `rnn_step_forward` 如下：
@@ -139,24 +140,24 @@ forward 过程计算公式如下：
 $$
 \begin{align}
 \begin{pmatrix}
-i \\
-f \\
-o \\
+i \\\
+f \\\
+o \\\
 g
 \end{pmatrix} & =
 \begin{pmatrix}
-\sigma \\
-\sigma \\
-\sigma \\
+\sigma \\\
+\sigma \\\
+\sigma \\\
 \tanh
 \end{pmatrix} \,
 \mathbf{W}
 \begin{pmatrix}
-h*{t-1} \\
+h*{t-1} \\\
 x_t
-\end{pmatrix} \\
-\\
-c_t & = f \odot c*{t-1} + i \odot g \\
+\end{pmatrix} \\\
+\\\
+c_t & = f \odot c*{t-1} + i \odot g \\\
 h_t & = o \odot \tanh(c_t)
 \end{align}
 $$
@@ -427,7 +428,7 @@ def tv_loss(img, tv_weight):
 可以把判别器和生成器的博弈看作是一个最小最大的过程：
 
 $$
-\min_{G} \max_{D} \mathbb{E}_{x~p_{data}} \left[ \log D(x) \right] + \mathbb{E}_{z~p(z)} \left[ \log (1-D(G(z))) \right]
+\min_{G} \max_{D} \mathbb{E}\_{x~p_{data}} \left[ \log D(x) \right] + \mathbb{E}_{z~p(z)} \left[ \log (1-D(G(z))) \right]
 $$
 
 其中，$z~p(z)$ 为随机噪声样本，$G(z)$ 为生成器 $G$ 产生的图像，$D$ 为判别器的输出，表示输入为
@@ -446,13 +447,13 @@ $$
 1. 最大化判别器作出错误判断的概率来更新生成器 $G$:
 
 $$
-\max_{G} \mathbb{E}_{z~p(z)} \left[ \log D(G(z)) \right]
+\max_{G} \mathbb{E}\_{z~p(z)} \left[ \log D(G(z)) \right]
 $$
 
 2. 最大化判别器在真实数据和生成数据上作出正确判断的概率来更新判别器 $D$
 
 $$
-\max_{D} \mathbb{E}_{x~p_{data}} \left[ \log D(x) \right] + \mathbb{E}_{z~p_{z}} \left[ \log (1-D(G(z))) \right]
+\max_{D} \mathbb{E}\_{x~p_{data}} \left[ \log D(x) \right] + \mathbb{E}\_{z~p_{z}} \left[ \log (1-D(G(z))) \right]
 $$
 
 
@@ -478,11 +479,11 @@ $$
 
 $$
 \begin{align}
-& -y \log(\sigma(x)) - (1-y) \log(1 - \sigma(x)) \\
-&= -y \log(\frac{1}{1+e^{-x}}) - (1-y) \log(e^{-x} - \frac{1}{1+e^{-x}}) \\
-&= y \log(1 + e^{-x}) + (1 - y) (x + \log(1 + e^{-x})) \\
+& -y \log(\sigma(x)) - (1-y) \log(1 - \sigma(x)) \\\
+&= -y \log(\frac{1}{1+e^{-x}}) - (1-y) \log(e^{-x} - \frac{1}{1+e^{-x}}) \\\
+&= y \log(1 + e^{-x}) + (1 - y) (x + \log(1 + e^{-x})) \\\
 &= (1 - y) x + \log(1 + e^{-x}) \\
-&= x - xy + \log(1 + e^{-x})  % 避免 x < 0时， exp(-x) 溢出 \\
+&= x - xy + \log(1 + e^{-x})  \\\ % 避免 x < 0时， exp(-x) 溢出
 &= -xy + \log(1 + e^x)
 \end{align}
 $$

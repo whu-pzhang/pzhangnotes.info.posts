@@ -3,13 +3,14 @@ title: 卡尔曼滤波
 author: pzhang
 date: 2018-09-27T22:20:58+08:00
 lastMod: 2018-11-15T21:01:58+08:00
-markup: mmark
-mathjax: true
+# markup: mmark
+# mathjax: true
+math: mathjax
 categories:
   - 计算机视觉
 tags:
   - 理论
-
+  - kalman filter
 draft: false
 slug: kalman-filter
 ---
@@ -29,8 +30,9 @@ slug: kalman-filter
 已知物体某一时刻的状态（例如：位置，速度，运动方向等），如何对其下一时刻的位置进行预测？卡尔曼滤波便是用来解决这一类问题而提出的。假设一个物体的状态向量表示如下：
 
 $$
-\boldsymbol{x} = \begin{bmatrix}
-p \\
+\mathbf{x} =
+\begin{bmatrix}
+p \\\
 v
 \end{bmatrix}
 $$
@@ -40,10 +42,10 @@ $$
 $$
 \begin{align}
 \color{deeppink}{\boldsymbol{\hat{x}}_k} &= \begin{bmatrix}
-1 & \Delta t \\
+1 & \Delta t \\\
 0 & 1
-\end{bmatrix} \color{royalblue}{\boldsymbol{\hat{x}}_{k-1}} \\
-&= \mathbf{F}_k \color{royalblue}{\boldsymbol{\hat{x}}_{k-1}}
+\end{bmatrix} \color{royalblue}{\boldsymbol{\hat{x}}\_{k-1}} \\\
+&= \mathbf{F}_k \color{royalblue}{\boldsymbol{\hat{x}}\_{k-1}}
 \end{align}
 $$
 
@@ -51,7 +53,7 @@ $\mathbf{F}_k$ 称为状态转移矩阵（state transition matrix），也即是
 
 $$
 \begin{split}
-Cov(\boldsymbol{x}) &= \mathbf{\Sigma} \\
+Cov(\boldsymbol{x}) &= \mathbf{\Sigma} \\\
 Cov(\mathbf{A} \boldsymbol{x}) &= \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T
 \end{split}
 $$
@@ -60,8 +62,8 @@ $$
 
 $$
 \begin{split}
-\color{deeppink}{\boldsymbol{\hat{x}}_k} &= \mathbf{F}_k \color{royalblue}{\boldsymbol{\hat{x}}_{k-1}} \\
-\color{deeppink}{\mathbf{P}_k} &= \mathbf{F_k} \color{royalblue}{\mathbf{P}_{k-1}} \mathbf{F}_k^T
+\color{deeppink}{\boldsymbol{\hat{x}}_k} &= \mathbf{F}_k \color{royalblue}{\boldsymbol{\hat{x}}\_{k-1}} \\\
+\color{deeppink}{\mathbf{P}_k} &= \mathbf{F_k} \color{royalblue}{\mathbf{P}\_{k-1}} \mathbf{F}_k^T
 \end{split}
 $$
 
@@ -69,7 +71,7 @@ $$
 
 $$
 \begin{split}
-p_k & = p_{k-1} + \Delta t & v_{k-1} + \frac{1}{2} a {\Delta t}^2 \\
+p_k & = p_{k-1} + \Delta t & v_{k-1} + \frac{1}{2} a {\Delta t}^2 \\\
 v_k & =  & v_{k-1} + a \Delta t
 \end{split}
 $$
@@ -78,14 +80,13 @@ $$
 
 $$
 \begin{split}
-\color{deeppink} {\boldsymbol{\hat{x}}_k} & = \mathbf{F}_k \color{royalblue} {\boldsymbol {\hat{x}}_{k-1}} + \begin{bmatrix}
-\frac{{\Delta t}^2}{2} \\
+\color{deeppink} {\boldsymbol{\hat{x}}\_k} & = \mathbf{F}\_k \color{royalblue} {\boldsymbol {\hat{x}}\_{k-1}} + \begin{bmatrix}
+\frac{{\Delta t}^2}{2} \\\
 \Delta t
-\end{bmatrix} a \\
-& = \mathbf{F}_{k} \color{royalblue} {\boldsymbol {\hat{x}}_{k-1}} + \mathbf{B}_k \color{darkorange}{\boldsymbol{u}_k}
+\end{bmatrix} a \\\
+& = \mathbf{F}_{k} \color{royalblue} {\boldsymbol {\hat{x}}\_{k-1}} + \mathbf{B}_k \color{darkorange}{\boldsymbol{u}_k}
 \end{split}
 $$
-
 
 $\mathbf{B}_k$ 为控制矩阵（control matrix），$\mathbf{u}_k$ 为控制向量。
 
@@ -93,8 +94,8 @@ $\mathbf{B}_k$ 为控制矩阵（control matrix），$\mathbf{u}_k$ 为控制向
 
 $$
 \begin{split}
-\color{deeppink}{\boldsymbol{\hat{x}}_k} &= \mathbf{F}_k \color{royalblue}{\boldsymbol{\hat{x}}_{k-1}} + \mathbf{B}_k \color{darkorange}{\boldsymbol{u}_k} \\
-\color{deeppink}{\mathbf{P}_k} &= \mathbf{F_k} \color{royalblue}{\mathbf{P}_{k-1}} \mathbf{F}_k^T + \color{mediumaquamarine} {\mathbf{Q}_k}
+\color{deeppink}{\boldsymbol{\hat{x}}\_k} &= \mathbf{F}_k \color{royalblue}{\boldsymbol{\hat{x}}\_{k-1}} + \mathbf{B}_k \color{darkorange}{\boldsymbol{u}_k} \\\
+\color{deeppink}{\mathbf{P}_k} &= \mathbf{F_k} \color{royalblue}{\mathbf{P}\_{k-1}} \mathbf{F}_k^T + \color{mediumaquamarine} {\mathbf{Q}_k}
 \end{split}
 $$
 
@@ -109,8 +110,8 @@ $$
 
 $$
 \begin{split}
-\boldsymbol{\mu}_{expected} &= \mathbf{H}_k \color{deeppink}{\hat{\boldsymbol{x}}_k} \\
-\mathbf{\Sigma}_{expected} &= \mathbf{H}_k \color{deeppink}{\mathbf{P}_k} \mathbf{H}_k^T
+\boldsymbol{\mu}\_{expected} &= \mathbf{H}_k \color{deeppink}{\hat{\boldsymbol{x}}_k} \\\
+\mathbf{\Sigma}\_{expected} &= \mathbf{H}_k \color{deeppink}{\mathbf{P}_k} \mathbf{H}_k^T
 \end{split}
 $$
 
@@ -131,7 +132,7 @@ $$
 
 $$
 \begin{split}
-\color{royalblue}{\mu_{fused}} &= \mu_1 + \frac{\sigma_1^2(\mu_2 - \mu_1) }{\sigma_1^2 + \sigma_2^2} \\
+\color{royalblue}{\mu_{fused}} &= \mu_1 + \frac{\sigma_1^2(\mu_2 - \mu_1) }{\sigma_1^2 + \sigma_2^2} \\\
 \color{royalblue}{\sigma_{fused}^2} &= \sigma_1^2 - \frac{\sigma_1^4}{\sigma_1^2 + \sigma_2^2}
 \end{split}
 $$
@@ -140,7 +141,7 @@ $$
 
 $$
 \begin{split}
-\color{royalblue}{\mu_{fused}} & = \mu_1 + k (\mu_2 - \mu_1) \\
+\color{royalblue}{\mu_{fused}} & = \mu_1 + k (\mu_2 - \mu_1) \\\
 \color{royalblue}{\sigma_{fused}^2} &= \sigma_1^2 - k \sigma_1^2
 \end{split}
 $$
@@ -151,10 +152,10 @@ $$
 
 $$
 \begin{split}
-\color{purple}{\mathbf{K}} &= \Sigma_1(\Sigma_1 + \Sigma_2)^{-1} \\
- & \\
-\color{royalblue}{\vec{\mu}_{fused}} &= \vec{\mu}_1 + \color{purple}{\mathbf{K}}(\vec{\mu}_2 - \vec{\mu}_1) \\
-\color{royalblue}{\Sigma_{fused}} &= \Sigma_1 - \color{purple}{\mathbf{K}} \Sigma_1
+\color{purple}{\mathbf{K}} &= \Sigma_1(\Sigma_1 + \Sigma_2)^{-1} \\\
+ & \\\
+\color{royalblue}{\vec{\mu}\_{fused}} &= \vec{\mu}_1 + \color{purple}{\mathbf{K}}(\vec{\mu}_2 - \vec{\mu}_1) \\\
+\color{royalblue}{\Sigma\_{fused}} &= \Sigma_1 - \color{purple}{\mathbf{K}} \Sigma_1
 \end{split}
 $$
 
@@ -167,7 +168,7 @@ $$
 
 $$
 \begin{split}
-\mathbf{H}_k \color{royalblue}{\hat{ \boldsymbol{x}}_k^{fused}} &= \color{deeppink}{\mathbf{H}_k \hat{\boldsymbol{x}}_k} & + & \color{purple}{\mathbf{K}} (\color{yellowgreen}{\vec{\mathbf{z}_k}} - \color{deeppink}{\mathbf{H}_k \hat{\boldsymbol{x}}_k}) \\
+\mathbf{H}_k \color{royalblue}{\hat{ \boldsymbol{x}}_k^{fused}} &= \color{deeppink}{\mathbf{H}_k \hat{\boldsymbol{x}}_k} & + & \color{purple}{\mathbf{K}} (\color{yellowgreen}{\vec{\mathbf{z}_k}} - \color{deeppink}{\mathbf{H}_k \hat{\boldsymbol{x}}_k}) \\\
 \mathbf{H}_k \color{royalblue}{\mathbf{P}_k^{fused}} \mathbf{H}_k^T  &=  \color{deeppink}{\mathbf{H}_k \mathbf{P}_k \mathbf{H}_k^T} & – & \color{purple}{\mathbf{K}} \color{deeppink}{\mathbf{H}_k \mathbf{P}_k \mathbf{H}_k^T}
 \end{split}
 $$
@@ -185,7 +186,7 @@ $$
 $$
 \begin{equation}
 \begin{split}
-\color{royalblue}{\boldsymbol{\hat{x}}_k^{fused}} &= \color{fuchsia}{\boldsymbol{\hat{x}}_k} & + & \color{purple}{\mathbf{K}’} ( \color{yellowgreen}{{\boldsymbol{z}_k}} – \color{fuchsia}{\mathbf{H}_k \boldsymbol{\hat{x}}_k} ) \\
+\color{royalblue}{\boldsymbol{\hat{x}}_k^{fused}} &= \color{fuchsia}{\boldsymbol{\hat{x}}_k} & + & \color{purple}{\mathbf{K}’} ( \color{yellowgreen}{{\boldsymbol{z}_k}} – \color{fuchsia}{\mathbf{H}_k \boldsymbol{\hat{x}}_k} ) \\\
 \color{royalblue}{\mathbf{P}_k^{fused}} &= \color{deeppink}{\mathbf{P}_k} & – & \color{purple}{\mathbf{K}’} \color{deeppink}{\mathbf{H}_k \mathbf{P}_k}
 \end{split}
 \label{kalupdatefull}
@@ -234,8 +235,8 @@ $$
 
 $$
 \begin{split}
-Cov(\mathbf{A} \boldsymbol{x}) &= \mathbf{A} \boldsymbol{x} (\mathbf{A} \boldsymbol{x})^T \\
-&= \mathbf{A} \boldsymbol{x} \boldsymbol{x}^T \mathbf{A}^T \\
+Cov(\mathbf{A} \boldsymbol{x}) &= \mathbf{A} \boldsymbol{x} (\mathbf{A} \boldsymbol{x})^T \\\
+&= \mathbf{A} \boldsymbol{x} \boldsymbol{x}^T \mathbf{A}^T \\\
 &= \mathbf{A} \mathbf{\Sigma} \mathbf{A}^T
 \end{split}
 $$
@@ -250,8 +251,8 @@ $$
 $$
 \begin{split}
 p_{fused} &= \frac{1}{\sigma_1 \sqrt{2\pi}} e^{-\frac{(x-\mu_1)^2}{2\sigma_1^2}} \times
-\frac{1}{\sigma_2 \sqrt{2\pi}} e^{-\frac{(x-\mu_2)^2}{2\sigma_2^2}} \\
-&= \frac{1}{\sigma_1 \sigma_2 2\pi} e^{ - \left[ \frac{(x-\mu_1)^2}{2\sigma_1^2} + \frac{(x-\mu_2)^2}{2\sigma_2^2} \right]}  \\
+\frac{1}{\sigma_2 \sqrt{2\pi}} e^{-\frac{(x-\mu_2)^2}{2\sigma_2^2}} \\\
+&= \frac{1}{\sigma_1 \sigma_2 2\pi} e^{ - \left[ \frac{(x-\mu_1)^2}{2\sigma_1^2} + \frac{(x-\mu_2)^2}{2\sigma_2^2} \right]}  \\\
 &= \frac{1}{\sigma_{fused} \sqrt{2\pi}} e ^{-\frac{(x-\mu_{fused})^2}{2\sigma_{fused}^2}}
 \end{split}
 $$
@@ -260,7 +261,7 @@ $$
 
 $$
 \begin{split}
-\mu_{fused} &= \frac{\mu_1 \sigma_2^2 + \mu_2 \sigma_1^2} {\sigma_1^2 + \sigma_2^2} \\
+\mu_{fused} &= \frac{\mu_1 \sigma_2^2 + \mu_2 \sigma_1^2} {\sigma_1^2 + \sigma_2^2} \\\
 &= \mu_1 + \frac{\sigma_1^2(\mu_2 - \mu_1)}{\sigma_1^2 + \sigma_2^2}
 \end{split}
 $$
