@@ -3,9 +3,7 @@ title: cs231n作业1笔记
 author: pzhang
 date: 2018-10-10
 lastMod: 2018-10-10
-# markup: mmark
-# mathjax: true
-math: mathjax
+enableMath: true
 categories:
   - 计算机视觉
 tags:

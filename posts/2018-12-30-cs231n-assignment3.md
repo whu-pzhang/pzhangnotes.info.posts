@@ -3,7 +3,7 @@ title: cs231n作业3笔记
 author: pzhang
 date: 2018-12-20
 lastMod: 2018-12-20
-math: mathjax
+enableMath: true
 categories:
   - 计算机视觉
 tags:
@@ -13,6 +13,7 @@ tags:
   - cs231n
 draft: false
 slug: cs231n-assignment3
+toc: true
 ---
 
 ## 简介
@@ -39,19 +40,23 @@ RNN 需要预测一个和时间相关的量，其基本架构如下：
 
 每个时间步都要根据前一个状态和当前输入计算一个新的状态。
 
+<div>
 $$
 \begin{align}
-\boldsymbol{h}\_t &= f_W (\boldsymbol{h}\_{t-1}, \boldsymbol{x}\_t) \\\
-&\downarrow \\\
-\boldsymbol{h}\_t &= tanh (\mathbf{W}\_{hh}\boldsymbol{h}\_{t-1} + \mathbf{W}\_{xh} \boldsymbol{x}\_t)
+\boldsymbol{h}_t &= f_W (\boldsymbol{h}_{t-1}, \boldsymbol{x}\_t) \\
+&\downarrow \\
+\boldsymbol{h}_t &= tanh (\mathbf{W}_{hh}\boldsymbol{h}_{t-1} + \mathbf{W}_{xh} \boldsymbol{x}_t)
 \end{align}
 $$
+</div>
 
 向上的箭头为每个时间步的输出，是一个 softmax 层
 
+<div>
 $$
-\boldsymbol{y}_t = Softmax (\mathbf{W}\_{hy} * \boldsymbol{h}_t)
+\boldsymbol{y}_t = Softmax (\mathbf{W}_{hy} * \boldsymbol{h}_t)
 $$
+</div>
 
 根据上述公式，RNN 单元的 `rnn_step_forward` 如下：
 

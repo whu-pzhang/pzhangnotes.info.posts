@@ -3,9 +3,7 @@ title: 卡尔曼滤波
 author: pzhang
 date: 2018-09-27T22:20:58+08:00
 lastMod: 2018-11-15T21:01:58+08:00
-# markup: mmark
-# mathjax: true
-math: mathjax
+enableMath: true
 categories:
   - 计算机视觉
 tags:

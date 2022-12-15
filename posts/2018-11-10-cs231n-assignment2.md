@@ -5,7 +5,7 @@ date: 2018-11-10
 lastMod: 2018-11-10
 # markup: mmark
 # mathjax: true
-math: mathjax
+enableMath: true
 categories:
   - 计算机视觉
 tags:

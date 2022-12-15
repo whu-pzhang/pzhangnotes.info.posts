@@ -1,4 +1,4 @@
 ---
-title: "📚文章"
+title: "📚合集"
 hidemeta: true
 ---
